@@ -1,5 +1,8 @@
 package com.marker;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -87,7 +90,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_settings) {
 
         } else if (id == R.id.nav_info) {
-
+            OnAboutPressed();
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
@@ -98,4 +101,28 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+    public boolean OnAboutPressed(){
+        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+        alertDialog.setTitle("Acerca");
+        alertDialog.setMessage(
+            "App para Desarrollo de aplicaciones móbiles." + "\n\n" +
+            "Desarrollado por: " + "\n" +
+            "Ezequiel Ayzenberg" + "\n" +
+            "Fernando Velcic"  + "\n" +
+            "Francisco Bravo"  + "\n" +
+            "Sandro Damilano"  + "\n"
+        );
+
+        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Continuar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+        return true;
+    }
+
 }
