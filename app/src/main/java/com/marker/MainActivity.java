@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.audiofx.BassBoost;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,6 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.marker.contact.ContactActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_destinies) {
             // Handle the camera action
         } else if (id == R.id.nav_contacts) {
-
+            OnContactsPressed();
         } else if (id == R.id.nav_settings) {
             OnSettingsPressed();
         } else if (id == R.id.nav_info) {
@@ -104,6 +105,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void OnContactsPressed() {
+        startActivity(new Intent(this, ContactActivity.class));
     }
 
     public void OnSettingsPressed() {
