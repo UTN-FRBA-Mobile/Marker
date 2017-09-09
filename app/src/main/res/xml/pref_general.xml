@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sample="http://schemas.android.com/apk/res-auto">
+
+    <com.pavelsikun.seekbarpreference.SeekBarPreference
+        android:key="pr1"
+        android:title="@string/pref_title_radio"
+        android:summary="@string/pref_summary_radio"
+        android:defaultValue="100"
+
+        sample:msbp_minValue="50"
+        sample:msbp_maxValue="1000"
+        sample:msbp_interval="25"
+        sample:msbp_measurementUnit="metros"
+        sample:msbp_dialogEnabled="false"/>
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="incognito_switch"
+        android:summary="@string/pref_description_incognito_mode"
+        android:title="@string/pref_title_incognito_mode" />
+
+
+</PreferenceScreen>

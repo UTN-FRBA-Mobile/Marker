@@ -4,5 +4,29 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="title_activity_settings">Ajustes</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_incognito_mode">Modo incognito</string>
+    <string name="pref_description_incognito_mode">No enviar mi ubicación a mis amigos</string>
+
+
+    <string name="pref_title_radio">Radio</string>
+    <string name="pref_summary_radio">Radio de detección de amigos</string>
+    <string name="pref_measurementunit_radio">metros</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Notificaciones</string>
+
+    <string name="pref_title_new_message_notifications">Notificaciones de amigos</string>
+
+    <string name="pref_title_ringtone">Tono de notificación</string>
+    <string name="pref_ringtone_silent">Silenciar</string>
+
+    <string name="pref_title_vibrate">Vibración</string>
 </resources>
