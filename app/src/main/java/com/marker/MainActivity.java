@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.marker.contact.ContactActivity;
+import com.marker.lugar.LugarActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_destinies) {
-            // Handle the camera action
+            OnDestiniesPressed();
         } else if (id == R.id.nav_contacts) {
             OnContactsPressed();
         } else if (id == R.id.nav_settings) {
@@ -105,6 +106,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void OnDestiniesPressed() {
+        startActivity(new Intent(this, LugarActivity.class));
     }
 
     public void OnContactsPressed() {
