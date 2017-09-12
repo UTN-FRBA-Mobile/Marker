@@ -2,9 +2,16 @@ package com.marker;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -97,10 +104,8 @@ public class MainActivity extends AppCompatActivity
             OnSettingsPressed();
         } else if (id == R.id.nav_info) {
             OnAboutPressed();
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_test_notification) {
+            OnTestNotificationPressed();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -141,6 +146,23 @@ public class MainActivity extends AppCompatActivity
 
         alertDialog.show();
         return true;
+    }
+
+    public void OnTestNotificationPressed() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Uri notification = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
+        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+        r.play();
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        // Start without a delay
+        // Each element then alternates between vibrate, sleep, vibrate, sleep...
+        long[] pattern = {0, 100, 1000, 300, 200, 100, 500, 200, 100};
+
+        // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
+        v.vibrate(pattern, -1);
+
     }
 
 }
