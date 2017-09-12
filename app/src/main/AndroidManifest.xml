@@ -28,7 +28,6 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".contact.ContactActivity"></activity>
         <activity android:name=".lugar.LugarActivity" />
-        <activity android:name=".GoogleSignInActivity" />
     </application>
 
 </manifest>
