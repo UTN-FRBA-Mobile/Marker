@@ -106,6 +106,8 @@ public class MainActivity extends AppCompatActivity
             OnAboutPressed();
         } else if (id == R.id.nav_test_notification) {
             OnTestNotificationPressed();
+        } else if (id == R.id.nav_test_login) {
+            OnTestLoginPressed();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -124,7 +126,6 @@ public class MainActivity extends AppCompatActivity
     public void OnSettingsPressed() {
         startActivity(new Intent(this, SettingsActivity.class));
     }
-
 
     public boolean OnAboutPressed(){
         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
@@ -148,6 +149,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     public void OnTestNotificationPressed() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Uri notification = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
@@ -163,6 +165,10 @@ public class MainActivity extends AppCompatActivity
         // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
         v.vibrate(pattern, -1);
 
+    }
+
+    public void OnTestLoginPressed() {
+        startActivity(new Intent(this, GoogleSignInActivity.class));
     }
 
 }
