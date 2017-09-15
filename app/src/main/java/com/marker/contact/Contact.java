@@ -8,11 +8,13 @@ public class Contact {
     String name;
     String phone;
     String email;
+    Boolean checked;
 
     Contact(String name, String phone, String email){
         this.name = name;
         this.phone = phone;
         this.email = email;
+        this.checked = false;
     }
 
     public static final List<Contact> initializeData(){

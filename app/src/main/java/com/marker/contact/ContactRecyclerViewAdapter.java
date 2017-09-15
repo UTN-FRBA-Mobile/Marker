@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,6 +61,9 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         @BindView(R.id.textContact)
         TextView textViewContact;
 
+        @BindView(R.id.checkContact)
+        CheckBox checkContact;
+
         private Contact contact;
 
         public ViewHolder(View view) {
@@ -75,6 +79,11 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         @OnClick(R.id.card)
         void onClickCard() {
             Toast.makeText(context, contact.name, Toast.LENGTH_SHORT).show();
+        }
+
+        @OnClick(R.id.checkContact)
+        void onClickCheck() {
+            this.contact.checked = true;
         }
     }
 }
