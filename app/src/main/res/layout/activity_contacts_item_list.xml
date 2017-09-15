@@ -12,11 +12,12 @@
         android:layout_height="wrap_content"
         android:foreground="@drawable/ripple_custom">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="left|center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:weightSum="1">
 
             <ImageView
                 android:id="@+id/imageViewContact"
@@ -31,13 +32,18 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:text="Contact"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/imageViewContact" />
 
             <CheckBox
                 android:id="@+id/checkContact"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="17dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true" />
 
-        </LinearLayout>
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
