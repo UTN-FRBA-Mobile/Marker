@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -24,12 +25,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import com.marker.contact.ContactActivity;
 import com.marker.history.HistoryActivity;
 import com.marker.lugar.LugarActivity;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +53,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Se inicia el marker", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                OnContactsPressed();
             }
         });
 
@@ -56,6 +66,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         //startActivity(new Intent(this, LoginActivity.class));
     }
 
@@ -101,8 +114,6 @@ public class MainActivity extends AppCompatActivity
             OnDestiniesPressed();
         } else if (id == R.id.nav_histories) {
             OnHistoriesPressed();
-        } else if (id == R.id.nav_contacts) {
-            OnContactsPressed();
         } else if (id == R.id.nav_settings) {
             OnSettingsPressed();
         } else if (id == R.id.nav_info) {
@@ -176,4 +187,11 @@ public class MainActivity extends AppCompatActivity
         startActivity(new Intent(this, GoogleSignInActivity.class));
     }
 
+    @Override
+    public void onMapReady(GoogleMap map) {
+        LatLng latLng = new LatLng(-34.598608, -58.419917);
+        map.addMarker(new MarkerOptions().position(latLng).title("Marker"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+    }
 }
