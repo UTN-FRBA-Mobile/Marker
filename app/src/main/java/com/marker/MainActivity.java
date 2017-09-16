@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.marker.contact.ContactActivity;
+import com.marker.history.HistoryActivity;
 import com.marker.lugar.LugarActivity;
 
 public class MainActivity extends AppCompatActivity
@@ -37,11 +38,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start_track);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Se inicia el marker", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -98,6 +99,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_destinies) {
             OnDestiniesPressed();
+        } else if (id == R.id.nav_histories) {
+            OnHistoriesPressed();
         } else if (id == R.id.nav_contacts) {
             OnContactsPressed();
         } else if (id == R.id.nav_settings) {
@@ -118,6 +121,8 @@ public class MainActivity extends AppCompatActivity
     public void OnDestiniesPressed() {
         startActivity(new Intent(this, LugarActivity.class));
     }
+
+    public void OnHistoriesPressed() { startActivity(new Intent(this, HistoryActivity.class)); }
 
     public void OnContactsPressed() {
         startActivity(new Intent(this, ContactActivity.class));
