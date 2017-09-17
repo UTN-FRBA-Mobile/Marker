@@ -1,5 +1,6 @@
 package com.marker.history;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -54,5 +55,10 @@ public class HistoryActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void selectedHistory(Intent data){
+        setResult(RESULT_OK, data);
+        finish();
     }
 }

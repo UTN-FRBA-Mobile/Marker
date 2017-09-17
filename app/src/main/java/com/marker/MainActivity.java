@@ -30,15 +30,22 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.marker.contact.ContactActivity;
+import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.lugar.LugarActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
+
+    static final int PICK_HISTORY_REQUEST = 1;
+    private LatLng position = new LatLng(-34.598608, -58.419917);
+    private GoogleMap map;
+    private Marker marker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +140,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(new Intent(this, LugarActivity.class));
     }
 
-    public void OnHistoriesPressed() { startActivity(new Intent(this, HistoryActivity.class)); }
+    public void OnHistoriesPressed() { startActivityForResult(new Intent(this, HistoryActivity.class), PICK_HISTORY_REQUEST); }
 
     public void OnContactsPressed() {
         startActivity(new Intent(this, ContactActivity.class));
@@ -189,9 +196,31 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap map) {
-        LatLng latLng = new LatLng(-34.598608, -58.419917);
-        map.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0f));
+        this.map = map;
+        setMarker();
     }
+
+    private void setMarker() {
+        marker = this.map.addMarker(new MarkerOptions().position(position).title("Marker"));
+        this.map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+        this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+    }
+
+    private void updateMarker(){
+        marker.setPosition(position);
+        this.map.moveCamera(CameraUpdateFactory.newLatLng(this.marker.getPosition()));
+        this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == PICK_HISTORY_REQUEST){
+            if(resultCode == RESULT_OK){
+                History history = (History) data.getParcelableExtra("history");
+                position = history.position;
+                this.updateMarker();
+            }
+        }
+    }
+
 }

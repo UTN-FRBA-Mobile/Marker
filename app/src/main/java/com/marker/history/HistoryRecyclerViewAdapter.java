@@ -1,6 +1,8 @@
 package com.marker.history;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -50,7 +52,6 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         notifyDataSetChanged();
     }
 
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.card)
         CardView card;
@@ -75,7 +76,11 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Toast.makeText(context, history.location, Toast.LENGTH_SHORT).show();
+            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("history", history);
+            parentActivity.setResult(Activity.RESULT_OK, resultIntent);
+            parentActivity.finish();
         }
     }
 }
