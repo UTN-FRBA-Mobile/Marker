@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity
         OnMapReadyCallback {
 
     static final int PICK_HISTORY_REQUEST = 1;
-    private LatLng position = new LatLng(-34.598608, -58.419917);
     private GoogleMap map;
+    private LatLng position = new LatLng(-34.598608, -58.419917);
     private Marker marker;
 
     @Override
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -201,15 +201,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setMarker() {
-        marker = this.map.addMarker(new MarkerOptions().position(position).title("Marker"));
-        this.map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-        this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+        marker = map.addMarker(new MarkerOptions().position(position).title("Marker"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
     }
 
     private void updateMarker(){
         marker.setPosition(position);
-        this.map.moveCamera(CameraUpdateFactory.newLatLng(this.marker.getPosition()));
-        this.map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+        map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
     }
 
     @Override
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == PICK_HISTORY_REQUEST){
             if(resultCode == RESULT_OK){
                 History history = (History) data.getParcelableExtra("history");
-                position = history.position;
+                this.position = history.position;
                 this.updateMarker();
             }
         }
