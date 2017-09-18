@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -25,27 +24,23 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.lugar.LugarActivity;
+import com.marker.map.MarkerMap;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
 
     static final int PICK_HISTORY_REQUEST = 1;
-    private GoogleMap map;
-    private LatLng position = new LatLng(-34.598608, -58.419917);
-    private Marker marker;
+    private MarkerMap map = new MarkerMap();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,20 +191,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onMapReady(GoogleMap map) {
-        this.map = map;
-        setMarker();
-    }
-
-    private void setMarker() {
-        marker = map.addMarker(new MarkerOptions().position(position).title("Marker"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
-    }
-
-    private void updateMarker(){
-        marker.setPosition(position);
-        map.moveCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 15.0f));
+        this.map.setMap(map);
     }
 
     @Override
@@ -217,8 +199,8 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == PICK_HISTORY_REQUEST){
             if(resultCode == RESULT_OK){
                 History history = (History) data.getParcelableExtra("history");
-                this.position = history.position;
-                this.updateMarker();
+                this.map.setPosition(history.position);
+                this.map.updateCamera();
             }
         }
     }
