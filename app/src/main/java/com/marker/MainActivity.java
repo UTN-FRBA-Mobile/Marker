@@ -39,8 +39,7 @@ public class MainActivity extends AppCompatActivity
         OnMapReadyCallback {
 
     static final int PICK_HISTORY_REQUEST = 1;
-    private MarkerMap map = new MarkerMap();
-
+    private MarkerMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +67,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        map = new MarkerMap(this);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         //startActivity(new Intent(this, LoginActivity.class));
     }
 

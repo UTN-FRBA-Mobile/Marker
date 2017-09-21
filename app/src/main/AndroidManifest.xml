@@ -36,6 +36,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBFjx3w5bJfMj_l2Q_iRVHvJbIB7bexbW8"
             />
+        <service android:name=".GeofenceTransitionsIntentService"/>
     </application>
 
 </manifest>
