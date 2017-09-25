@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "133618927338",
-    "firebase_url": "https://marker-78b59.firebaseio.com",
-    "project_id": "marker-78b59",
-    "storage_bucket": "marker-78b59.appspot.com"
+    "project_number": "613733546006",
+    "firebase_url": "https://marker-aaf0b.firebaseio.com",
+    "project_id": "marker-aaf0b",
+    "storage_bucket": "marker-aaf0b.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:133618927338:android:38e822f66125dd56",
+        "mobilesdk_app_id": "1:613733546006:android:38e822f66125dd56",
         "android_client_info": {
           "package_name": "com.marker"
         }
       },
       "oauth_client": [
         {
-          "client_id": "133618927338-jfe8go3c6v7k578qi73l99bj39lqtcg8.apps.googleusercontent.com",
+          "client_id": "613733546006-iju6hbcc88iavhqt9shee3lufv0kgmji.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.marker",
@@ -23,13 +23,13 @@
           }
         },
         {
-          "client_id": "133618927338-torirq2ok4g7fhqnbm48b06lbqsnmeme.apps.googleusercontent.com",
+          "client_id": "613733546006-f0knbilnf43p6kbqiarj1r0q9matvujh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAWS_Z3VybarCYY2oRKBCauMgiUdO8GZyc"
+          "current_key": "AIzaSyB7YSXCoFYb0HnNtG0ggDRMDrS-gKXK4Q8"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "133618927338-torirq2ok4g7fhqnbm48b06lbqsnmeme.apps.googleusercontent.com",
+              "client_id": "613733546006-f0knbilnf43p6kbqiarj1r0q9matvujh.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
