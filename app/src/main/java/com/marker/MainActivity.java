@@ -23,23 +23,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback {
 
     static final int PICK_HISTORY_REQUEST = 1;
+    static final int PICK_CONTACT_REQUEST = 2;
     private MarkerMap map;
+    private Contact contact;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,12 +204,26 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == PICK_HISTORY_REQUEST){
-            if(resultCode == RESULT_OK){
-                History history = (History) data.getParcelableExtra("history");
-                this.map.setPosition(history.position);
-                this.map.updateCamera();
-            }
+        switch(requestCode) {
+            case PICK_HISTORY_REQUEST:
+                if(resultCode == RESULT_OK){
+                    History history = (History) data.getParcelableExtra("history");
+                    this.map.setPosition(history.position);
+                    this.map.updateCamera();
+
+                    startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
+                }
+                break;
+            case PICK_CONTACT_REQUEST:
+                if(resultCode == RESULT_OK){
+                    Contact contact = (Contact) data.getParcelableExtra("contact");
+                    Bundle extras = data.getExtras();
+                    ArrayList<Contact> selectedContacts = extras.getParcelableArrayList("selectedContacts");
+
+                    this.contact = selectedContacts.get(0);
+                    Toast.makeText(this, this.contact.name, Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
     }
 

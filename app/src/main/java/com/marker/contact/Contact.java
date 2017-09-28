@@ -1,11 +1,13 @@
 package com.marker.contact;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Contact {
-    String name;
+public class Contact implements Parcelable {
+    public String name;
     String phone;
     String email;
     Boolean checked;
@@ -25,6 +27,41 @@ public class Contact {
         contacts.add(new Contact("Sandro", "1188888888", "sandro@android.com"));
         return contacts;
     }
+
+    // Parcelling part
+    public Contact(Parcel in){
+        String[] data = new String[4];
+
+        in.readStringArray(data);
+        // the order needs to be the same as in writeToParcel() method
+        this.name = data[0];
+        this.phone = data[1];
+        this.email = data[2];
+        this.checked = Boolean.valueOf(data[3]);
+    }
+
+    @Override
+    public int describeContents(){
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeStringArray(new String[]
+                { this.name,
+                  this.phone,
+                  this.email,
+                  String.valueOf(this.checked)
+                });
+    }
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public Contact createFromParcel(Parcel in) {
+            return new Contact(in);
+        }
+
+        public Contact[] newArray(int size) {
+            return new Contact[size];
+        }
+    };
 };
-
-

@@ -1,5 +1,6 @@
 package com.marker.contact;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -84,6 +85,8 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         @OnClick(R.id.checkContact)
         void onClickCheck() {
             this.contact.checked = true;
+            ContactActivity parentActivity = (ContactActivity) ContactRecyclerViewAdapter.this.context;
+            parentActivity.selectedContacts.add(this.contact);
         }
     }
 }
