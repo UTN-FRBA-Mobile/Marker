@@ -23,7 +23,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -44,8 +43,9 @@ public class MainActivity extends AppCompatActivity
 
     static final int PICK_HISTORY_REQUEST = 1;
     static final int PICK_CONTACT_REQUEST = 2;
+    static final int PICK_LUGAR_REQUEST = 3;
     private MarkerMap map;
-    private Contact contact;
+    private ArrayList<Contact> sharedContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,20 +209,19 @@ public class MainActivity extends AppCompatActivity
                 if(resultCode == RESULT_OK){
                     History history = (History) data.getParcelableExtra("history");
                     this.map.setPosition(history.position);
-                    this.map.updateCamera();
 
                     startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
                 }
                 break;
             case PICK_CONTACT_REQUEST:
                 if(resultCode == RESULT_OK){
-                    Contact contact = (Contact) data.getParcelableExtra("contact");
                     Bundle extras = data.getExtras();
-                    ArrayList<Contact> selectedContacts = extras.getParcelableArrayList("selectedContacts");
+                    this.sharedContacts = extras.getParcelableArrayList("selectedContacts");
 
-                    this.contact = selectedContacts.get(0);
-                    Toast.makeText(this, this.contact.name, Toast.LENGTH_SHORT).show();
+                    this.map.updateCamera();
                 }
+                break;
+            case PICK_LUGAR_REQUEST:
                 break;
         }
     }
