@@ -1,19 +1,25 @@
 package com.marker;
 
+import android.*;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,10 +30,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
@@ -36,6 +46,7 @@ import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -44,6 +55,9 @@ public class MainActivity extends AppCompatActivity
     static final int PICK_HISTORY_REQUEST = 1;
     static final int PICK_CONTACT_REQUEST = 2;
     static final int PICK_LUGAR_REQUEST = 3;
+    static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+
+    private FusedLocationProviderClient mFusedLocationClient;
     private MarkerMap map;
     private ArrayList<Contact> sharedContacts;
 
@@ -78,6 +92,8 @@ public class MainActivity extends AppCompatActivity
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         //startActivity(new Intent(this, LoginActivity.class));
     }
@@ -223,6 +239,145 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PICK_LUGAR_REQUEST:
                 break;
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        if (!checkPermissions()) {
+            requestPermissions();
+        } else {
+            getLastLocation();
+        }
+    }
+
+    /**
+     * Provides a simple way of getting a device's location and is well suited for
+     * applications that do not require a fine-grained location and that do not need location
+     * updates. Gets the best and most recent location currently available, which may be null
+     * in rare cases when a location is not available.
+     * <p>
+     * Note: this method should be called after location permission has been granted.
+     */
+    @SuppressWarnings("MissingPermission")
+    private void getLastLocation() {
+        map.setContext(this);
+        mFusedLocationClient.getLastLocation()
+                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            map.setLocation(task.getResult());
+                        } else {
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Shows a {@link Snackbar} using {@code text}.
+     *
+     * @param text The Snackbar text.
+     */
+    private void showSnackbar(final String text) {
+        View container = findViewById(R.id.map);
+        if (container != null) {
+            Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * Shows a {@link Snackbar}.
+     *
+     * @param mainTextStringId The id for the string resource for the Snackbar text.
+     * @param actionStringId   The text of the action item.
+     * @param listener         The listener associated with the Snackbar action.
+     */
+    private void showSnackbar(final int mainTextStringId, final int actionStringId,
+                              View.OnClickListener listener) {
+        Snackbar.make(findViewById(android.R.id.content),
+                getString(mainTextStringId),
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(actionStringId), listener).show();
+    }
+
+    /**
+     * Return the current state of the permissions needed.
+     */
+    private boolean checkPermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void startLocationPermissionRequest() {
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                REQUEST_PERMISSIONS_REQUEST_CODE);
+    }
+
+    private void requestPermissions() {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if (shouldProvideRationale) {
+
+            showSnackbar(R.string.permission_rationale, android.R.string.ok,
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startLocationPermissionRequest();
+                        }
+                    });
+
+        } else {
+            startLocationPermissionRequest();
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.length <= 0) {
+
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted.
+                getLastLocation();
+            } else {
+                // Permission denied.
+
+                // Notify the user via a SnackBar that they have rejected a core permission for the
+                // app, which makes the Activity useless. In a real app, core permissions would
+                // typically be best requested during a welcome-screen flow.
+
+                // Additionally, it is important to remember that a permission might have been
+                // rejected without asking the user for permission (device policy or "Never ask
+                // again" prompts). Therefore, a user interface affordance is typically implemented
+                // when permissions are denied. Otherwise, your app could appear unresponsive to
+                // touches or interactions which have required permissions.
+                showSnackbar(R.string.permission_denied_explanation, R.string.action_settings,
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // Build intent that displays the App settings screen.
+                                Intent intent = new Intent();
+                                intent.setAction(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package",
+                                        BuildConfig.APPLICATION_ID, null);
+                                intent.setData(uri);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        });
+            }
         }
     }
 

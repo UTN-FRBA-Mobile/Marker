@@ -1,17 +1,25 @@
 package com.marker.map;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.marker.R;
 
 
 public class MarkerMap {
@@ -21,6 +29,7 @@ public class MarkerMap {
     public static final String ANDROID_BUILDING_ID = "1";
     public static final float ANDROID_BUILDING_RADIUS_METERS = 200.0f; // A sacar de las settings
 
+    private Context context;
     private GoogleMap map;
     private Marker marker;
     private Circle circle;
@@ -49,12 +58,33 @@ public class MarkerMap {
         this.map = map;
     }
 
+    public void setContext(Context context){
+        this.context = context;
+    }
+
     public void setPosition(LatLng position){
         if(marker == null){
             addMarker(position);
         } else {
             marker.setPosition(position);
         }
+    }
+
+    public Location getLocation(){
+        return this.userLocation;
+    }
+
+    public void setLocation(Location location){
+        this.userLocation = location;
+
+        LatLng latLng = new LatLng(this.userLocation.getLatitude(),this.userLocation.getLongitude());
+
+
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_bitmap);
+
+        map.addMarker(new MarkerOptions().position(latLng)
+                .title("Location")
+                .icon(icon));
     }
 
     public void addMarker(LatLng position){
