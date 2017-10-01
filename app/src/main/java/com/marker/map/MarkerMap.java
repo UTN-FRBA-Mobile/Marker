@@ -37,6 +37,7 @@ public class MarkerMap {
     private SimpleGeoFence geoFence;
 
     public MarkerMap(Context context){
+        this.context = context;
     }
 
     public void createGeofences(LatLng position) {

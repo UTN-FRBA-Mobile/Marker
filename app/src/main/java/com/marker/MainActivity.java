@@ -97,6 +97,8 @@ public class MainActivity extends AppCompatActivity
 
         this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
 
+        this.validateLocation();
+
         //startActivity(new Intent(this, LoginActivity.class));
     }
 
@@ -244,17 +246,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
 
+    private void validateLocation() {
         if (!checkPermissions()) {
             requestPermissions();
         } else {
             this.getLocationOnMap();
         }
     }
-
 
 
     /**
@@ -343,7 +342,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getLocationOnMap(){
-        map.setContext(this);
         locator.getLastLocation()
                 .addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
