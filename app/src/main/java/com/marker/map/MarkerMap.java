@@ -106,5 +106,9 @@ public class MarkerMap {
         circle.setCenter(marker.getPosition());
     }
 
-
+    public void updateCameraOnLocation(){
+        LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0f));
+    }
 }

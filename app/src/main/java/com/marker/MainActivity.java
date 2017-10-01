@@ -350,6 +350,7 @@ public class MainActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful() && task.getResult() != null) {
                             map.setLocation(task.getResult());
+                            map.updateCameraOnLocation();
                         } else {
                         }
                     }
