@@ -96,6 +96,11 @@ public class GMailContacts extends AbstractActivityContacts {
             List<Message> messages = messagesResponse.getMessages();
             cantMensajes = messages.size();
             for (int i = 0; i < cantMensajes; i++) {
+
+                //Actualizar el progreso...
+                progreso = i;
+                publishProgress();
+
                 Message message = messages.get(i);
                 if (message == null) {
                     continue;
@@ -119,6 +124,7 @@ public class GMailContacts extends AbstractActivityContacts {
                 //Se extrae el mail de entre los < >
                 mail = extractor.extraer(mail);
 
+
                 if (mail.contains("no-reply") ||
                         mail.contains("noreply")) {
                     //mensajes automaticos
@@ -129,8 +135,6 @@ public class GMailContacts extends AbstractActivityContacts {
                     continue;
                 }
                 mails.add(mail);
-                progreso = i;
-                publishProgress();
             }
 
             return new ArrayList<>(mails);
