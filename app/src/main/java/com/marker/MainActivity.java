@@ -29,7 +29,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,8 +40,10 @@ import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
+import com.marker.locator.Locator;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
+import com.marker.permission.Permission;
 
 import java.util.ArrayList;
 
@@ -55,9 +56,10 @@ public class MainActivity extends AppCompatActivity
     static final int PICK_LUGAR_REQUEST = 3;
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
-    private FusedLocationProviderClient mFusedLocationClient;
     private MarkerMap map;
     private ArrayList<Contact> sharedContacts;
+    private Permission permission = new Permission(this);
+    private Locator locator = new Locator();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +93,9 @@ public class MainActivity extends AppCompatActivity
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
+
+        this.validateLocation();
 
         //startActivity(new Intent(this, LoginActivity.class));
     }
@@ -246,39 +250,15 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
 
+    private void validateLocation() {
         if (!checkPermissions()) {
             requestPermissions();
         } else {
-            getLastLocation();
+            this.getLocationOnMap();
         }
     }
 
-    /**
-     * Provides a simple way of getting a device's location and is well suited for
-     * applications that do not require a fine-grained location and that do not need location
-     * updates. Gets the best and most recent location currently available, which may be null
-     * in rare cases when a location is not available.
-     * <p>
-     * Note: this method should be called after location permission has been granted.
-     */
-    @SuppressWarnings("MissingPermission")
-    private void getLastLocation() {
-        map.setContext(this);
-        mFusedLocationClient.getLastLocation()
-                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            map.setLocation(task.getResult());
-                        } else {
-                        }
-                    }
-                });
-    }
 
     /**
      * Shows a {@link Snackbar} using {@code text}.
@@ -299,7 +279,7 @@ public class MainActivity extends AppCompatActivity
      * @param actionStringId   The text of the action item.
      * @param listener         The listener associated with the Snackbar action.
      */
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
+    public void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(findViewById(android.R.id.content),
                 getString(mainTextStringId),
@@ -311,35 +291,15 @@ public class MainActivity extends AppCompatActivity
      * Return the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
+        return this.permission.checkPermissions();
     }
 
-    private void startLocationPermissionRequest() {
-        ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                REQUEST_PERMISSIONS_REQUEST_CODE);
+    public void startLocationPermissionRequest() {
+        this.permission.startLocationPermissionRequest();
     }
 
     private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION);
-
-        if (shouldProvideRationale) {
-
-            showSnackbar(R.string.permission_rationale, android.R.string.ok,
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            startLocationPermissionRequest();
-                        }
-                    });
-
-        } else {
-            startLocationPermissionRequest();
-        }
+        this.permission.requestPermissions();
     }
 
     /**
@@ -353,7 +313,7 @@ public class MainActivity extends AppCompatActivity
 
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted.
-                getLastLocation();
+                this.getLocationOnMap();
             } else {
                 // Permission denied.
 
@@ -385,4 +345,17 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void getLocationOnMap(){
+        locator.getLastLocation()
+                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful() && task.getResult() != null) {
+                            map.setLocation(task.getResult());
+                            map.updateCameraOnLocation();
+                        } else {
+                        }
+                    }
+                });
+    }
 }

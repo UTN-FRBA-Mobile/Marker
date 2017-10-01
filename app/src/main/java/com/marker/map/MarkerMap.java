@@ -37,6 +37,7 @@ public class MarkerMap {
     private SimpleGeoFence geoFence;
 
     public MarkerMap(Context context){
+        this.context = context;
     }
 
     public void createGeofences(LatLng position) {
@@ -106,5 +107,9 @@ public class MarkerMap {
         circle.setCenter(marker.getPosition());
     }
 
-
+    public void updateCameraOnLocation(){
+        LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+        map.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0f));
+    }
 }
