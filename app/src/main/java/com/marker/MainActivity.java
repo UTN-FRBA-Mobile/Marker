@@ -1,6 +1,5 @@
 package com.marker;
 
-import android.*;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -46,7 +45,6 @@ import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -148,11 +146,17 @@ public class MainActivity extends AppCompatActivity
             OnTestNotificationPressed();
         } else if (id == R.id.nav_test_login) {
             OnTestLoginPressed();
+        } else if (id == R.id.nav_test_gmail) {
+            OnTestGmailContactsPressed();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void OnTestGmailContactsPressed() {
+        startActivity(new Intent(this, GMailContacts.class));
     }
 
     public void OnDestiniesPressed() {

@@ -30,6 +30,10 @@
                 android:id="@+id/nav_test_login"
                 android:icon="@drawable/ic_account_box_black_24dp"
                 android:title="Login" />
+            <item
+                android:id="@+id/nav_test_gmail"
+                android:icon="@drawable/ic_mail_outline_black_24dp"
+                android:title="Contactos Gmail" />
         </menu>
     </item>
 
