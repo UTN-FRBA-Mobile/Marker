@@ -39,9 +39,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:11.2.0'
     compile 'com.google.android.gms:play-services-maps:11.2.0'
     compile 'com.google.android.gms:play-services-location:11.2.0'
-//    compile 'com.google.android.gms:play-services-base:11.2.0'
-//    compile 'com.google.http-client:google-http-client-android:1.22.0'
-//    compile group: 'com.google.gdata', name: 'core', version: '1.47.1'
     compile 'com.google.apis:google-api-services-people:v1-rev140-1.22.0'
     compile 'pub.devrel:easypermissions:0.3.0'
     compile('com.google.api-client:google-api-client-android:1.22.0') {
