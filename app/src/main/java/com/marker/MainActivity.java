@@ -152,16 +152,19 @@ public class MainActivity extends AppCompatActivity
             OnTestLoginPressed();
         } else if (id == R.id.nav_test_gmail) {
             OnTestGmailContactsPressed();
+        } else if (id == R.id.nav_test_people_gmail) {
+            OnTestPeopleGmailContactsPressed();
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void OnTestGmailContactsPressed() {
-        startActivity(new Intent(this, GMailContacts.class));
-    }
+    public void OnTestGmailContactsPressed() { startActivity(new Intent(this, GMailContacts.class)); }
+
+    public void OnTestPeopleGmailContactsPressed() { startActivity(new Intent(this, PeopleContacts.class)); }
 
     public void OnDestiniesPressed() {
         startActivity(new Intent(this, LugarActivity.class));
