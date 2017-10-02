@@ -29,7 +29,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -55,11 +60,13 @@ public class MainActivity extends AppCompatActivity
     static final int PICK_CONTACT_REQUEST = 2;
     static final int PICK_LUGAR_REQUEST = 3;
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
 
     private MarkerMap map;
     private ArrayList<Contact> sharedContacts;
     private Permission permission = new Permission(this);
     private Locator locator = new Locator();
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +94,11 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
 
         map = new MarkerMap(this);
         SupportMapFragment mapFragment =
@@ -127,6 +139,17 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_search) {
+            try {
+                Intent intent =
+                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                .build(this);
+                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            } catch (GooglePlayServicesRepairableException e) {
+                // TODO: Handle the error.
+            } catch (GooglePlayServicesNotAvailableException e) {
+                // TODO: Handle the error.
+            }
         }
 
         return super.onOptionsItemSelected(item);
