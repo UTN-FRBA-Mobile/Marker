@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -28,11 +29,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.GoogleMap;
@@ -273,6 +277,19 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PICK_LUGAR_REQUEST:
                 break;
+            case PLACE_AUTOCOMPLETE_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    map.addMarker(place.getLatLng());
+                    map.updateCamera();
+                    Log.i("Info", "Place: " + place.getName());
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    Status status = PlaceAutocomplete.getStatus(this, data);
+                    // TODO: Handle the error.
+                    Log.i("Error", status.getStatusMessage());
+                } else if (resultCode == RESULT_CANCELED) {
+                    // The user canceled the operation.
+                }
         }
     }
 
