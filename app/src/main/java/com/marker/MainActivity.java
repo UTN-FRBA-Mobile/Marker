@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
                     Place place = PlaceAutocomplete.getPlace(this, data);
-                    map.addMarker(place.getLatLng());
+                    map.setPosition(place.getLatLng());
                     map.updateCamera();
                     Log.i("Info", "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
