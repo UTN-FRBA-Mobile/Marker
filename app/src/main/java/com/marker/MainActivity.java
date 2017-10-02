@@ -98,13 +98,19 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mGoogleApiClient = new GoogleApiClient
+        initialize_geo();
+
+        //startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    private void initialize_geo() {
+        this.mGoogleApiClient = new GoogleApiClient
                 .Builder(this)
                 .addApi(Places.GEO_DATA_API)
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
 
-        map = new MarkerMap(this);
+        this.map = new MarkerMap(this);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -112,8 +118,6 @@ public class MainActivity extends AppCompatActivity
         this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
 
         this.validateLocation();
-
-        //startActivity(new Intent(this, LoginActivity.class));
     }
 
     @Override
