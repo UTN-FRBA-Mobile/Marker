@@ -93,4 +93,7 @@
     <string name="permission_denied_explanation">Permission was denied, but is needed for core
         functionality.
     </string>
+
+    <string name="facebook_app_id">353969525063305</string>
+    <string name="fb_login_protocol_scheme">fb353969525063305</string>
 </resources>

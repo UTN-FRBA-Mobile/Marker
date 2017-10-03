@@ -160,7 +160,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void OnTestGmailContactsPressed() {
-        startActivity(new Intent(this, GMailContacts.class));
     }
 
     public void OnDestiniesPressed() {
