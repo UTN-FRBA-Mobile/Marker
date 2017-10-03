@@ -39,6 +39,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:11.2.0'
     compile 'com.google.android.gms:play-services-maps:11.2.0'
     compile 'com.google.android.gms:play-services-location:11.2.0'
+    compile 'com.google.android.gms:play-services-places:11.2.0'
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     // Facbeook Messenger only
     compile group: 'com.facebook.android', name: 'facebook-messenger', version: '4.27.0'

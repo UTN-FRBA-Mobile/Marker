@@ -37,7 +37,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBFjx3w5bJfMj_l2Q_iRVHvJbIB7bexbW8"
+            android:value="AIzaSyB7YSXCoFYb0HnNtG0ggDRMDrS-gKXK4Q8"
             />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <service android:name=".GeofenceTransitionsIntentService"/>

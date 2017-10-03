@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -28,8 +29,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -55,11 +64,13 @@ public class MainActivity extends AppCompatActivity
     static final int PICK_CONTACT_REQUEST = 2;
     static final int PICK_LUGAR_REQUEST = 3;
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
 
     private MarkerMap map;
     private ArrayList<Contact> sharedContacts;
     private Permission permission = new Permission(this);
     private Locator locator = new Locator();
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +98,19 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        initialize_geo();
 
-        map = new MarkerMap(this);
+        //startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    private void initialize_geo() {
+        this.mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .build();
+
+        this.map = new MarkerMap(this);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -96,8 +118,6 @@ public class MainActivity extends AppCompatActivity
         this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
 
         this.validateLocation();
-
-        //startActivity(new Intent(this, LoginActivity.class));
     }
 
     @Override
@@ -127,6 +147,17 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_search) {
+            try {
+                Intent intent =
+                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                .build(this);
+                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            } catch (GooglePlayServicesRepairableException e) {
+                // TODO: Handle the error.
+            } catch (GooglePlayServicesNotAvailableException e) {
+                // TODO: Handle the error.
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -152,7 +183,9 @@ public class MainActivity extends AppCompatActivity
             OnTestLoginPressed();
         } else if (id == R.id.nav_test_gmail) {
             OnTestGmailContactsPressed();
+        } else if (id == R.id.nav_test_people_gmail) {
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -246,6 +279,19 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PICK_LUGAR_REQUEST:
                 break;
+            case PLACE_AUTOCOMPLETE_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    Place place = PlaceAutocomplete.getPlace(this, data);
+                    map.setPosition(place.getLatLng());
+                    map.updateCamera();
+                    Log.i("Info", "Place: " + place.getName());
+                } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
+                    Status status = PlaceAutocomplete.getStatus(this, data);
+                    // TODO: Handle the error.
+                    Log.i("Error", status.getStatusMessage());
+                } else if (resultCode == RESULT_CANCELED) {
+                    // The user canceled the operation.
+                }
         }
     }
 
