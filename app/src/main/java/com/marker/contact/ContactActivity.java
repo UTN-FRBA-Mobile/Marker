@@ -13,7 +13,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.google.gson.Gson;
 import com.marker.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +29,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ContactActivity extends AppCompatActivity {
+public class ContactActivity extends AppCompatActivity implements GraphRequest.Callback {
     public ArrayList<Contact> selectedContacts = new ArrayList<>();
 
     @BindView(R.id.rv_contacts)
@@ -43,6 +51,12 @@ public class ContactActivity extends AppCompatActivity {
         List<Contact> contacts = Contact.initializeData();
 
         adapter.setItems(contacts);
+
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        if (token != null) {
+            new GraphRequest(token, "me/friends",
+                    null, HttpMethod.GET, this).executeAsync();
+        }
     }
 
     private void setupActionBar() {
@@ -74,5 +88,21 @@ public class ContactActivity extends AppCompatActivity {
                 this.finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCompleted(GraphResponse response) {
+        try {
+            List<Contact> contacts = Contact.initializeData();
+            JSONArray data = (JSONArray) response.getJSONObject().get("data");
+            FBUser[] amigos = new Gson().fromJson(data.toString(), FBUser[].class);
+            for (FBUser amigo : amigos) {
+                contacts.add(new Contact(amigo.getName(), "", amigo.getEmail()));
+            }
+            adapter.setItems(contacts);
+        } catch (JSONException e) {
+            //No tiene campo data
+            e.printStackTrace();
+        }
     }
 }
