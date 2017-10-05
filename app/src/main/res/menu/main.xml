@@ -6,12 +6,14 @@
         android:orderInCategory="100"
         android:title="search"
         android:icon="@drawable/ic_search"
-        app:showAsAction="always"
-        app:srcCompat="@drawable/ic_arrow_forward"/>
+        app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_settings"
+    <group android:id="@+id/action_track"
+        android:icon="@drawable/ic_track_changes"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="always">
+        <item android:id="@+id/tracked_0"
+            android:title="Yo" />
+    </group>
 </menu>
