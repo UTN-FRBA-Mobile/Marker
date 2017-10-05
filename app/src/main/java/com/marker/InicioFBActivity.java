@@ -6,16 +6,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
-import com.facebook.AccessTokenManager;
-import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
@@ -44,8 +40,6 @@ public class InicioFBActivity extends AppCompatActivity implements FacebookCallb
     private static final String TAG = "InicioFBActivity";
     @BindView(R.id.fb_login_button)
     protected LoginButton loginButton;
-    @BindView(R.id.lista_amigos)
-    protected TextView listaAmigos;
 
     private CallbackManager callbackManager;
     private FirebaseAuth mAuth;
@@ -137,12 +131,6 @@ public class InicioFBActivity extends AppCompatActivity implements FacebookCallb
             //Obtengo amigos..
             JSONArray data = (JSONArray) response.getJSONObject().get("data");
             FBUser[] amigos = new Gson().fromJson(data.toString(), FBUser[].class);
-
-            //Muestro en pantalla..
-            listaAmigos.setText("");
-            for (FBUser amigo : amigos) {
-                listaAmigos.append("\n"+amigo.getName());
-            }
 
             //Persisto lo obtenido en Firebase
             FirebaseUser user = mAuth.getCurrentUser();
