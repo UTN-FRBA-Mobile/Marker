@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -17,6 +18,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.R;
@@ -57,6 +59,7 @@ public class MarkerMap {
 
     public void setMap(GoogleMap map){
         this.map = map;
+        this.map.getUiSettings().setMapToolbarEnabled(false);
     }
 
     public void setContext(Context context){
@@ -77,11 +80,10 @@ public class MarkerMap {
 
     public void setLocation(Location location){
         this.userLocation = location;
+        LatLng latLng = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
 
-        LatLng latLng = new LatLng(this.userLocation.getLatitude(),this.userLocation.getLongitude());
 
-
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_bitmap);
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location);
 
         map.addMarker(new MarkerOptions().position(latLng)
                 .title("Location")
@@ -111,5 +113,25 @@ public class MarkerMap {
         LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
         map.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0f));
+    }
+
+    public void centerCamera(){
+        if(marker == null){
+            updateCameraOnLocation();
+        } else if(userLocation == null){
+            updateCamera();
+        } else if(marker != null && userLocation != null){
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
+            builder.include(marker.getPosition());
+            builder.include(userLatLng);
+            LatLngBounds bounds = builder.build();
+            int width = context.getResources().getDisplayMetrics().widthPixels;
+            int height = context.getResources().getDisplayMetrics().heightPixels;
+            int padding = (int) (width * 0.30); // offset from edges of the map 10% of screen
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+        } else {
+
+        }
     }
 }

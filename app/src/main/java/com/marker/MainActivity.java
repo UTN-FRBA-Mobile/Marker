@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -18,8 +17,10 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+import android.support.v7.view.menu.MenuView;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -29,7 +30,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -43,8 +43,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
@@ -66,11 +64,15 @@ public class MainActivity extends AppCompatActivity
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
 
-    private MarkerMap map;
-    private ArrayList<Contact> sharedContacts;
-    private Permission permission = new Permission(this);
-    private Locator locator = new Locator();
+    private static final String TAG = "MainActivity";
+
+    public MarkerMap map;
+    private ArrayList<Contact> trackedContacts = Contact.initializeData();
+    public Permission permission = new Permission(this);
+    private Locator locator = new Locator(this);
     private GoogleApiClient mGoogleApiClient;
+    // TODO: agregar una propiedad que sea el usuario trackeado con el marker
+    private Menu mOptionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         initialize_geo();
 
         //startActivity(new Intent(this, LoginActivity.class));
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity
 
         this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
 
-        this.validateLocation();
+        this.locator.getLocation();
     }
 
     @Override
@@ -134,6 +137,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        mOptionsMenu = menu;
         return true;
     }
 
@@ -145,7 +149,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_track) {
             return true;
         } else if (id == R.id.action_search) {
             try {
@@ -158,6 +162,12 @@ public class MainActivity extends AppCompatActivity
             } catch (GooglePlayServicesNotAvailableException e) {
                 // TODO: Handle the error.
             }
+        } else if(id == R.id.tracked_0){
+            showSnackbar("Yo");
+        } else if(id == 1) {
+            showSnackbar("Contacto 1");
+        } else if(id == 2) {
+            showSnackbar("Contacto 2");
         }
 
         return super.onOptionsItemSelected(item);
@@ -186,7 +196,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_test_people_gmail) {
         }
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -202,7 +211,7 @@ public class MainActivity extends AppCompatActivity
     public void OnHistoriesPressed() { startActivityForResult(new Intent(this, HistoryActivity.class), PICK_HISTORY_REQUEST); }
 
     public void OnContactsPressed() {
-        startActivity(new Intent(this, ContactActivity.class));
+        startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
     }
 
     public void OnSettingsPressed() {
@@ -271,10 +280,17 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PICK_CONTACT_REQUEST:
                 if(resultCode == RESULT_OK){
+                    // Cuando se vuelve de PICK_CONTACT ya puedo iniciar el marker
                     Bundle extras = data.getExtras();
-                    this.sharedContacts = extras.getParcelableArrayList("selectedContacts");
+                    // Obtengo los contactos seleccionados para compartir mi marker
+                    ArrayList<Contact> contactsToShare = extras.getParcelableArrayList("selectedContacts");
+                    //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
+                    updateTrackMenu(contactsToShare);
+                    //TODO: Compartir el marker
 
-                    this.map.updateCamera();
+                    // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
+                    this.locator.getLocation();
+                    this.map.centerCamera();
                 }
                 break;
             case PICK_LUGAR_REQUEST:
@@ -284,26 +300,25 @@ public class MainActivity extends AppCompatActivity
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
-                    Log.i("Info", "Place: " + place.getName());
+                    Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(this, data);
                     // TODO: Handle the error.
-                    Log.i("Error", status.getStatusMessage());
+                    Log.i(TAG, status.getStatusMessage());
                 } else if (resultCode == RESULT_CANCELED) {
                     // The user canceled the operation.
                 }
         }
     }
 
-
-    private void validateLocation() {
-        if (!checkPermissions()) {
-            requestPermissions();
-        } else {
-            this.getLocationOnMap();
+    private void updateTrackMenu(ArrayList<Contact> contactsToShare) {
+        Integer i;
+        for(i=0; i < contactsToShare.size(); i++){
+            Contact contact = contactsToShare.get(i);
+            mOptionsMenu.removeItem(i);
+            mOptionsMenu.add(R.id.action_track, i, Menu.FLAG_APPEND_TO_GROUP, contact.name);
         }
     }
-
 
     /**
      * Shows a {@link Snackbar} using {@code text}.
@@ -332,19 +347,8 @@ public class MainActivity extends AppCompatActivity
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    /**
-     * Return the current state of the permissions needed.
-     */
-    private boolean checkPermissions() {
-        return this.permission.checkPermissions();
-    }
-
     public void startLocationPermissionRequest() {
         this.permission.startLocationPermissionRequest();
-    }
-
-    private void requestPermissions() {
-        this.permission.requestPermissions();
     }
 
     /**
@@ -358,19 +362,9 @@ public class MainActivity extends AppCompatActivity
 
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted.
-                this.getLocationOnMap();
+                this.locator.getLocationOnMap();
             } else {
                 // Permission denied.
-
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(R.string.permission_denied_explanation, R.string.action_settings,
                         new View.OnClickListener() {
                             @Override
@@ -388,19 +382,5 @@ public class MainActivity extends AppCompatActivity
                         });
             }
         }
-    }
-
-    private void getLocationOnMap(){
-        locator.getLastLocation()
-                .addOnCompleteListener(this, new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            map.setLocation(task.getResult());
-                            map.updateCameraOnLocation();
-                        } else {
-                        }
-                    }
-                });
     }
 }
