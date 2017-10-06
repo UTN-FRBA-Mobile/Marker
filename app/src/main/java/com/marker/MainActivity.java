@@ -102,8 +102,6 @@ public class MainActivity extends AppCompatActivity
 
 
         initialize_geo();
-
-        //startActivity(new Intent(this, LoginActivity.class));
     }
 
     private void initialize_geo() {
@@ -189,19 +187,11 @@ public class MainActivity extends AppCompatActivity
             OnAboutPressed();
         } else if (id == R.id.nav_test_notification) {
             OnTestNotificationPressed();
-        } else if (id == R.id.nav_test_login) {
-            OnTestLoginPressed();
-        } else if (id == R.id.nav_test_gmail) {
-            OnTestGmailContactsPressed();
-        } else if (id == R.id.nav_test_people_gmail) {
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private void OnTestGmailContactsPressed() {
     }
 
     public void OnDestiniesPressed() {
@@ -210,9 +200,7 @@ public class MainActivity extends AppCompatActivity
 
     public void OnHistoriesPressed() { startActivityForResult(new Intent(this, HistoryActivity.class), PICK_HISTORY_REQUEST); }
 
-    public void OnContactsPressed() {
-        startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
-    }
+    public void OnContactsPressed() { startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST); }
 
     public void OnSettingsPressed() {
         startActivity(new Intent(this, SettingsActivity.class));
@@ -256,10 +244,6 @@ public class MainActivity extends AppCompatActivity
         // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
         v.vibrate(pattern, -1);
 
-    }
-
-    public void OnTestLoginPressed() {
-        startActivity(new Intent(this, GoogleSignInActivity.class));
     }
 
     @Override

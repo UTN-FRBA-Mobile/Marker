@@ -27,7 +27,6 @@
         <activity android:name=".contact.ContactActivity"></activity>
         <activity android:name=".lugar.LugarActivity" />
         <activity android:name=".history.HistoryActivity" />
-        <activity android:name=".GoogleSignInActivity" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
