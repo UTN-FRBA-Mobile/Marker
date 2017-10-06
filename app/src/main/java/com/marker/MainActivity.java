@@ -48,6 +48,7 @@ import com.marker.contact.ContactActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.locator.Locator;
+import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
@@ -200,9 +201,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void OnDestiniesPressed() {
-        startActivity(new Intent(this, LugarActivity.class));
-    }
+    public void OnDestiniesPressed() { startActivityForResult(new Intent(this, LugarActivity.class), PICK_LUGAR_REQUEST); }
 
     public void OnHistoriesPressed() { startActivityForResult(new Intent(this, HistoryActivity.class), PICK_HISTORY_REQUEST); }
 
@@ -291,6 +290,14 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case PICK_LUGAR_REQUEST:
+                if(resultCode == RESULT_OK) {
+                    Lugar lugar = data.getParcelableExtra("lugar");
+                    this.map.setPosition(lugar.position);
+
+                    enableTrackButton();
+
+                    startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
+                }
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){

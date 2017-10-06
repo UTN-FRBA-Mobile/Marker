@@ -1,6 +1,8 @@
 package com.marker.lugar;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.marker.R;
 
@@ -48,7 +49,7 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.card)
         CardView card;
 
@@ -72,7 +73,11 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Toast.makeText(context, lugar.nombre, Toast.LENGTH_SHORT).show();
+            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("lugar", lugar);
+            parentActivity.setResult(Activity.RESULT_OK, resultIntent);
+            parentActivity.finish();
         }
     }
 }
