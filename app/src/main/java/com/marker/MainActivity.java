@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -17,10 +18,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.view.menu.MenuView;
-import android.support.v7.widget.PopupMenu;
 import android.util.Log;
-import android.view.MenuInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -35,7 +33,9 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity
     public MarkerMap map;
     private ArrayList<Contact> trackedContacts = Contact.initializeData();
     public Permission permission = new Permission(this);
-    private Locator locator = new Locator(this);
+    private Locator locator;
     private GoogleApiClient mGoogleApiClient;
     // TODO: agregar una propiedad que sea el usuario trackeado con el marker
     private Menu mOptionsMenu;
@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity
                 OnContactsPressed();
             }
         });
+        fab.setEnabled(false);
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorDisabled)));
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -99,7 +101,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
 
         initialize_geo();
     }
@@ -111,13 +112,18 @@ public class MainActivity extends AppCompatActivity
                 .addApi(Places.PLACE_DETECTION_API)
                 .build();
 
+        LocationRequest locationRequest = LocationRequest.create();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
         this.map = new MarkerMap(this);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        this.locator = new Locator(this);
         this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
-
         this.locator.getLocation();
     }
 
@@ -256,8 +262,10 @@ public class MainActivity extends AppCompatActivity
         switch(requestCode) {
             case PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
-                    History history = (History) data.getParcelableExtra("history");
+                    History history = data.getParcelableExtra("history");
                     this.map.setPosition(history.position);
+
+                    enableTrackButton();
 
                     startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
                 }
@@ -274,7 +282,12 @@ public class MainActivity extends AppCompatActivity
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     this.locator.getLocation();
-                    this.map.centerCamera();
+                    try {
+                        this.map.centerCamera();
+                    } catch (Exception e) {
+                        showSnackbar("GPS is not on!");
+                    }
+
                 }
                 break;
             case PICK_LUGAR_REQUEST:
@@ -284,6 +297,9 @@ public class MainActivity extends AppCompatActivity
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
+
+                    enableTrackButton();
+
                     Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                     Status status = PlaceAutocomplete.getStatus(this, data);
@@ -293,6 +309,12 @@ public class MainActivity extends AppCompatActivity
                     // The user canceled the operation.
                 }
         }
+    }
+
+    private void enableTrackButton() {
+        FloatingActionButton fab = findViewById(R.id.start_track);
+        fab.setEnabled(true);
+        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
     }
 
     private void updateTrackMenu(ArrayList<Contact> contactsToShare) {

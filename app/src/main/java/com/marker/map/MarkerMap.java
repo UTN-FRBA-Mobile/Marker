@@ -83,7 +83,7 @@ public class MarkerMap {
         LatLng latLng = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
 
 
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location);
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_marker);
 
         map.addMarker(new MarkerOptions().position(latLng)
                 .title("Location")
