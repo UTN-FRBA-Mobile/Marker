@@ -31,6 +31,7 @@ public class LoginActivity extends AppCompatActivity implements FacebookCallback
 
     @BindView(R.id.fb_login_button)
     protected LoginButton loginButton;
+    private CallbackManager callbackManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,7 +39,8 @@ public class LoginActivity extends AppCompatActivity implements FacebookCallback
         setContentView(R.layout.activity_inicio_fb);
         ButterKnife.bind(this);
         loginButton.setReadPermissions("email,user_friends");
-        loginButton.registerCallback(CallbackManager.Factory.create(), this);
+        callbackManager = CallbackManager.Factory.create();
+        loginButton.registerCallback(callbackManager, this);
     }
 
     @Override
@@ -80,5 +82,11 @@ public class LoginActivity extends AppCompatActivity implements FacebookCallback
     @Override
     public void onError(FacebookException error) {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 }
