@@ -60,10 +60,12 @@ import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
-
 import org.json.JSONObject;
-
 import java.util.ArrayList;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.marker.history.HistoryManager;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -84,6 +86,8 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     // TODO: agregar una propiedad que sea el usuario trackeado con el marker
     private Menu mOptionsMenu;
+    private FirebaseAuth mAuth;
+    public HistoryManager historyManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +117,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        historyManager = new HistoryManager(user.getUid());
         initialize_geo();
         initialize_drawer();
     }
@@ -229,7 +236,12 @@ public class MainActivity extends AppCompatActivity
 
     public void OnDestiniesPressed() { startActivityForResult(new Intent(this, LugarActivity.class), PICK_LUGAR_REQUEST); }
 
-    public void OnHistoriesPressed() { startActivityForResult(new Intent(this, HistoryActivity.class), PICK_HISTORY_REQUEST); }
+    public void OnHistoriesPressed() {
+        Intent childIntent = new Intent(this, HistoryActivity.class);
+
+        childIntent.putParcelableArrayListExtra("histories", historyManager.histories);
+        startActivityForResult(childIntent, PICK_HISTORY_REQUEST);
+    }
 
     public void OnContactsPressed() { startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST); }
 
@@ -241,12 +253,12 @@ public class MainActivity extends AppCompatActivity
         AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
         alertDialog.setTitle("Acerca");
         alertDialog.setMessage(
-            "App para Desarrollo de aplicaciones móbiles." + "\n\n" +
-            "Desarrollado por: " + "\n" +
-            "Ezequiel Ayzenberg" + "\n" +
-            "Fernando Velcic"  + "\n" +
-            "Francisco Bravo"  + "\n" +
-            "Sandro Damilano"  + "\n"
+                "App para Desarrollo de aplicaciones móbiles." + "\n\n" +
+                        "Desarrollado por: " + "\n" +
+                        "Ezequiel Ayzenberg" + "\n" +
+                        "Fernando Velcic"  + "\n" +
+                        "Francisco Bravo"  + "\n" +
+                        "Sandro Damilano"  + "\n"
         );
 
         alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Continuar", new DialogInterface.OnClickListener() {
@@ -288,7 +300,7 @@ public class MainActivity extends AppCompatActivity
             case PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
                     History history = data.getParcelableExtra("history");
-                    this.map.setPosition(history.position);
+                    this.map.setPosition(new LatLng(history.position.latitude, history.position.longitude));
 
                     enableTrackButton();
 
@@ -330,10 +342,13 @@ public class MainActivity extends AppCompatActivity
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
                     Place place = PlaceAutocomplete.getPlace(this, data);
+
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
                     Lugar lugar = new Lugar(place.getName().toString(), "", place.getLatLng());
                     map.setLugar(lugar);
+
+                    historyManager.writePlace(place);
 
                     enableTrackButton();
 
@@ -383,7 +398,7 @@ public class MainActivity extends AppCompatActivity
      * @param listener         The listener associated with the Snackbar action.
      */
     public void showSnackbar(final int mainTextStringId, final int actionStringId,
-                              View.OnClickListener listener) {
+                             View.OnClickListener listener) {
         Snackbar.make(findViewById(android.R.id.content),
                 getString(mainTextStringId),
                 Snackbar.LENGTH_INDEFINITE)

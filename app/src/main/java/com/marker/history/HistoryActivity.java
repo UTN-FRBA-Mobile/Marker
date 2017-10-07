@@ -9,8 +9,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
+import com.marker.MainActivity;
 import com.marker.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,7 +36,10 @@ public class HistoryActivity extends AppCompatActivity {
         rvHistories.setAdapter(adapter);
         rvHistories.setLayoutManager(new LinearLayoutManager(this));
 
-        List<History> histories = History.initializeData();
+        Bundle extras = getIntent().getExtras();
+        // Obtengo los contactos seleccionados para compartir mi marker
+        ArrayList<History> hist = extras.getParcelableArrayList("histories");
+        List<History> histories =  hist;
 
         adapter.setItems(histories);
     }
