@@ -29,8 +29,8 @@ import butterknife.ButterKnife;
 public class FriendsActivity extends AppCompatActivity implements GraphRequest.GraphJSONArrayCallback {
     public ArrayList<User> selectedFriends = new ArrayList<>();
 
-    @BindView(R.id.rv_contacts)
-    RecyclerView rvContacs;
+    @BindView(R.id.rv_friends)
+    RecyclerView rvFriends;
 
     private FriendsRecyclerViewAdapter adapter;
 
@@ -42,8 +42,8 @@ public class FriendsActivity extends AppCompatActivity implements GraphRequest.G
         setContentView(R.layout.activity_friends);
         ButterKnife.bind(this);
         adapter = new FriendsRecyclerViewAdapter();
-        rvContacs.setAdapter(adapter);
-        rvContacs.setLayoutManager(new LinearLayoutManager(this));
+        rvFriends.setAdapter(adapter);
+        rvFriends.setLayoutManager(new LinearLayoutManager(this));
 
         initialize_friends();
     }
