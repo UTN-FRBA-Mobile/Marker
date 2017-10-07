@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.login.widget.ProfilePictureView;
 import com.marker.R;
@@ -75,7 +74,8 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Toast.makeText(context, friend.getName(), Toast.LENGTH_SHORT).show();
+            friendCheck.performClick();
+            onClickCheck();
         }
 
         @OnClick(R.id.friend_check)
