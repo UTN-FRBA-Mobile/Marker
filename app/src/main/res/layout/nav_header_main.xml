@@ -15,8 +15,8 @@
 
 
     <FrameLayout
-    android:layout_width="50dp"
-    android:layout_height="50dp">
+        android:layout_width="50dp"
+        android:layout_height="50dp">
 
         <com.facebook.login.widget.ProfilePictureView
             android:id="@+id/drawer_user_picture"
