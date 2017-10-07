@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
@@ -53,7 +52,7 @@ import com.google.gson.Gson;
 import com.marker.app.GestorMarcadores;
 import com.marker.app.Marcador;
 import com.marker.contact.Contact;
-import com.marker.contact.ContactActivity;
+import com.marker.contact.FriendsActivity;
 import com.marker.facebook.User;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
@@ -245,7 +244,7 @@ public class MainActivity extends AppCompatActivity
         startActivityForResult(childIntent, PICK_HISTORY_REQUEST);
     }
 
-    public void OnContactsPressed() { startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST); }
+    public void OnContactsPressed() { startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST); }
 
     public void OnSettingsPressed() {
         startActivity(new Intent(this, SettingsActivity.class));
@@ -306,7 +305,7 @@ public class MainActivity extends AppCompatActivity
 
                     enableTrackButton();
 
-                    startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
+                    startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
                 }
                 break;
             case PICK_CONTACT_REQUEST:
@@ -314,7 +313,7 @@ public class MainActivity extends AppCompatActivity
                     // Cuando se vuelve de PICK_CONTACT ya puedo iniciar el marker
                     Bundle extras = data.getExtras();
                     // Obtengo los contactos seleccionados para compartir mi marker
-                    ArrayList<Contact> contactsToShare = extras.getParcelableArrayList("selectedContacts");
+                    ArrayList<Contact> contactsToShare = extras.getParcelableArrayList("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
                     GestorMarcadores gestor = GestorMarcadores.getInstancia();
                     gestor.crearMarcador(map.getLugar(), 100);
@@ -338,7 +337,7 @@ public class MainActivity extends AppCompatActivity
 
                     enableTrackButton();
 
-                    startActivityForResult(new Intent(this, ContactActivity.class), PICK_CONTACT_REQUEST);
+                    startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
                 }
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:

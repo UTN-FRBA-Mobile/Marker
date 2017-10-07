@@ -18,25 +18,37 @@
             android:gravity="left|center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/imageViewContact"
+            <FrameLayout
+                android:id="@+id/friend_picture_layout"
                 android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_weight="0"
-                app:srcCompat="@drawable/ic_account_circle" />
+                android:layout_height="50dp">
+
+                <com.facebook.login.widget.ProfilePictureView
+                    android:id="@+id/friend_picture"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <ImageView
+                    android:id="@+id/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/subtracted_circle_blank"
+                    android:contentDescription="@null" />
+
+            </FrameLayout>
 
             <TextView
-                android:id="@+id/textContact"
+                android:id="@+id/friend_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:text="Contact"
                 android:textSize="16sp"
                 android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/imageViewContact" />
+                android:layout_toEndOf="@+id/friend_picture_layout" />
 
             <CheckBox
-                android:id="@+id/checkContact"
+                android:id="@+id/friend_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="17dp"

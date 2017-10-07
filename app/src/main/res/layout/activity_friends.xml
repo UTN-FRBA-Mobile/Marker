@@ -8,5 +8,5 @@
         android:id="@+id/rv_contacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/activity_contacts_item_list" />
+        tools:listitem="@layout/activity_friends_item_list" />
 </LinearLayout>
