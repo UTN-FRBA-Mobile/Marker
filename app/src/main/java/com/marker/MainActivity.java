@@ -28,7 +28,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -43,10 +47,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.google.gson.Gson;
 import com.marker.app.GestorMarcadores;
 import com.marker.app.Marcador;
 import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
+import com.marker.facebook.FBUser;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.locator.Locator;
@@ -54,6 +60,8 @@ import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -106,6 +114,23 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         initialize_geo();
+        initialize_drawer();
+    }
+
+    private void initialize_drawer() {
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject jsonObject, GraphResponse response) {
+                FBUser me = new Gson().fromJson(jsonObject.toString(), FBUser.class);
+                ((TextView) findViewById(R.id.drawer_user_name)).setText(me.getName());
+                ((TextView) findViewById(R.id.drawer_user_email)).setText(me.getEmail());
+            }
+        });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "name,email");
+        request.setParameters(parameters);
+        request.executeAsync();
     }
 
     private void initialize_geo() {
