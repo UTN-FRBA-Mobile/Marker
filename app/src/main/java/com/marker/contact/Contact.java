@@ -12,7 +12,7 @@ public class Contact implements Parcelable {
     String email;
     Boolean checked;
 
-    Contact(String name, String phone, String email){
+    public Contact(String name, String phone, String email){
         this.name = name;
         this.phone = phone;
         this.email = email;

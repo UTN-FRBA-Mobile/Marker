@@ -43,6 +43,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
+import com.marker.app.GestorMarcadores;
+import com.marker.app.Marcador;
 import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
 import com.marker.history.History;
@@ -276,7 +278,9 @@ public class MainActivity extends AppCompatActivity
                     // Obtengo los contactos seleccionados para compartir mi marker
                     ArrayList<Contact> contactsToShare = extras.getParcelableArrayList("selectedContacts");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
-                    updateTrackMenu(contactsToShare);
+                    GestorMarcadores gestor = GestorMarcadores.getInstancia();
+                    gestor.crearMarcador(map.getLugar(), 100);
+                    updateTrackMenu(gestor.getMarcadores());
                     //TODO: Compartir el marker
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
@@ -304,6 +308,8 @@ public class MainActivity extends AppCompatActivity
                     Place place = PlaceAutocomplete.getPlace(this, data);
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
+                    Lugar lugar = new Lugar(place.getName().toString(), "", place.getLatLng());
+                    map.setLugar(lugar);
 
                     enableTrackButton();
 
@@ -324,10 +330,10 @@ public class MainActivity extends AppCompatActivity
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
     }
 
-    private void updateTrackMenu(ArrayList<Contact> contactsToShare) {
+    private void updateTrackMenu(ArrayList<Marcador> contactsToShare) {
         Integer i;
         for(i=0; i < contactsToShare.size(); i++){
-            Contact contact = contactsToShare.get(i);
+            Contact contact = contactsToShare.get(i).getContacto();
             mOptionsMenu.removeItem(i);
             mOptionsMenu.add(R.id.action_track, i, Menu.FLAG_APPEND_TO_GROUP, contact.name);
         }

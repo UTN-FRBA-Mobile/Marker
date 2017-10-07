@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.R;
+import com.marker.lugar.Lugar;
 
 
 public class MarkerMap {
@@ -37,6 +39,7 @@ public class MarkerMap {
     private Circle circle;
     private Location userLocation;
     private SimpleGeoFence geoFence;
+    private Lugar lugar;
 
     public MarkerMap(Context context){
         this.context = context;
@@ -133,5 +136,13 @@ public class MarkerMap {
         } else {
 
         }
+    }
+
+    public void setLugar(Lugar lugar) {
+        this.lugar = lugar;
+    }
+
+    public Lugar getLugar() {
+        return lugar;
     }
 }
