@@ -28,11 +28,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -132,10 +134,11 @@ public class MainActivity extends AppCompatActivity
                 FBUser me = new Gson().fromJson(jsonObject.toString(), FBUser.class);
                 ((TextView) findViewById(R.id.drawer_user_name)).setText(me.getName());
                 ((TextView) findViewById(R.id.drawer_user_email)).setText(me.getEmail());
+                ((ProfilePictureView) findViewById(R.id.drawer_user_picture)).setProfileId(me.getId());
             }
         });
         Bundle parameters = new Bundle();
-        parameters.putString("fields", "name,email");
+        parameters.putString("fields", "id,name,email");
         request.setParameters(parameters);
         request.executeAsync();
     }
