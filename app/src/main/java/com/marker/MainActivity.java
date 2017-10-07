@@ -51,7 +51,6 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.gson.Gson;
 import com.marker.app.GestorMarcadores;
 import com.marker.app.Marcador;
-import com.marker.friends.Contact;
 import com.marker.friends.FriendsActivity;
 import com.marker.facebook.User;
 import com.marker.history.History;
@@ -61,6 +60,8 @@ import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
+
+import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import com.google.android.gms.maps.model.LatLng;
@@ -88,6 +89,7 @@ public class MainActivity extends AppCompatActivity
     private Menu mOptionsMenu;
     private FirebaseAuth mAuth;
     public HistoryManager historyManager;
+    private User me;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
-                User me = new Gson().fromJson(jsonObject.toString(), User.class);
+                me = new Gson().fromJson(jsonObject.toString(), User.class);
                 ((TextView) findViewById(R.id.drawer_user_name)).setText(me.getName());
                 ((TextView) findViewById(R.id.drawer_user_email)).setText(me.getEmail());
                 ((ProfilePictureView) findViewById(R.id.drawer_user_picture)).setProfileId(me.getId());
@@ -313,10 +315,13 @@ public class MainActivity extends AppCompatActivity
                     // Cuando se vuelve de PICK_CONTACT ya puedo iniciar el marker
                     Bundle extras = data.getExtras();
                     // Obtengo los contactos seleccionados para compartir mi marker
-                    ArrayList<Contact> contactsToShare = extras.getParcelableArrayList("selectedFriends");
+                    ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
                     GestorMarcadores gestor = GestorMarcadores.getInstancia();
-                    gestor.crearMarcador(map.getLugar(), 100);
+
+                    User me = SerializationUtils.clone(this.me); me.setName("Yo");
+
+                    gestor.crearMarcador(me, map.getLugar(), 100);
                     updateTrackMenu(gestor.getMarcadores());
                     //TODO: Compartir el marker
 
@@ -373,9 +378,9 @@ public class MainActivity extends AppCompatActivity
     private void updateTrackMenu(ArrayList<Marcador> contactsToShare) {
         Integer i;
         for(i=0; i < contactsToShare.size(); i++){
-            Contact contact = contactsToShare.get(i).getContacto();
+            User user = contactsToShare.get(i).getUser();
             mOptionsMenu.removeItem(i);
-            mOptionsMenu.add(R.id.action_track, i, Menu.FLAG_APPEND_TO_GROUP, contact.name);
+            mOptionsMenu.add(R.id.action_track, i, Menu.FLAG_APPEND_TO_GROUP, user.getName());
         }
     }
 

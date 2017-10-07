@@ -1,16 +1,16 @@
 package com.marker.app;
 
-import com.marker.friends.Contact;
+import com.marker.facebook.User;
 import com.marker.lugar.Lugar;
 
 public class Marcador {
     private int metrosDeteccion;
-    private Contact contacto;
+    private User user;
     private Lugar lugar;
 
-    Marcador(Contact aTrakear, Lugar lugar, int metrosDeteccion) {
+    Marcador(User user, Lugar lugar, int metrosDeteccion) {
         this.lugar = lugar;
-        this.contacto = aTrakear;
+        this.user = user;
         this.metrosDeteccion = metrosDeteccion;
     }
 
@@ -18,7 +18,7 @@ public class Marcador {
         return lugar;
     }
 
-    public Contact getContacto() {
-        return contacto;
+    public User getUser() {
+        return user;
     }
 }

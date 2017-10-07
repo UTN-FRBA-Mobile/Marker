@@ -47,6 +47,7 @@ dependencies {
     // Facebook Login only
     compile 'com.facebook.android:facebook-login:4.27.0'
     compile 'com.google.code.gson:gson:2.8.1'
+    compile 'org.apache.commons:commons-lang3:3.5'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

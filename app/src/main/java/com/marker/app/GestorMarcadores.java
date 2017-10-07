@@ -1,6 +1,6 @@
 package com.marker.app;
 
-import com.marker.friends.Contact;
+import com.marker.facebook.User;
 import com.marker.lugar.Lugar;
 
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ public class GestorMarcadores {
 
     //Markers activos
     private final ArrayList<Marcador> marcadors = new ArrayList<>();
-    private final Contact usuario;
 
     public static GestorMarcadores getInstancia() {
         if (singleton == null) {
@@ -22,8 +21,7 @@ public class GestorMarcadores {
     }
 
     private GestorMarcadores() {
-        //todo traerlo de facebook...
-        usuario = new Contact("yo asd", "", "");
+
     }
 
     public ArrayList<Marcador> getMarcadores() {
@@ -36,8 +34,8 @@ public class GestorMarcadores {
      * @param radioDeteccion radio de deteccion del marker
      * @return marker creado
      */
-    public Marcador crearMarcador(Lugar lugar, int radioDeteccion) {
-        Marcador marcador = new Marcador(usuario, lugar, radioDeteccion);
+    public Marcador crearMarcador(User user, Lugar lugar, int radioDeteccion) {
+        Marcador marcador = new Marcador(user, lugar, radioDeteccion);
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.
         marcadors.add(marcador);
