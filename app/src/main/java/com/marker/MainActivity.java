@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
 
     public MarkerMap map;
-    private ArrayList<Contact> trackedContacts = Contact.initializeData();
     public Permission permission = new Permission(this);
     private Locator locator;
     private GoogleApiClient mGoogleApiClient;

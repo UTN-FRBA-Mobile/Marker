@@ -11,17 +11,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.login.widget.ProfilePictureView;
 import com.google.gson.Gson;
 import com.marker.R;
 import com.marker.facebook.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +32,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ContactActivity extends AppCompatActivity implements GraphRequest.Callback {
+public class ContactActivity extends AppCompatActivity implements GraphRequest.GraphJSONArrayCallback {
     public ArrayList<Contact> selectedContacts = new ArrayList<>();
 
     @BindView(R.id.rv_contacts)
@@ -52,11 +55,12 @@ public class ContactActivity extends AppCompatActivity implements GraphRequest.C
 
         adapter.setItems(contacts);
 
+        initialize_friends();
+    }
+
+    private void initialize_friends() {
         AccessToken token = AccessToken.getCurrentAccessToken();
-        if (token != null) {
-            new GraphRequest(token, "me/friends",
-                    null, HttpMethod.GET, this).executeAsync();
-        }
+        GraphRequest.newMyFriendsRequest(token, this).executeAsync();
     }
 
     private void setupActionBar() {
@@ -91,18 +95,12 @@ public class ContactActivity extends AppCompatActivity implements GraphRequest.C
     }
 
     @Override
-    public void onCompleted(GraphResponse response) {
-        try {
-            List<Contact> contacts = Contact.initializeData();
-            JSONArray data = (JSONArray) response.getJSONObject().get("data");
-            User[] amigos = new Gson().fromJson(data.toString(), User[].class);
-            for (User amigo : amigos) {
-                contacts.add(new Contact(amigo.getName(), "", amigo.getEmail()));
-            }
-            adapter.setItems(contacts);
-        } catch (JSONException e) {
-            //No tiene campo data
-            e.printStackTrace();
+    public void onCompleted(JSONArray objects, GraphResponse response) {
+        List<Contact> contacts = Contact.initializeData();
+        User[] amigos = new Gson().fromJson(objects.toString(), User[].class);
+        for (User amigo : amigos) {
+            contacts.add(new Contact(amigo.getName(), "", amigo.getEmail()));
         }
+        adapter.setItems(contacts);
     }
 }
