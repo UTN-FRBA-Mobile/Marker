@@ -23,7 +23,7 @@ public class GestorMarcadores {
 
     private GestorMarcadores() {
         //todo traerlo de facebook...
-        usuario = new Contact("yo", "", "");
+        usuario = new Contact("yo asd", "", "");
     }
 
     public ArrayList<Marcador> getMarcadores() {

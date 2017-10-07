@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_track) {
+            //todo Centrar en el mapa el marker seleccionado
             return true;
         } else if (id == R.id.action_search) {
             try {
@@ -169,8 +170,6 @@ public class MainActivity extends AppCompatActivity
             } catch (GooglePlayServicesNotAvailableException e) {
                 // TODO: Handle the error.
             }
-        } else if(id == R.id.tracked_0){
-            showSnackbar("Yo");
         } else if(id == 1) {
             showSnackbar("Contacto 1");
         } else if(id == 2) {

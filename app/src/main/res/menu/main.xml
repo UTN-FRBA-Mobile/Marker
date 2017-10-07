@@ -13,7 +13,5 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="always">
-        <item android:id="@+id/tracked_0"
-            android:title="Yo" />
     </group>
 </menu>
