@@ -1,6 +1,6 @@
 package com.marker.app;
 
-import com.marker.contact.Contact;
+import com.marker.friends.Contact;
 import com.marker.lugar.Lugar;
 
 public class Marcador {

@@ -1,4 +1,4 @@
-package com.marker.contact;
+package com.marker.friends;
 
 import android.app.Activity;
 import android.content.Intent;
