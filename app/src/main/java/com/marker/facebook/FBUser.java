@@ -1,4 +1,4 @@
-package com.marker.contact;
+package com.marker.facebook;
 
 public class FBUser {
     private String name;

@@ -3,7 +3,6 @@ package com.marker.contact;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.google.gson.Gson;
 import com.marker.R;
+import com.marker.facebook.FBUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;

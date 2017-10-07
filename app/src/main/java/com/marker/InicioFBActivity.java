@@ -27,7 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.marker.contact.FBUser;
+import com.marker.facebook.FBUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
