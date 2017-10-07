@@ -54,7 +54,7 @@ import com.marker.app.GestorMarcadores;
 import com.marker.app.Marcador;
 import com.marker.contact.Contact;
 import com.marker.contact.ContactActivity;
-import com.marker.facebook.FBUser;
+import com.marker.facebook.User;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.locator.Locator;
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
-                FBUser me = new Gson().fromJson(jsonObject.toString(), FBUser.class);
+                User me = new Gson().fromJson(jsonObject.toString(), User.class);
                 ((TextView) findViewById(R.id.drawer_user_name)).setText(me.getName());
                 ((TextView) findViewById(R.id.drawer_user_email)).setText(me.getEmail());
                 ((ProfilePictureView) findViewById(R.id.drawer_user_picture)).setProfileId(me.getId());

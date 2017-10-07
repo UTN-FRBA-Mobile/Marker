@@ -18,7 +18,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.google.gson.Gson;
 import com.marker.R;
-import com.marker.facebook.FBUser;
+import com.marker.facebook.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -95,8 +95,8 @@ public class ContactActivity extends AppCompatActivity implements GraphRequest.C
         try {
             List<Contact> contacts = Contact.initializeData();
             JSONArray data = (JSONArray) response.getJSONObject().get("data");
-            FBUser[] amigos = new Gson().fromJson(data.toString(), FBUser[].class);
-            for (FBUser amigo : amigos) {
+            User[] amigos = new Gson().fromJson(data.toString(), User[].class);
+            for (User amigo : amigos) {
                 contacts.add(new Contact(amigo.getName(), "", amigo.getEmail()));
             }
             adapter.setItems(contacts);

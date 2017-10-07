@@ -27,7 +27,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-import com.marker.facebook.FBUser;
+import com.marker.facebook.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -130,7 +130,7 @@ public class InicioFBActivity extends AppCompatActivity implements FacebookCallb
         try {
             //Obtengo amigos..
             JSONArray data = (JSONArray) response.getJSONObject().get("data");
-            FBUser[] amigos = new Gson().fromJson(data.toString(), FBUser[].class);
+            User[] amigos = new Gson().fromJson(data.toString(), User[].class);
 
             //Persisto lo obtenido en Firebase
             FirebaseUser user = mAuth.getCurrentUser();
