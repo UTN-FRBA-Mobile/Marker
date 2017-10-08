@@ -1,5 +1,6 @@
 package com.marker.app;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.facebook.AccessToken;
@@ -8,8 +9,10 @@ import com.facebook.GraphResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.marker.facebook.User;
+import com.marker.firebase.EmisorMensajes;
 import com.marker.lugar.Lugar;
 
 import org.json.JSONArray;
@@ -29,9 +32,10 @@ public class GestorSesion {
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
+    private User usuarioYo;
     private User me;
     private User[] friends;
-    private User usuarioYo;
+    private EmisorMensajes emisor;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -46,12 +50,13 @@ public class GestorSesion {
     /**Inicializa el usuario y amigos
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
-    public void inicializar() throws Exception {
+    public void inicializar(Context context) throws Exception {
         token = AccessToken.getCurrentAccessToken();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth == null || token == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
         }
+        emisor = new EmisorMensajes(context);
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
         GraphRequest request;
@@ -80,6 +85,7 @@ public class GestorSesion {
 
     private void notificarInicializacion() {
         if (inicializado()) {
+            actualizarTokenEnServidor();
             onInicializado.notificar();
         }
     }
@@ -111,6 +117,18 @@ public class GestorSesion {
         return marcador;
     }
 
+    public static void actualizarTokenEnServidor() {
+        User me = getInstancia().me;
+        if (me == null) {
+            return;
+        }
+        String uid = me.getId();
+        String token = FirebaseInstanceId.getInstance().getToken();
+        FirebaseDatabase.getInstance()
+                .getReference("usuarios/"+uid+"/token")
+                .setValue(token);
+    }
+
     public EventoObservable getOnInicializado() {
         return onInicializado;
     }
@@ -133,5 +151,9 @@ public class GestorSesion {
 
     public User[] getFriends() {
         return friends;
+    }
+
+    public EmisorMensajes getEmisorMensajes() {
+        return emisor;
     }
 }

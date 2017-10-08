@@ -34,6 +34,12 @@
             />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
         <service android:name=".GeofenceTransitionsIntentService"/>
+        <service android:name=".firebase.ServicioMensajeria">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:name=".firebase.ServicioIdInstancia" />
 
         <activity android:name="com.facebook.FacebookActivity"
             android:configChanges=

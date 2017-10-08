@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             try {
-                gestorSesion.inicializar();
+                gestorSesion.inicializar(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -155,6 +155,9 @@ public class MainActivity extends AppCompatActivity
         historyManager = new HistoryManager(user.getUid());
         initialize_geo();
         initialize_drawer();
+        GestorSesion gestorSesion = GestorSesion.getInstancia();
+        gestorSesion.getEmisorMensajes()
+                .enviar(gestorSesion.getUsuarioLoggeado(), "asd");
     }
 
     private void initialize_drawer() {

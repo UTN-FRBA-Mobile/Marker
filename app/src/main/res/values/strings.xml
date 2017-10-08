@@ -38,4 +38,5 @@
 
     <string name="facebook_app_id">353969525063305</string>
     <string name="fb_login_protocol_scheme">fb353969525063305</string>
+    <string name="FIREBASE_SERVER_KEY">AAAAjuVeuBY:APA91bFsxvljiy2_ukh0oaHeN-6iYRU_pqI5TQW5N9kWvDMZC_94991iuFJXXaCKdkWMYg8RBvGQb8f8uFmxGvTnbAV7RtFCwhnYAMrfBRiv2zc9_L7BsidEotU6oPVpz5U1f0QE8FuL</string>
 </resources>
