@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
         if (mDrawerUserName == null) {
             return;
         }
-        User me = gestorSesion.getUser();
+        User me = gestorSesion.getUsuarioLoggeado();
         mDrawerUserName.setText(me.getName());
         mDrawerUserMail.setText(me.getEmail());
         mDrawerUserPicture.setProfileId(me.getId());

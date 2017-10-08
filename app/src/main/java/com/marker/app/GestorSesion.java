@@ -31,6 +31,7 @@ public class GestorSesion {
     private FirebaseDatabase firebaseDatabase;
     private User me;
     private User[] friends;
+    private User usuarioYo;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -58,6 +59,8 @@ public class GestorSesion {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
                 me = new Gson().fromJson(jsonObject.toString(), User.class);
+                usuarioYo = new Gson().fromJson(jsonObject.toString(), User.class);
+                usuarioYo.setName(String.format("%s (Yo)", usuarioYo.getName()));
                 notificarInicializacion();
             }
         });
@@ -100,7 +103,7 @@ public class GestorSesion {
      * @return marker creado
      */
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion) {
-        Marcador marcador = new Marcador(me, lugar, radioDeteccion);
+        Marcador marcador = new Marcador(usuarioYo, lugar, radioDeteccion);
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.
         marcadors.add(marcador);
@@ -120,8 +123,12 @@ public class GestorSesion {
         return firebaseUser;
     }
 
-    public User getUser() {
+    public User getUsuarioLoggeado() {
         return me;
+    }
+
+    public User getUsuarioYo() {
+        return usuarioYo;
     }
 
     public User[] getFriends() {
