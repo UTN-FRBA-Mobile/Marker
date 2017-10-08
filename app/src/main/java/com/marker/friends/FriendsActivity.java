@@ -17,6 +17,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.google.gson.Gson;
 import com.marker.R;
+import com.marker.app.GestorSesion;
 import com.marker.facebook.User;
 
 import org.json.JSONArray;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FriendsActivity extends AppCompatActivity implements GraphRequest.GraphJSONArrayCallback {
+public class FriendsActivity extends AppCompatActivity {
     public ArrayList<User> selectedFriends = new ArrayList<>();
 
     @BindView(R.id.rv_friends)
@@ -44,13 +45,7 @@ public class FriendsActivity extends AppCompatActivity implements GraphRequest.G
         adapter = new FriendsRecyclerViewAdapter();
         rvFriends.setAdapter(adapter);
         rvFriends.setLayoutManager(new LinearLayoutManager(this));
-
-        initialize_friends();
-    }
-
-    private void initialize_friends() {
-        AccessToken token = AccessToken.getCurrentAccessToken();
-        GraphRequest.newMyFriendsRequest(token, this).executeAsync();
+        adapter.setItems(GestorSesion.getInstancia().getFriends());
     }
 
     private void setupActionBar() {
@@ -84,11 +79,5 @@ public class FriendsActivity extends AppCompatActivity implements GraphRequest.G
                 this.finish();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCompleted(JSONArray objects, GraphResponse response) {
-        User[] friends = new Gson().fromJson(objects.toString(), User[].class);
-        adapter.setItems(friends);
     }
 }

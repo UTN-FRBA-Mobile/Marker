@@ -17,22 +17,19 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -47,27 +44,26 @@ import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-
-import com.google.gson.Gson;
-import com.marker.app.GestorMarcadores;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.auth.FirebaseUser;
+import com.marker.app.EventoObservable;
+import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
-import com.marker.friends.FriendsActivity;
 import com.marker.facebook.User;
+import com.marker.friends.FriendsActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
+import com.marker.history.HistoryManager;
 import com.marker.locator.Locator;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
 
-import org.apache.commons.lang3.SerializationUtils;
-import org.json.JSONObject;
 import java.util.ArrayList;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.marker.history.HistoryManager;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -81,24 +77,33 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
 
+    @BindView(R.id.nav_view)
+    NavigationView mNavView;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+    @BindView(R.id.start_track)
+    FloatingActionButton fab;
+
     public MarkerMap map;
     public Permission permission = new Permission(this);
     private Locator locator;
     private GoogleApiClient mGoogleApiClient;
     // TODO: agregar una propiedad que sea el usuario trackeado con el marker
     private Menu mOptionsMenu;
-    private FirebaseAuth mAuth;
     public HistoryManager historyManager;
-    private User me;
+    private GestorSesion gestorSesion;
+    private TextView mDrawerUserName;
+    private TextView mDrawerUserMail;
+    private ProfilePictureView mDrawerUserPicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.start_track);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -110,37 +115,56 @@ public class MainActivity extends AppCompatActivity
         fab.setEnabled(false);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorDisabled)));
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        mNavView.setNavigationItemSelectedListener(this);
 
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
+        //Esto se carga sin butterknife por un bug de Android. Que bonito sos.
+        View header = mNavView.getHeaderView(0);
+        mDrawerUserName = header.findViewById(R.id.drawer_user_name);
+        mDrawerUserMail = header.findViewById(R.id.drawer_user_email);
+        mDrawerUserPicture = header.findViewById(R.id.drawer_user_picture);
+
+        gestorSesion = GestorSesion.getInstancia();
+        final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion
+                .getOnInicializado()
+                .getObservers();
+        if (gestorSesion.inicializado()) {
+            onSesionInicializada();
+        } else {
+            observers.add(new EventoObservable.ObserverSesion() {
+                @Override
+                public void notificar() {
+                    onSesionInicializada();
+                    observers.remove(this);
+                }
+            });
+            try {
+                gestorSesion.inicializar();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void onSesionInicializada() {
+        FirebaseUser user = gestorSesion.getFirebaseUser();
         historyManager = new HistoryManager(user.getUid());
         initialize_geo();
         initialize_drawer();
     }
 
     private void initialize_drawer() {
-        AccessToken token = AccessToken.getCurrentAccessToken();
-        GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject jsonObject, GraphResponse response) {
-                me = new Gson().fromJson(jsonObject.toString(), User.class);
-                ((TextView) findViewById(R.id.drawer_user_name)).setText(me.getName());
-                ((TextView) findViewById(R.id.drawer_user_email)).setText(me.getEmail());
-                ((ProfilePictureView) findViewById(R.id.drawer_user_picture)).setProfileId(me.getId());
-            }
-        });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email");
-        request.setParameters(parameters);
-        request.executeAsync();
+        if (mDrawerUserName == null) {
+            return;
+        }
+        User me = gestorSesion.getUser();
+        mDrawerUserName.setText(me.getName());
+        mDrawerUserMail.setText(me.getEmail());
+        mDrawerUserPicture.setProfileId(me.getId());
     }
 
     private void initialize_geo() {
@@ -167,7 +191,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -232,7 +255,6 @@ public class MainActivity extends AppCompatActivity
             OnTestNotificationPressed();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -317,12 +339,8 @@ public class MainActivity extends AppCompatActivity
                     // Obtengo los contactos seleccionados para compartir mi marker
                     ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
-                    GestorMarcadores gestor = GestorMarcadores.getInstancia();
-
-                    User me = SerializationUtils.clone(this.me); me.setName("Yo");
-
-                    gestor.crearMarcador(me, map.getLugar(), 100);
-                    updateTrackMenu(gestor.getMarcadores());
+                    gestorSesion.crearMarcador(map.getLugar(), 100);
+                    updateTrackMenu(gestorSesion.getMarcadores());
                     //TODO: Compartir el marker
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
@@ -370,7 +388,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void enableTrackButton() {
-        FloatingActionButton fab = findViewById(R.id.start_track);
         fab.setEnabled(true);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
     }
