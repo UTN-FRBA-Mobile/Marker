@@ -144,15 +144,16 @@ public class MainActivity extends AppCompatActivity
             });
             try {
                 gestorSesion.inicializar(this);
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void onSesionInicializada() {
-        FirebaseUser user = gestorSesion.getFirebaseUser();
-        historyManager = new HistoryManager(user.getUid());
+        historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
         GestorSesion gestorSesion = GestorSesion.getInstancia();

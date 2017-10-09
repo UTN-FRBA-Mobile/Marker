@@ -3,7 +3,6 @@ package com.marker.history;
 import android.util.Log;
 
 import com.google.android.gms.location.places.Place;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -12,7 +11,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.marker.locator.LatLng;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class HistoryManager {
     private static final String TAG = "History";
@@ -43,15 +41,8 @@ public class HistoryManager {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so remove it.
-                String historyKey = dataSnapshot.getKey();
-                Iterator<History> iter = histories.iterator();
-                while (iter.hasNext()) {
-                    History h = iter.next();
-                    if (h.uid == historyKey) iter.remove();
-                }
+                History removedHistory = (History) dataSnapshot.getValue();
+                histories.remove(removedHistory);
             }
 
             @Override
@@ -68,7 +59,7 @@ public class HistoryManager {
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("histories").child(userId).addChildEventListener(childEventListener);
+        mDatabase.child("usuarios").child(userId).child("histories").addChildEventListener(childEventListener);
 
     }
 
@@ -78,8 +69,8 @@ public class HistoryManager {
     }
 
     public void writeHistory(String location, LatLng position) {
-        String uid = mDatabase.child("histories").child(userId).push().getKey();
-        History history = new History(uid, location, position);
-        mDatabase.child("histories").child(userId).child(uid).setValue(history);
+        String uid = mDatabase.child("usuarios").child(userId).child("histories").push().getKey();
+        History history = new History(location, position);
+        mDatabase.child("usuarios").child(userId).child("histories").child(uid).setValue(history);
     }
 }
