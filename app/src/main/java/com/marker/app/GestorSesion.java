@@ -15,6 +15,7 @@ import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.lugar.Lugar;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -64,8 +65,6 @@ public class GestorSesion {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
                 me = new Gson().fromJson(jsonObject.toString(), User.class);
-                usuarioYo = new Gson().fromJson(jsonObject.toString(), User.class);
-                usuarioYo.setName(String.format("%s (Yo)", usuarioYo.getName()));
                 notificarInicializacion();
             }
         });
@@ -109,7 +108,9 @@ public class GestorSesion {
      * @return marker creado
      */
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion) {
-        Marcador marcador = new Marcador(usuarioYo, lugar, radioDeteccion);
+        User me = SerializationUtils.clone(this.me);
+        me.setName(String.format("%s (Yo)", me.getName()));
+        Marcador marcador = new Marcador(me, lugar, radioDeteccion);
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.
         marcadors.add(marcador);
@@ -143,10 +144,6 @@ public class GestorSesion {
 
     public User getUsuarioLoggeado() {
         return me;
-    }
-
-    public User getUsuarioYo() {
-        return usuarioYo;
     }
 
     public User[] getFriends() {
