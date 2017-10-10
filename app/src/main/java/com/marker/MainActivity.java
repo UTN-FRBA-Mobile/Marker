@@ -28,8 +28,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.login.LoginManager;
 import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -45,7 +47,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.auth.FirebaseUser;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -84,17 +85,19 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.start_track)
     FloatingActionButton fab;
 
+    private Button mDrawerLogoutButton;
+    private TextView mDrawerUserName;
+    private TextView mDrawerUserMail;
+    private ProfilePictureView mDrawerUserPicture;
+
     public MarkerMap map;
     public Permission permission = new Permission(this);
     private Locator locator;
     private GoogleApiClient mGoogleApiClient;
-    // TODO: agregar una propiedad que sea el usuario trackeado con el marker
     private Menu mOptionsMenu;
     public HistoryManager historyManager;
     private GestorSesion gestorSesion;
-    private TextView mDrawerUserName;
-    private TextView mDrawerUserMail;
-    private ProfilePictureView mDrawerUserPicture;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity
 
         //Esto se carga sin butterknife por un bug de Android. Que bonito sos.
         View header = mNavView.getHeaderView(0);
+        mDrawerLogoutButton = header.findViewById(R.id.fb_logout_button);
         mDrawerUserName = header.findViewById(R.id.drawer_user_name);
         mDrawerUserMail = header.findViewById(R.id.drawer_user_email);
         mDrawerUserPicture = header.findViewById(R.id.drawer_user_picture);
@@ -150,6 +154,15 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        mDrawerLogoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LoginManager.getInstance().logOut();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
     }
 
     private void onSesionInicializada() {
