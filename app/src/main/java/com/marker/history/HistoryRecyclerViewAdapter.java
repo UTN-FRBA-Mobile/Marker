@@ -7,9 +7,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -91,22 +94,26 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            AlertDialog.Builder saveDialog = new AlertDialog.Builder(HistoryRecyclerViewAdapter.this.context);
-            saveDialog.setTitle("Guardar destino");
-            saveDialog.setMessage("¿Desea guardar en \"Mis Destinos\"?");
-            saveDialog.setCancelable(true);
-            saveDialog.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface saveDialog, int id) {
-                    guardarDestino(history);
-                }
+            final EditText nombreDestino = new EditText(context);
+
+            AlertDialog.Builder saveDialog = new AlertDialog.Builder(HistoryRecyclerViewAdapter.this.context)
+                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location))
+                .setMessage("Puede cambiarle el nombre:")
+                .setView(nombreDestino)
+                .setCancelable(true)
+                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface saveDialog, int id) {
+                        guardarDestino(history, nombreDestino.getText());
+                    }
             });
             saveDialog.show();
-            
+
             return true;
         }
     }
 
-    private void guardarDestino(History history) {
-        this.lugarManager.writeLugar(history.location, history.position);
+    private void guardarDestino(History history, Editable nombreDestino) {
+        String nombre = TextUtils.isEmpty(nombreDestino) ? history.location : nombreDestino.toString();
+        this.lugarManager.writeLugar(nombre, history.position);
     }
 }
