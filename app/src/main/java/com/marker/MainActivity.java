@@ -55,9 +55,11 @@ import com.marker.friends.FriendsActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
 import com.marker.history.HistoryManager;
+import com.marker.locator.LatLong;
 import com.marker.locator.Locator;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarActivity;
+import com.marker.lugar.LugarManager;
 import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
 
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private Menu mOptionsMenu;
     public HistoryManager historyManager;
+    public LugarManager lugarManager;
     private GestorSesion gestorSesion;
 
 
@@ -167,6 +170,7 @@ public class MainActivity extends AppCompatActivity
 
     private void onSesionInicializada() {
         historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
+        lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
         GestorSesion gestorSesion = GestorSesion.getInstancia();
@@ -276,7 +280,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void OnDestiniesPressed() { startActivityForResult(new Intent(this, LugarActivity.class), PICK_LUGAR_REQUEST); }
+    public void OnDestiniesPressed() {
+        Intent childIntent = new Intent(this, LugarActivity.class);
+        childIntent.putParcelableArrayListExtra("lugares", lugarManager.lugares);
+        startActivityForResult(childIntent, PICK_LUGAR_REQUEST);
+    }
 
     public void OnHistoriesPressed() {
         Intent childIntent = new Intent(this, HistoryActivity.class);
@@ -373,7 +381,7 @@ public class MainActivity extends AppCompatActivity
             case PICK_LUGAR_REQUEST:
                 if(resultCode == RESULT_OK) {
                     Lugar lugar = data.getParcelableExtra("lugar");
-                    this.map.setPosition(lugar.position);
+                    this.map.setPosition(LatLong.toLatLng(lugar.position));
 
                     enableTrackButton();
 
@@ -386,7 +394,7 @@ public class MainActivity extends AppCompatActivity
 
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
-                    Lugar lugar = new Lugar(place.getName().toString(), "", place.getLatLng());
+                    Lugar lugar = new Lugar(place.getName().toString(), "", LatLong.of(place.getLatLng()));
                     map.setLugar(lugar);
 
                     historyManager.writePlace(place);

@@ -1,4 +1,4 @@
-package com.marker.history;
+package com.marker.lugar;
 
 import android.util.Log;
 
@@ -12,20 +12,20 @@ import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
 
-public class HistoryManager {
-    private static final String TAG = "History";
+public class LugarManager {
+    private static final String TAG = "Lugar";
     private static DatabaseReference mDatabase;
-    public  ArrayList<History> histories = new ArrayList<>();
+    public  ArrayList<Lugar> lugares = new ArrayList<>();
     private String userId;
 
-    public HistoryManager(String userId){
+    public LugarManager(String userId){
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
 
-                History history = dataSnapshot.getValue(History.class);
-                histories.add(history);
+                Lugar lugar = dataSnapshot.getValue(Lugar.class);
+                lugares.add(lugar);
 
             }
 
@@ -33,16 +33,14 @@ public class HistoryManager {
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
 
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so displayed the changed comment.
-                History history = dataSnapshot.getValue(History.class);
+                Lugar lugar = dataSnapshot.getValue(Lugar.class);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-                History removedHistory = (History) dataSnapshot.getValue();
-                histories.remove(removedHistory);
+                Lugar removedHistory = (Lugar) dataSnapshot.getValue();
+                lugares.remove(removedHistory);
             }
 
             @Override
@@ -59,18 +57,18 @@ public class HistoryManager {
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("usuarios").child(userId).child("histories").addChildEventListener(childEventListener);
+        mDatabase.child("usuarios").child(userId).child("lugares").addChildEventListener(childEventListener);
 
     }
 
     public void writePlace(Place place){
         LatLong latLong = new LatLong(place.getLatLng().latitude, place.getLatLng().longitude);
-        this.writeHistory(place.getName().toString(), latLong);
+        this.writeLugar(place.getName().toString(), latLong);
     }
 
-    public void writeHistory(String location, LatLong position) {
-        String uid = mDatabase.child("usuarios").child(userId).child("histories").push().getKey();
-        History history = new History(location, position);
-        mDatabase.child("usuarios").child(userId).child("histories").child(uid).setValue(history);
+    public void writeLugar(String location, LatLong position) {
+        String uid = mDatabase.child("usuarios").child(userId).child("lugares").push().getKey();
+        Lugar lugar = new Lugar(location, "", position);
+        mDatabase.child("usuarios").child(userId).child("lugares").child(uid).setValue(lugar);
     }
 }

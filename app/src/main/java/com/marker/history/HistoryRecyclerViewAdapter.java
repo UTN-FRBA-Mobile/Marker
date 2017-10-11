@@ -12,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.marker.R;
+import com.marker.app.GestorSesion;
+import com.marker.lugar.Lugar;
+import com.marker.lugar.LugarManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,14 +22,18 @@ import java.util.Collection;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnItemLongClick;
+import butterknife.OnLongClick;
 
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<History> histories = new ArrayList<>();
     private Context context;
+    public LugarManager lugarManager;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_histories_item_list, parent, false);
@@ -78,6 +85,12 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
             resultIntent.putExtra("history", history);
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
+        }
+
+        @OnLongClick(R.id.card)
+        boolean onLongClickCard(){
+            HistoryRecyclerViewAdapter.this.lugarManager.writeLugar(history.location, history.position);
+            return true;
         }
     }
 }

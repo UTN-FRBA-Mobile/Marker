@@ -9,7 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.marker.locator.LatLong;
 import com.marker.R;
 
 import java.util.ArrayList;
@@ -36,7 +36,8 @@ public class LugarActivity extends AppCompatActivity {
         rvLugares.setAdapter(adapter);
         rvLugares.setLayoutManager(new LinearLayoutManager(this));
 
-        List<Lugar> lugares = this.mockData();
+        Bundle extras = getIntent().getExtras();
+        ArrayList<Lugar> lugares = extras.getParcelableArrayList("lugares");
 
         adapter.setItems(lugares);
     }
@@ -62,32 +63,5 @@ public class LugarActivity extends AppCompatActivity {
     public void lugarSeleccionado(Intent data){
         setResult(RESULT_OK, data);
         finish();
-    }
-
-    public final List<Lugar> mockData(){
-        List<Lugar> lugares = new ArrayList<>();
-
-        lugares.add(new Lugar("Mi casa",
-                "",
-                new LatLng(-34.624799, -58.492793)));
-        lugares.add(new Lugar("Cinemark Caballito",
-                "",
-                new LatLng(-34.616298, -58.428772)));
-        lugares.add(new Lugar("Panadería",
-                "",
-                new LatLng(-34.607571, -58.374958)));
-        lugares.add(new Lugar("Teatro",
-                "",
-                new LatLng(-34.601072, -58.382956)));
-        lugares.add(new Lugar("Facultad",
-                "",
-                new LatLng(-34.598575, -58.420118)));
-        lugares.add(new Lugar("Taller de Toto",
-                "",
-                new LatLng(-34.626755, -58.491268)));
-        lugares.add(new Lugar("Laburo",
-                "",
-                new LatLng(-34.597357, -58.372061)));
-        return lugares;
     }
 }

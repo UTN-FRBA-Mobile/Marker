@@ -3,14 +3,16 @@ package com.marker.lugar;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.gms.maps.model.LatLng;
+import com.marker.locator.LatLong;
 
 public class Lugar implements Parcelable{
     public String nombre;
     public String urlImagen;
-    public LatLng position;
+    public LatLong position;
 
-    public Lugar(String nombre, String urlImagen, LatLng position) {
+    public Lugar(){}
+
+    public Lugar(String nombre, String urlImagen, LatLong position) {
         this.nombre = nombre;
         this.urlImagen = urlImagen;
         this.position = position;
@@ -26,7 +28,7 @@ public class Lugar implements Parcelable{
         this.urlImagen = data[1];
         double lat = Double.parseDouble(data[2]);
         double lon = Double.parseDouble(data[3]);
-        this.position = new LatLng(lat, lon);
+        this.position = new LatLong(lat, lon);
     }
 
     @Override

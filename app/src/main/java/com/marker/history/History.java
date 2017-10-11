@@ -3,18 +3,18 @@ package com.marker.history;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.marker.locator.LatLng;
+import com.marker.locator.LatLong;
 
 
 public class History implements Parcelable {
     public String location;
-    public LatLng position;
+    public LatLong position;
 
     public History(){
         // Default constructor required for calls to DataSnapshot.getValue(History.class)
     }
 
-    public History(String location, LatLng position){
+    public History(String location, LatLong position){
         this.location = location;
         this.position = position;
     }
@@ -28,7 +28,7 @@ public class History implements Parcelable {
         this.location = data[0];
         double lat = Double.parseDouble(data[1]);
         double lon = Double.parseDouble(data[2]);
-        this.position = new LatLng(lat, lon);
+        this.position = new LatLong(lat, lon);
     }
 
     @Override
