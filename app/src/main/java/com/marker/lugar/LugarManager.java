@@ -69,6 +69,7 @@ public class LugarManager {
     public void writeLugar(String location, LatLong position) {
         String uid = mDatabase.child("usuarios").child(userId).child("lugares").push().getKey();
         Lugar lugar = new Lugar(location, "", position);
+        lugar.uid = uid;
         mDatabase.child("usuarios").child(userId).child("lugares").child(uid).setValue(lugar);
     }
 }
