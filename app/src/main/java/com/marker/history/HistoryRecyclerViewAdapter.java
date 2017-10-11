@@ -1,7 +1,9 @@
 package com.marker.history;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -89,8 +91,22 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            HistoryRecyclerViewAdapter.this.lugarManager.writeLugar(history.location, history.position);
+            AlertDialog.Builder saveDialog = new AlertDialog.Builder(HistoryRecyclerViewAdapter.this.context);
+            saveDialog.setTitle("Guardar destino");
+            saveDialog.setMessage("¿Desea guardar en \"Mis Destinos\"?");
+            saveDialog.setCancelable(true);
+            saveDialog.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface saveDialog, int id) {
+                    guardarDestino(history);
+                }
+            });
+            saveDialog.show();
+            
             return true;
         }
+    }
+
+    private void guardarDestino(History history) {
+        this.lugarManager.writeLugar(history.location, history.position);
     }
 }
