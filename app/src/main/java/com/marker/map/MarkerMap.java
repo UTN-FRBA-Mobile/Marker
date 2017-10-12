@@ -1,25 +1,10 @@
 package com.marker.map;
 
-import android.Manifest;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -30,9 +15,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.lugar.Lugar;
 
@@ -42,7 +24,6 @@ public class MarkerMap {
 
     // Geofence parameters for the Android building on Google's main campus in Mountain View.
     public static final String ANDROID_BUILDING_ID = "1";
-    public static final float ANDROID_BUILDING_RADIUS_METERS = 200.0f; // A sacar de las settings
 
     private Context context;
     private GoogleMap map;
@@ -50,9 +31,11 @@ public class MarkerMap {
     private Marker userMarker;
     private Circle circle;
     private Location userLocation;
+    private Lugar lugar;
+    private float radio = 200.0f;
+    // Geofence
     private Geofence geoFence;
     private GeoFenceHandler geoFenceHandler;
-    private Lugar lugar;
 
     public MarkerMap(Context context){
         this.context = context;
@@ -65,7 +48,7 @@ public class MarkerMap {
                 ANDROID_BUILDING_ID,
                 marker.getPosition().latitude,
                 marker.getPosition().longitude,
-                ANDROID_BUILDING_RADIUS_METERS,
+                this.radio,
                 GEOFENCE_EXPIRATION_TIME,
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
         );
@@ -130,6 +113,7 @@ public class MarkerMap {
                     .strokeWidth(2));
         } else {
             circle.setCenter(marker.getPosition());
+            circle.setRadius(fence.getRadius());
         }
 
     }
@@ -172,5 +156,13 @@ public class MarkerMap {
 
     public Lugar getLugar() {
         return lugar;
+    }
+
+    public float getRadio() {
+        return radio;
+    }
+
+    public void setRadio(float radio) {
+        this.radio = radio;
     }
 }

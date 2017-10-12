@@ -348,11 +348,18 @@ public class MainActivity extends AppCompatActivity
         this.map.setMap(map);
     }
 
+    private float getRadioSetting(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return (float) preferences.getInt("pr1", 200);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         switch(requestCode) {
             case PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
+                    this.map.setRadio(getRadioSetting());
+
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.position.latitude, history.position.longitude));
 
@@ -384,6 +391,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PICK_LUGAR_REQUEST:
                 if(resultCode == RESULT_OK) {
+                    this.map.setRadio(getRadioSetting());
+
                     Lugar lugar = data.getParcelableExtra("lugar");
                     this.map.setPosition(LatLong.toLatLng(lugar.position));
 
@@ -394,6 +403,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
+                    this.map.setRadio(getRadioSetting());
+
                     Place place = PlaceAutocomplete.getPlace(this, data);
 
                     map.setPosition(place.getLatLng());
