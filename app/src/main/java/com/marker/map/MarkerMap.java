@@ -47,6 +47,7 @@ public class MarkerMap {
     private Context context;
     private GoogleMap map;
     private Marker marker;
+    private Marker userMarker;
     private Circle circle;
     private Location userLocation;
     private Geofence geoFence;
@@ -99,12 +100,15 @@ public class MarkerMap {
         this.userLocation = location;
         LatLng latLng = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
 
+        if(userMarker == null){
+            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_marker);
 
-        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_marker);
-
-        map.addMarker(new MarkerOptions().position(latLng)
-                .title("Location")
-                .icon(icon));
+            userMarker = map.addMarker(new MarkerOptions().position(latLng)
+                            .title("Location")
+                            .icon(icon));
+        } else {
+            userMarker.setPosition(latLng);
+        }
     }
 
     public void addMarker(LatLng position){

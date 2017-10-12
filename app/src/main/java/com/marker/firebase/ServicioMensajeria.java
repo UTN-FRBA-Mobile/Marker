@@ -4,6 +4,12 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -57,5 +63,22 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0, notificationBuilder.build());
+        alert();
+    }
+
+    private void alert(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        Uri notif = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
+        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notif);
+        r.play();
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        // Start without a delay
+        // Each element then alternates between vibrate, sleep, vibrate, sleep...
+        long[] pattern = {0, 100, 1000, 300, 200, 100, 500, 200, 100};
+
+        // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
+        v.vibrate(pattern, -1);
     }
 }
