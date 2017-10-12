@@ -1,5 +1,7 @@
 package com.marker.lugar;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.gms.location.places.Place;
@@ -12,7 +14,7 @@ import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
 
-public class LugarManager {
+public class LugarManager implements Parcelable{
     private static final String TAG = "Lugar";
     private static DatabaseReference mDatabase;
     public  ArrayList<Lugar> lugares = new ArrayList<>();
@@ -70,6 +72,23 @@ public class LugarManager {
 
     }
 
+    protected LugarManager(Parcel in) {
+        lugares = in.createTypedArrayList(Lugar.CREATOR);
+        userId = in.readString();
+    }
+
+    public static final Creator<LugarManager> CREATOR = new Creator<LugarManager>() {
+        @Override
+        public LugarManager createFromParcel(Parcel in) {
+            return new LugarManager(in);
+        }
+
+        @Override
+        public LugarManager[] newArray(int size) {
+            return new LugarManager[size];
+        }
+    };
+
     public void writePlace(Place place){
         LatLong latLong = new LatLong(place.getLatLng().latitude, place.getLatLng().longitude);
         this.writeLugar(place.getName().toString(), latLong);
@@ -84,5 +103,16 @@ public class LugarManager {
 
     public void deleteLugar(String uid){
         mDatabase.child("usuarios").child(userId).child("lugares").child(uid).removeValue();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.userId);
+        dest.writeList(this.lugares);
     }
 }
