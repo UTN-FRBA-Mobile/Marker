@@ -3,10 +3,13 @@ package com.marker.map;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Vibrator;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
@@ -15,11 +18,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.lugar.Lugar;
 
 
-public class MarkerMap {
+public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     public static final long GEOFENCE_EXPIRATION_TIME = Geofence.NEVER_EXPIRE;
 
     // Geofence parameters for the Android building on Google's main campus in Mountain View.
@@ -57,8 +61,28 @@ public class MarkerMap {
         this.addFence(sFence);
     }
 
+    @Override
+    public void onMapLongClick(LatLng point) {
+        confirmClick(point);
+    }
+
+    @Override
+    public void onMapClick(LatLng point) {
+        confirmClick(point);
+    }
+
+    private void confirmClick(LatLng point) {
+        setPosition(point);
+        MainActivity mActivity = (MainActivity) context;
+        Vibrator vibe = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(50);
+        mActivity.enableTrackButton();
+    }
+
     public void setMap(GoogleMap map){
         this.map = map;
+        this.map.setOnMapClickListener(this);
+        this.map.setOnMapLongClickListener(this);
         this.map.getUiSettings().setMapToolbarEnabled(false);
     }
 

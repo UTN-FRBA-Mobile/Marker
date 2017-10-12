@@ -427,7 +427,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void enableTrackButton() {
+    public void enableTrackButton() {
         fab.setEnabled(true);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
     }
