@@ -1,9 +1,6 @@
 package com.marker;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -47,6 +44,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.marker.about.AboutFragment;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -173,9 +171,12 @@ public class MainActivity extends AppCompatActivity
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
+    }
+
+    public void generateNotification(String message) {
         GestorSesion gestorSesion = GestorSesion.getInstancia();
         gestorSesion.getEmisorMensajes()
-                .enviar(gestorSesion.getUsuarioLoggeado(), "asd");
+                .enviar(gestorSesion.getUsuarioLoggeado(), message);
     }
 
     private void initialize_drawer() {
@@ -300,24 +301,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean OnAboutPressed(){
-        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        alertDialog.setTitle("Acerca");
-        alertDialog.setMessage(
-                "App para Desarrollo de aplicaciones móbiles." + "\n\n" +
-                        "Desarrollado por: " + "\n" +
-                        "Ezequiel Ayzenberg" + "\n" +
-                        "Fernando Velcic"  + "\n" +
-                        "Francisco Bravo"  + "\n" +
-                        "Sandro Damilano"  + "\n"
-        );
-
-        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Continuar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        alertDialog.show();
+        AboutFragment af = new AboutFragment();
+        af.show(getFragmentManager(), TAG);
         return true;
     }
 
@@ -344,11 +329,18 @@ public class MainActivity extends AppCompatActivity
         this.map.setMap(map);
     }
 
+    private float getRadioSetting(){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        return (float) preferences.getInt("pr1", 200);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         switch(requestCode) {
             case PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
+                    this.map.setRadio(getRadioSetting());
+
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.position.latitude, history.position.longitude));
 
@@ -375,11 +367,13 @@ public class MainActivity extends AppCompatActivity
                     } catch (Exception e) {
                         showSnackbar("GPS is not on!");
                     }
-
+                    this.map.activateFence();
                 }
                 break;
             case PICK_LUGAR_REQUEST:
                 if(resultCode == RESULT_OK) {
+                    this.map.setRadio(getRadioSetting());
+
                     Lugar lugar = data.getParcelableExtra("lugar");
                     this.map.setPosition(LatLong.toLatLng(lugar.position));
 
@@ -390,6 +384,8 @@ public class MainActivity extends AppCompatActivity
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
+                    this.map.setRadio(getRadioSetting());
+
                     Place place = PlaceAutocomplete.getPlace(this, data);
 
                     map.setPosition(place.getLatLng());
@@ -412,7 +408,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void enableTrackButton() {
+    public void enableTrackButton() {
         fab.setEnabled(true);
         fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
     }
@@ -431,7 +427,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param text The Snackbar text.
      */
-    private void showSnackbar(final String text) {
+    public void showSnackbar(final String text) {
         View container = findViewById(R.id.map);
         if (container != null) {
             Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();

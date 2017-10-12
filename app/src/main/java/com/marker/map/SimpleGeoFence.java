@@ -64,6 +64,7 @@ public class SimpleGeoFence {
                 .setRequestId(mId)
                 .setTransitionTypes(mTransitionType)
                 .setCircularRegion(mLatitude, mLongitude, mRadius)
+                .setLoiteringDelay(5)
                 .setExpirationDuration(mExpirationDuration)
                 .build();
     }

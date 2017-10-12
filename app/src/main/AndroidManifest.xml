@@ -24,16 +24,19 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".friends.FriendsActivity"></activity>
-        <activity android:name=".lugar.LugarActivity" />
-        <activity android:name=".history.HistoryActivity" />
+        <activity android:name=".friends.FriendsActivity"
+            android:label="@string/title_activity_friends"></activity>
+        <activity android:name=".lugar.LugarActivity"
+            android:label="@string/title_activity_lugar"/>
+        <activity android:name=".history.HistoryActivity"
+            android:label="@string/title_activity_history"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB7YSXCoFYb0HnNtG0ggDRMDrS-gKXK4Q8"
             />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-        <service android:name=".GeofenceTransitionsIntentService"/>
+        <service android:name=".map.GeofenceTransitionsIntentService"/>
         <service android:name=".firebase.ServicioMensajeria">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>

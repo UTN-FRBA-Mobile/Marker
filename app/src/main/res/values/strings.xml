@@ -6,6 +6,12 @@
 
     <string name="action_settings">Ajustes</string>
     <string name="title_activity_settings">Ajustes</string>
+    <string name="title_activity_friends">Amigos</string>
+    <string name="title_activity_lugar">Mis Destinos</string>
+    <string name="title_activity_history">Historial</string>
+
+    <string name="friends_continue">Continuar</string>
+
 
     <!-- Strings related to Settings -->
 

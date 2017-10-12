@@ -36,7 +36,7 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
-                .inflate(R.layout.activity_lugares_item_lista, parent, false);
+                .inflate(R.layout.activity_lugares_item_list, parent, false);
         return new ViewHolder(view);
     }
 

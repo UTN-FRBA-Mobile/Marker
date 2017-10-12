@@ -12,15 +12,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.google.gson.Gson;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.facebook.User;
-
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 
@@ -59,7 +53,7 @@ public class FriendsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.contact, menu);
+        inflater.inflate(R.menu.friend, menu);
         return true;
     }
 
