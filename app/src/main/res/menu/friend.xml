@@ -4,7 +4,7 @@
     <item
         android:id="@+id/action_continue"
         android:orderInCategory="100"
-        android:title="Continue"
+        android:title="@string/share"
         app:showAsAction="always"
         app:srcCompat="@drawable/ic_arrow_forward"/>
 </menu>
