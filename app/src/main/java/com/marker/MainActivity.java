@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
-        generateNotification("asd");
     }
 
     public void generateNotification(String message) {
