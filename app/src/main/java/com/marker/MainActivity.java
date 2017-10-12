@@ -1,9 +1,6 @@
 package com.marker;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -47,6 +44,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.marker.about.AboutFragment;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -303,24 +301,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean OnAboutPressed(){
-        AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-        alertDialog.setTitle("Acerca");
-        alertDialog.setMessage(
-                "App para Desarrollo de aplicaciones móbiles." + "\n\n" +
-                        "Desarrollado por: " + "\n" +
-                        "Ezequiel Ayzenberg" + "\n" +
-                        "Fernando Velcic"  + "\n" +
-                        "Francisco Bravo"  + "\n" +
-                        "Sandro Damilano"  + "\n"
-        );
-
-        alertDialog.setButton(Dialog.BUTTON_POSITIVE, "Continuar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        alertDialog.show();
+        AboutFragment af = new AboutFragment();
+        af.show(getFragmentManager(), TAG);
         return true;
     }
 
