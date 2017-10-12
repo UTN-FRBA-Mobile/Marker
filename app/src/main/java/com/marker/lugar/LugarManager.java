@@ -39,8 +39,17 @@ public class LugarManager {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-                Lugar removedHistory = (Lugar) dataSnapshot.getValue();
-                lugares.remove(removedHistory);
+                Lugar removedLugar = dataSnapshot.getValue(Lugar.class);
+
+                // FML
+                int position = 0;
+                for (Lugar lugar : lugares) {
+                    if(lugar.uid.equals(removedLugar.uid))
+                        break;
+                    position += 1;
+                }
+
+                lugares.remove(position);
             }
 
             @Override
@@ -71,5 +80,9 @@ public class LugarManager {
         Lugar lugar = new Lugar(location, "", position);
         lugar.uid = uid;
         mDatabase.child("usuarios").child(userId).child("lugares").child(uid).setValue(lugar);
+    }
+
+    public void deleteLugar(String uid){
+        mDatabase.child("usuarios").child(userId).child("lugares").child(uid).removeValue();
     }
 }

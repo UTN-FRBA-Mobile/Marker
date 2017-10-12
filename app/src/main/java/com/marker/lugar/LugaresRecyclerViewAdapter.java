@@ -1,17 +1,21 @@
 package com.marker.lugar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.marker.R;
+import com.marker.app.GestorSesion;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,14 +23,17 @@ import java.util.Collection;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 
 public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<Lugar> lugares = new ArrayList<>();
     private Context context;
+    public LugarManager lugarManager;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_lugares_item_lista, parent, false);
@@ -79,5 +86,25 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
         }
+
+        @OnLongClick(R.id.card)
+        boolean onLongClickCard(){
+            AlertDialog.Builder deleteDialog = new AlertDialog.Builder(LugaresRecyclerViewAdapter.this.context)
+                    .setTitle("Borrar")
+                    .setMessage(String.format("¿Borrar %s de \"Mis Destinos\"?", lugar.nombre))
+                    .setCancelable(true)
+                    .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface deleteDialog, int id) {
+                            borrarDestino(lugar);
+                        }
+                    });
+            deleteDialog.show();
+
+            return true;
+        }
+    }
+
+    private void borrarDestino(Lugar lugar) {
+        this.lugarManager.deleteLugar(lugar.uid);
     }
 }
