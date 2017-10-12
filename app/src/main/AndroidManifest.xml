@@ -36,7 +36,7 @@
             android:value="AIzaSyB7YSXCoFYb0HnNtG0ggDRMDrS-gKXK4Q8"
             />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
-        <service android:name=".GeofenceTransitionsIntentService"/>
+        <service android:name=".map.GeofenceTransitionsIntentService"/>
         <service android:name=".firebase.ServicioMensajeria">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>

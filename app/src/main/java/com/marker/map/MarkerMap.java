@@ -1,6 +1,10 @@
 package com.marker.map;
 
+import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,8 +12,12 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +30,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.lugar.Lugar;
 
@@ -38,26 +49,28 @@ public class MarkerMap {
     private Marker marker;
     private Circle circle;
     private Location userLocation;
-    private SimpleGeoFence geoFence;
+    private Geofence geoFence;
+    private GeoFenceHandler geoFenceHandler;
     private Lugar lugar;
 
     public MarkerMap(Context context){
         this.context = context;
+        this.geoFenceHandler = new GeoFenceHandler(context);
     }
 
-    public void createGeofences(LatLng position) {
+    public void createGeofences() {
         // Create internal "flattened" objects containing the geofence data.
-        SimpleGeoFence mAndroidBuildingGeofence = new SimpleGeoFence(
+        SimpleGeoFence sFence = new SimpleGeoFence(
                 ANDROID_BUILDING_ID,
-                position.latitude,
-                position.longitude,
+                marker.getPosition().latitude,
+                marker.getPosition().longitude,
                 ANDROID_BUILDING_RADIUS_METERS,
                 GEOFENCE_EXPIRATION_TIME,
                 Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT
         );
 
-        geoFence = mAndroidBuildingGeofence;
-        this.addFence(geoFence);
+        geoFence = sFence.toGeofence();
+        this.addFence(sFence);
     }
 
     public void setMap(GoogleMap map){
@@ -74,6 +87,7 @@ public class MarkerMap {
             addMarker(position);
         } else {
             marker.setPosition(position);
+            createGeofences();
         }
     }
 
@@ -95,15 +109,25 @@ public class MarkerMap {
 
     public void addMarker(LatLng position){
         marker = map.addMarker(new MarkerOptions().position(position).title("Marker"));
-        createGeofences(position);
+        createGeofences();
     }
 
-    public void addFence(SimpleGeoFence fence){
-        circle = map.addCircle(new CircleOptions().center( new LatLng(fence.getLatitude(), fence.getLongitude()) )
-                .radius( fence.getRadius() )
-                .fillColor(0x40ff0000)
-                .strokeColor(Color.TRANSPARENT)
-                .strokeWidth(2));
+    public void activateFence(){
+        this.geoFenceHandler.setGeoFence(geoFence);
+        this.geoFenceHandler.activateFence();
+    }
+
+    public void addFence(SimpleGeoFence fence) {
+        if(circle == null){
+            circle = map.addCircle(new CircleOptions().center( new LatLng(fence.getLatitude(), fence.getLongitude()) )
+                    .radius( fence.getRadius() )
+                    .fillColor(0x40ff0000)
+                    .strokeColor(Color.TRANSPARENT)
+                    .strokeWidth(2));
+        } else {
+            circle.setCenter(marker.getPosition());
+        }
+
     }
 
     public void updateCamera(){

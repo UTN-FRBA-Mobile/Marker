@@ -173,9 +173,13 @@ public class MainActivity extends AppCompatActivity
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
+        generateNotification("asd");
+    }
+
+    public void generateNotification(String message) {
         GestorSesion gestorSesion = GestorSesion.getInstancia();
         gestorSesion.getEmisorMensajes()
-                .enviar(gestorSesion.getUsuarioLoggeado(), "asd");
+                .enviar(gestorSesion.getUsuarioLoggeado(), message);
     }
 
     private void initialize_drawer() {
@@ -375,7 +379,7 @@ public class MainActivity extends AppCompatActivity
                     } catch (Exception e) {
                         showSnackbar("GPS is not on!");
                     }
-
+                    this.map.activateFence();
                 }
                 break;
             case PICK_LUGAR_REQUEST:
@@ -431,7 +435,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param text The Snackbar text.
      */
-    private void showSnackbar(final String text) {
+    public void showSnackbar(final String text) {
         View container = findViewById(R.id.map);
         if (container != null) {
             Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
