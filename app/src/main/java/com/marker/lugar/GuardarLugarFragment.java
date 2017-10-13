@@ -20,13 +20,6 @@ public class GuardarLugarFragment extends DialogFragment {
     private History history;
     private LugarManager lugarManager;
 
-    public GuardarLugarFragment(){}
-
-    public GuardarLugarFragment(History aHistory, LugarManager unLugarManager){
-        history = aHistory;
-        lugarManager = unLugarManager;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         Bundle bundle = getArguments();
@@ -37,16 +30,16 @@ public class GuardarLugarFragment extends DialogFragment {
 
         final EditText nombreDestino = new EditText(getContext());
 
-        AlertDialog.Builder saveDialog = new AlertDialog.Builder(getContext());
-        saveDialog.setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location));
-        saveDialog.setMessage("Puede cambiarle el nombre:");
-        saveDialog.setView(nombreDestino);
-        saveDialog.setCancelable(true);
-        saveDialog.setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface saveDialog, int id) {
-                guardarDestino(history, nombreDestino.getText());
-            }
-        });
+        AlertDialog.Builder saveDialog = new AlertDialog.Builder(getContext())
+                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location))
+                .setMessage("Puede cambiarle el nombre:")
+                .setView(nombreDestino)
+                .setCancelable(true)
+                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface saveDialog, int id) {
+                        guardarDestino(history, nombreDestino.getText());
+                    }
+                });
 
         return saveDialog.create();
     }

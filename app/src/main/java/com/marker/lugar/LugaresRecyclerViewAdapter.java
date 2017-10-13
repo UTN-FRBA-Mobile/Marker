@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
+import com.marker.history.HistoryRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,22 +91,15 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            AlertDialog.Builder deleteDialog = new AlertDialog.Builder(LugaresRecyclerViewAdapter.this.context)
-                    .setTitle("Borrar")
-                    .setMessage(String.format("¿Borrar %s de \"Mis Destinos\"?", lugar.nombre))
-                    .setCancelable(true)
-                    .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface deleteDialog, int id) {
-                            borrarDestino(lugar);
-                        }
-                    });
-            deleteDialog.show();
+            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            BorrarLugarFragment borrarLugarFragment = new BorrarLugarFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("lugar", lugar);
+            args.putParcelable("lugarManager", lugarManager);
+            borrarLugarFragment.setArguments(args);
+            borrarLugarFragment.show(parentActivity.getFragmentManager(), "LugarActivity");
 
             return true;
         }
-    }
-
-    private void borrarDestino(Lugar lugar) {
-        this.lugarManager.deleteLugar(lugar.uid);
     }
 }

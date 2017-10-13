@@ -96,22 +96,9 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-//            final EditText nombreDestino = new EditText(context);
-//
-//            AlertDialog.Builder saveDialog = new AlertDialog.Builder(HistoryRecyclerViewAdapter.this.context)
-//                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location))
-//                .setMessage("Puede cambiarle el nombre:")
-//                .setView(nombreDestino)
-//                .setCancelable(true)
-//                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface saveDialog, int id) {
-//                        guardarDestino(history, nombreDestino.getText());
-//                    }
-//            });
-//            saveDialog.show();
             Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
 
-            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment(history, HistoryRecyclerViewAdapter.this.lugarManager);
+            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment();
             Bundle args = new Bundle();
             args.putParcelable("history", history);
             args.putParcelable("lugarManager", lugarManager);
@@ -120,10 +107,5 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
             return true;
         }
-    }
-
-    private void guardarDestino(History history, Editable nombreDestino) {
-        String nombre = TextUtils.isEmpty(nombreDestino) ? history.location : nombreDestino.toString();
-        this.lugarManager.writeLugar(nombre, history.position);
     }
 }
