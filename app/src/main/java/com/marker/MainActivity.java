@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity
                     // Obtengo los contactos seleccionados para compartir mi marker
                     ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
-                    gestorSesion.crearMarcador(map.getLugar(), 100);
+                    gestorSesion.crearMarcador(map.getLugar(), 100, contactsToShare);
                     updateTrackMenu(gestorSesion.getMarcadores());
                     //TODO: Compartir el marker
 

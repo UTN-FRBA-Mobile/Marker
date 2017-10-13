@@ -8,6 +8,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
@@ -20,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**Singleton para gestionar lo que ocurre en la app
  */
@@ -108,12 +111,23 @@ public class GestorSesion {
      * @return marker creado
      */
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion) {
+        return crearMarcador(lugar, radioDeteccion, new ArrayList<User>());
+    }
+
+    public Marcador crearMarcador(Lugar lugar, int radioDeteccion, ArrayList<User> contactsToShare) {
         User me = SerializationUtils.clone(this.me);
         me.setName(String.format("%s (Yo)", me.getName()));
-        Marcador marcador = new Marcador(me, lugar, radioDeteccion);
+        Marcador marcador = new Marcador(this.me, lugar, radioDeteccion);
+
+        List<String> usuarios = marcador.getUsuarios();
+        for (User user : contactsToShare) {
+            usuarios.add(user.getId());
+        }
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.
         marcadors.add(marcador);
+        DatabaseReference ref = firebaseDatabase.getReference("/usuarios/" + me.getId() + "/markers");
+        ref.push().setValue(marcador);
 
         return marcador;
     }
