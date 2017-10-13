@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.marker.locator.LatLong;
 
 public class Lugar implements Parcelable{
+    public String uid;
     public String nombre;
     public String urlImagen;
     public LatLong position;
@@ -20,14 +21,15 @@ public class Lugar implements Parcelable{
 
     // Parcelling part
     public Lugar(Parcel in){
-        String[] data = new String[4];
+        String[] data = new String[5];
 
         in.readStringArray(data);
         // the order needs to be the same as in writeToParcel() method
-        this.nombre = data[0];
-        this.urlImagen = data[1];
-        double lat = Double.parseDouble(data[2]);
-        double lon = Double.parseDouble(data[3]);
+        this.uid = data[0];
+        this.nombre = data[1];
+        this.urlImagen = data[2];
+        double lat = Double.parseDouble(data[3]);
+        double lon = Double.parseDouble(data[4]);
         this.position = new LatLong(lat, lon);
     }
 
@@ -39,7 +41,8 @@ public class Lugar implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[]
-                {   this.nombre,
+                {   this.uid,
+                    this.nombre,
                     this.urlImagen,
                     String.valueOf(this.position.latitude),
                     String.valueOf(this.position.longitude)

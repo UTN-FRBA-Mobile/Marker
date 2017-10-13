@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
+import com.marker.lugar.GuardarLugarFragment;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.LugarManager;
 
@@ -94,26 +96,16 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            final EditText nombreDestino = new EditText(context);
+            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
 
-            AlertDialog.Builder saveDialog = new AlertDialog.Builder(HistoryRecyclerViewAdapter.this.context)
-                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location))
-                .setMessage("Puede cambiarle el nombre:")
-                .setView(nombreDestino)
-                .setCancelable(true)
-                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface saveDialog, int id) {
-                        guardarDestino(history, nombreDestino.getText());
-                    }
-            });
-            saveDialog.show();
+            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("history", history);
+            args.putParcelable("lugarManager", lugarManager);
+            guardarLugarFragment.setArguments(args);
+            guardarLugarFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
 
             return true;
         }
-    }
-
-    private void guardarDestino(History history, Editable nombreDestino) {
-        String nombre = TextUtils.isEmpty(nombreDestino) ? history.location : nombreDestino.toString();
-        this.lugarManager.writeLugar(nombre, history.position);
     }
 }

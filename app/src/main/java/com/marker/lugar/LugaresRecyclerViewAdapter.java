@@ -1,17 +1,23 @@
 package com.marker.lugar;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.marker.R;
+import com.marker.app.GestorSesion;
+import com.marker.history.HistoryRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,14 +25,17 @@ import java.util.Collection;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 
 public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<Lugar> lugares = new ArrayList<>();
     private Context context;
+    public LugarManager lugarManager;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_lugares_item_list, parent, false);
@@ -78,6 +87,19 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
             resultIntent.putExtra("lugar", lugar);
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
+        }
+
+        @OnLongClick(R.id.card)
+        boolean onLongClickCard(){
+            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            BorrarLugarFragment borrarLugarFragment = new BorrarLugarFragment();
+            Bundle args = new Bundle();
+            args.putParcelable("lugar", lugar);
+            args.putParcelable("lugarManager", lugarManager);
+            borrarLugarFragment.setArguments(args);
+            borrarLugarFragment.show(parentActivity.getFragmentManager(), "LugarActivity");
+
+            return true;
         }
     }
 }
