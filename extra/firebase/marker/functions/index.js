@@ -5,22 +5,15 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
-
 exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
-    .onWrite(event => {
+    .onCreate(event => {
         const fcm = event.data.val();
         const token = fcm.tokenReceptor;
         const campo = fcm.esData ? "data" : "notification";
         const payload = {};
         payload[campo] = fcm.payload;
         enviar = admin.messaging().sendToDevice([token], payload);
-        eliminarMsj = admin.database.ref(`/fcm/${event.params.pushId}`).remove();
+        eliminarMsj = event.data.adminRef.remove();
         return Promise.all([enviar, eliminarMsj]);
     });
 
