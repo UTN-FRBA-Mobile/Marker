@@ -8,12 +8,16 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
+import com.marker.firebase.Mensaje;
 import com.marker.lugar.Lugar;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -128,6 +132,25 @@ public class GestorSesion {
         marcadors.add(marcador);
         DatabaseReference ref = firebaseDatabase.getReference("/usuarios/" + me.getId() + "/markers");
         ref.push().setValue(marcador);
+
+        firebaseDatabase.getReference("/usuarios/" + me.getId() + "/token")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Mensaje fcm = new Mensaje((String) dataSnapshot.getValue());
+                        fcm.setEsData(false);
+                        fcm.setTitle("Mensaje de mi");
+                        fcm.setBody("Holas");
+                        firebaseDatabase.getReference("/fcm")
+                                .push()
+                                .setValue(fcm);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
         return marcador;
     }

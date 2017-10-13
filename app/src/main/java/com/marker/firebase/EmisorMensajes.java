@@ -52,8 +52,7 @@ public class EmisorMensajes implements ValueEventListener {
             @Override
             protected String doInBackground(String... params) {
                 try {
-                    Mensaje fcmMessage = new Mensaje(receptorToken,
-                            cuerpoMensajeAEnviar);
+                    Mensaje fcmMessage = new Mensaje(receptorToken);
                     cuerpoMensajeAEnviar = null;
                     String stringify = new Gson().toJson(fcmMessage);
                     String result = postToFCM(stringify);

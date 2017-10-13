@@ -2,29 +2,54 @@ package com.marker.firebase;
 
 import android.support.annotation.Nullable;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.firebase.database.PropertyName;
 
 import java.util.HashMap;
 
 public class Mensaje {
-    private static final String CLAVE_MENSAJE = "body";
-    @SerializedName("to")
-    private String tokenReceptor;
-    @SerializedName("notification")
-    private HashMap<String, String> datos = new HashMap<>();
+    public static final String KEY_TITLE = "title";
+    public static final String KEY_BODY = "body";
 
-    public Mensaje(String tokenReceptor, String mensaje) {
+    @PropertyName("to")
+    private String tokenReceptor;
+    private HashMap<String, String> payload = new HashMap<>();
+    private Boolean esData;
+
+    public Mensaje(String tokenReceptor) {
         this.tokenReceptor = tokenReceptor;
-        setMensaje(mensaje);
     }
 
-    public void setMensaje(String mensaje) {
-        datos.put(CLAVE_MENSAJE, mensaje);
-        datos.put("title","Mensaje desde mi propio celu :D");
+    public void setBody(String body) {
+        payload.put(KEY_BODY, body);
+    }
+
+    public void setTitle(String title) {
+        payload.put(KEY_TITLE, title);
     }
 
     @Nullable
-    public String getMensaje() {
-        return datos.get(CLAVE_MENSAJE);
+    String getBody() {
+        return payload.get(KEY_BODY);
+    }
+
+    @Nullable
+    String getTitle() {
+        return payload.get(KEY_TITLE);
+    }
+
+    public HashMap<String, String> getPayload() {
+        return payload;
+    }
+
+    public void setEsData(Boolean esData) {
+        this.esData = esData;
+    }
+
+    public Boolean getEsData() {
+        return esData;
+    }
+
+    public String getTokenReceptor() {
+        return tokenReceptor;
     }
 }

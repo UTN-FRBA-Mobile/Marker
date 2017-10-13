@@ -12,6 +12,17 @@ admin.initializeApp(functions.config().firebase);
 //  response.send("Hello from Firebase!");
 // });
 
+exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
+    .onWrite(event => {
+        const fcm = event.data.val();
+        const token = fcm.tokenReceptor;
+        const campo = fcm.esData ? "data" : "notification";
+        const payload = {};
+        payload[campo] = fcm.payload;
+        enviar = admin.messaging().sendToDevice([token], payload);
+        eliminarMsj = admin.database.ref(`/fcm/${event.params.pushId}`).remove();
+        return Promise.all([enviar, eliminarMsj]);
+    });
 
 exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
     .onWrite(event => {
