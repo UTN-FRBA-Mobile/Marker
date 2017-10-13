@@ -12,11 +12,11 @@ public class Mensaje {
 
     @PropertyName("to")
     private String tokenReceptor;
-    private HashMap<String, String> payload = new HashMap<>();
+    private HashMap<String, Object> payload = new HashMap<>();
     private Boolean esData;
 
-    public Mensaje(String tokenReceptor) {
-        this.tokenReceptor = tokenReceptor;
+    private Mensaje(boolean esData) {
+        this.esData = esData;
     }
 
     public void setBody(String body) {
@@ -29,15 +29,15 @@ public class Mensaje {
 
     @Nullable
     String getBody() {
-        return payload.get(KEY_BODY);
+        return (String) payload.get(KEY_BODY);
     }
 
     @Nullable
     String getTitle() {
-        return payload.get(KEY_TITLE);
+        return (String) payload.get(KEY_TITLE);
     }
 
-    public HashMap<String, String> getPayload() {
+    public HashMap<String, Object> getPayload() {
         return payload;
     }
 
@@ -51,5 +51,17 @@ public class Mensaje {
 
     public String getTokenReceptor() {
         return tokenReceptor;
+    }
+
+    public void setToken(String token) {
+        this.tokenReceptor = token;
+    }
+
+    public static Mensaje newNotification() {
+        return new Mensaje(false);
+    }
+
+    public static Mensaje newDataMessage() {
+        return new Mensaje(true);
     }
 }

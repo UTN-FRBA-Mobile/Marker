@@ -10,6 +10,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.marker.app.GestorSesion;
+import com.marker.firebase.Mensaje;
 
 
 public class GeofenceTransitionsIntentService extends IntentService
@@ -45,8 +46,11 @@ public class GeofenceTransitionsIntentService extends IntentService
                 Log.e(TAG, "Location Services info: Transition enter");
                 //FIXME: deberia tomar datos del usuario y enviar la notificacion a quienes compartio el marker
                 GestorSesion gestorSesion = GestorSesion.getInstancia();
+                Mensaje fcm = Mensaje.newNotification();
+                fcm.setTitle("Marker");
+                fcm.setBody("Usuario ha llegado a destino");
                 gestorSesion.getEmisorMensajes()
-                        .enviar(gestorSesion.getUsuarioLoggeado(), "Usuario ha llegado a destino");
+                        .enviar(gestorSesion.getUsuarioLoggeado(), fcm);
                 String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
                         .getRequestId();
 

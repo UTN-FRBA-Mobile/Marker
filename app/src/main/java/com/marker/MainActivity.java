@@ -49,6 +49,7 @@ import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.facebook.User;
+import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
 import com.marker.history.History;
 import com.marker.history.HistoryActivity;
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             try {
-                gestorSesion.inicializar(this);
+                gestorSesion.inicializar();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity
         initialize_drawer();
     }
 
-    public void generateNotification(String message) {
+    public void generateNotification(Mensaje message) {
         GestorSesion gestorSesion = GestorSesion.getInstancia();
         gestorSesion.getEmisorMensajes()
                 .enviar(gestorSesion.getUsuarioLoggeado(), message);

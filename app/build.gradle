@@ -46,7 +46,6 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:[4,5)'
     compile 'com.facebook.android:facebook-messenger:4.27.0'
     compile 'com.facebook.android:facebook-login:4.27.0'
-    compile 'com.squareup.retrofit2:retrofit:2.0.0-beta4'
     compile 'org.apache.commons:commons-lang3:3.5'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'

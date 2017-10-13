@@ -58,13 +58,13 @@ public class GestorSesion {
     /**Inicializa el usuario y amigos
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
-    public void inicializar(Context context) throws Exception {
+    public void inicializar() throws Exception {
         token = AccessToken.getCurrentAccessToken();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth == null || token == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
         }
-        emisor = new EmisorMensajes(context);
+        emisor = new EmisorMensajes();
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
         GraphRequest request;
@@ -132,25 +132,6 @@ public class GestorSesion {
         marcadors.add(marcador);
         DatabaseReference ref = firebaseDatabase.getReference("/usuarios/" + me.getId() + "/markers");
         ref.push().setValue(marcador);
-
-        firebaseDatabase.getReference("/usuarios/" + me.getId() + "/token")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Mensaje fcm = new Mensaje((String) dataSnapshot.getValue());
-                        fcm.setEsData(false);
-                        fcm.setTitle("Mensaje de mi");
-                        fcm.setBody("Holas");
-                        firebaseDatabase.getReference("/fcm")
-                                .push()
-                                .setValue(fcm);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
 
         return marcador;
     }
