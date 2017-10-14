@@ -20,6 +20,8 @@ import butterknife.ButterKnife;
 
 public class LugarActivity extends AppCompatActivity {
 
+    private ArrayList<Lugar> lugares;
+
     @BindView(R.id.rv_lugares)
     RecyclerView rvLugares;
 
@@ -37,7 +39,12 @@ public class LugarActivity extends AppCompatActivity {
         rvLugares.setLayoutManager(new LinearLayoutManager(this));
 
         Bundle extras = getIntent().getExtras();
-        ArrayList<Lugar> lugares = extras.getParcelableArrayList("lugares");
+
+        if(savedInstanceState != null) {
+            extras = savedInstanceState;
+        }
+
+        lugares = extras.getParcelableArrayList("lugares");
 
         adapter.setItems(lugares);
     }
@@ -60,8 +67,13 @@ public class LugarActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void lugarSeleccionado(Intent data){
-        setResult(RESULT_OK, data);
-        finish();
+    public LugaresRecyclerViewAdapter getAdapter(){
+        return adapter;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("lugares", lugares);
     }
 }

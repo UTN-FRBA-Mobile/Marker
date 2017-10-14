@@ -29,7 +29,7 @@ import butterknife.OnLongClick;
 
 public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
 
-    private final ArrayList<Lugar> lugares = new ArrayList<>();
+    private ArrayList<Lugar> lugares = new ArrayList<>();
     private Context context;
     public LugarManager lugarManager;
 
@@ -52,9 +52,20 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         return lugares.size();
     }
 
-    public void setItems(Collection<Lugar> items) {
-        lugares.clear();
-        lugares.addAll(items);
+    public void setItems(ArrayList<Lugar> items) {
+        lugares = items;
+        notifyDataSetChanged();
+    }
+
+    public void deleteLugar(Lugar removedLugar) {
+        int position = 0;
+        for (Lugar lugar : lugares) {
+            if(lugar.uid.equals(removedLugar.uid))
+                break;
+            position += 1;
+        }
+
+        lugares.remove(position);
         notifyDataSetChanged();
     }
 

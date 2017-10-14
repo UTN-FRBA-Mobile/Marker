@@ -11,9 +11,7 @@ import android.widget.EditText;
 
 import com.marker.history.History;
 
-/**
- * Created by sdamilano on 12/10/17.
- */
+
 
 public class GuardarLugarFragment extends DialogFragment {
 
