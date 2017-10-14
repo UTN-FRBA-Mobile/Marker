@@ -66,6 +66,7 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity
     DrawerLayout drawer;
     @BindView(R.id.start_track)
     FloatingActionButton fab;
+    @BindView(R.id.stop_track)
+    FloatingActionButton mStopTrack;
 
     private Button mDrawerLogoutButton;
     private TextView mDrawerUserName;
@@ -117,8 +120,8 @@ public class MainActivity extends AppCompatActivity
                 OnContactsPressed();
             }
         });
-        fab.setEnabled(false);
-        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorDisabled)));
+        enableTrackButton(false);
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -237,26 +240,28 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_track) {
-            //todo Centrar en el mapa el marker seleccionado
-            return true;
-        } else if (id == R.id.action_search) {
-            try {
-                Intent intent =
-                        new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                                .build(this);
-                startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-            } catch (GooglePlayServicesRepairableException e) {
-                // TODO: Handle the error.
-            } catch (GooglePlayServicesNotAvailableException e) {
-                // TODO: Handle the error.
-            }
-        } else if(id == 1) {
-            showSnackbar("Contacto 1");
-        } else if(id == 2) {
-            showSnackbar("Contacto 2");
+        switch (id) {
+            case R.id.action_track:
+                //todo Centrar en el mapa el marker seleccionado
+                return true;
+            case R.id.action_search:
+                try {
+                    Intent intent =
+                            new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                                    .build(this);
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                } catch (GooglePlayServicesRepairableException e) {
+                    // TODO: Handle the error.
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    // TODO: Handle the error.
+                }
+            break;
+            default:
+                //Seleccion de Markers...
+                Marcador marcador = gestorSesion.getMarcadores().get(id);
+                setMarcadorActivo(marcador);
+            break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -335,6 +340,17 @@ public class MainActivity extends AppCompatActivity
         return (float) preferences.getInt("pr1", 200);
     }
 
+    @OnClick(R.id.stop_track)
+    public void onStopTrack() {
+        Marcador marcador = gestorSesion.getMarcadorActivo();
+        gestorSesion.eliminarMarcador(marcador);
+        updateTrackMenu(gestorSesion.getMarcadores());
+
+        fab.setVisibility(View.VISIBLE);
+        enableTrackButton(false);
+        mStopTrack.setVisibility(View.GONE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         switch(requestCode) {
@@ -345,7 +361,7 @@ public class MainActivity extends AppCompatActivity
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.position.latitude, history.position.longitude));
 
-                    enableTrackButton();
+                    enableTrackButton(true);
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
                 }
@@ -357,9 +373,12 @@ public class MainActivity extends AppCompatActivity
                     // Obtengo los contactos seleccionados para compartir mi marker
                     ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
-                    gestorSesion.crearMarcador(map.getLugar(), 100, contactsToShare);
+                    Marcador marcador = gestorSesion
+                            .crearMarcador(map.getLugar(), 100, contactsToShare);
                     updateTrackMenu(gestorSesion.getMarcadores());
                     //TODO: Compartir el marker
+
+                    setMarcadorActivo(marcador);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     this.locator.getLocation();
@@ -378,7 +397,7 @@ public class MainActivity extends AppCompatActivity
                     Lugar lugar = data.getParcelableExtra("lugar");
                     this.map.setPosition(LatLong.toLatLng(lugar.position));
 
-                    enableTrackButton();
+                    enableTrackButton(true);
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
                 }
@@ -396,7 +415,7 @@ public class MainActivity extends AppCompatActivity
 
                     historyManager.writePlace(place);
 
-                    enableTrackButton();
+                    enableTrackButton(true);
 
                     Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -409,17 +428,40 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void enableTrackButton() {
-        fab.setEnabled(true);
-        fab.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimaryLight)));
+    private void setMarcadorActivo(Marcador marcador) {
+        if (marcador == null) {
+            fab.setVisibility(View.VISIBLE);
+            enableTrackButton(false);
+            mStopTrack.setVisibility(View.GONE);
+        } else {
+            fab.setVisibility(View.GONE);
+            mStopTrack.setVisibility(View.VISIBLE);
+            Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000).show();
+        }
+        gestorSesion.setMarcadorActivo(marcador);
     }
 
-    private void updateTrackMenu(ArrayList<Marcador> contactsToShare) {
-        Integer i;
-        for(i=0; i < contactsToShare.size(); i++){
-            User user = contactsToShare.get(i).getUser();
-            mOptionsMenu.removeItem(i);
-            mOptionsMenu.add(R.id.action_track, i, Menu.FLAG_APPEND_TO_GROUP, user.getName());
+    public void enableTrackButton(boolean enabled) {
+        int color;
+        if (enabled) {
+            color = getResources().getColor(R.color.colorPrimaryLight);
+        } else {
+            color = getResources().getColor(R.color.colorDisabled);
+        }
+        fab.setBackgroundTintList(ColorStateList.valueOf(color));
+        fab.setEnabled(enabled);
+    }
+
+    private void updateTrackMenu(ArrayList<Marcador> markers) {
+        mOptionsMenu.clear();
+        MenuItem search = mOptionsMenu.add(Menu.NONE, R.id.action_search,
+                Menu.FIRST, "search");
+        search.setIcon(R.drawable.ic_search);
+        search.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        for(int i=0; i < markers.size(); i++){
+            User user = markers.get(i).getUser();
+            mOptionsMenu.add(R.id.action_track, i,
+                    Menu.FLAG_APPEND_TO_GROUP, user.getName());
         }
     }
 

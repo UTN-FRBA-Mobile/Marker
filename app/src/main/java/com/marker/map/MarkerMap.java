@@ -76,7 +76,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         MainActivity mActivity = (MainActivity) context;
         Vibrator vibe = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
         vibe.vibrate(50);
-        mActivity.enableTrackButton();
+        mActivity.enableTrackButton(true);
     }
 
     public void setMap(GoogleMap map){

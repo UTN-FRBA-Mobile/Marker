@@ -44,6 +44,7 @@ public class GestorSesion {
     private User me;
     private User[] friends;
     private EmisorMensajes emisor;
+    private Marcador marcadorActivo;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -121,7 +122,7 @@ public class GestorSesion {
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion, ArrayList<User> contactsToShare) {
         User me = SerializationUtils.clone(this.me);
         me.setName(String.format("%s (Yo)", me.getName()));
-        Marcador marcador = new Marcador(this.me, lugar, radioDeteccion);
+        Marcador marcador = new Marcador(me, lugar, radioDeteccion);
 
         List<String> usuarios = marcador.getUsuarios();
         for (User user : contactsToShare) {
@@ -130,8 +131,11 @@ public class GestorSesion {
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.
         marcadors.add(marcador);
-        DatabaseReference ref = firebaseDatabase.getReference("/usuarios/" + me.getId() + "/markers");
-        ref.push().setValue(marcador);
+        DatabaseReference ref = firebaseDatabase
+                .getReference("/usuarios/" + me.getId() + "/markers")
+                .push();
+        marcador.setId(ref.getKey());
+        ref.setValue(marcador);
 
         return marcador;
     }
@@ -170,5 +174,24 @@ public class GestorSesion {
 
     public EmisorMensajes getEmisorMensajes() {
         return emisor;
+    }
+
+    public void eliminarMarcador(Marcador marcador) {
+        if (marcadorActivo == marcador) {
+            marcadorActivo = null;
+        }
+        //todo si no hay internet habra q persistir registros por sincronizar
+        firebaseDatabase
+                .getReference("/usuarios/"+me.getId()+"/markers/"+marcador.getId())
+                .removeValue();
+        marcadors.remove(marcador);
+    }
+
+    public void setMarcadorActivo(Marcador marcadorActivo) {
+        this.marcadorActivo = marcadorActivo;
+    }
+
+    public Marcador getMarcadorActivo() {
+        return marcadorActivo;
     }
 }
