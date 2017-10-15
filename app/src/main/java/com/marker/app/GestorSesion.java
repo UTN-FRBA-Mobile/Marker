@@ -2,6 +2,7 @@ package com.marker.app;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -31,10 +32,11 @@ import java.util.List;
 /**Singleton para gestionar lo que ocurre en la app
  */
 public class GestorSesion {
+    private static final String TAG = GestorSesion.class.getSimpleName();
     private static GestorSesion singleton;
-    //Markers activos
-    private final ArrayList<Marcador> marcadors = new ArrayList<>();
     private final EventoObservable onInicializado = new EventoObservable();
+    //Markers activos
+    private ArrayList<Marcador> marcadors;
     //Facebook token
     private AccessToken token;
     private FirebaseAuth mAuth;
@@ -73,7 +75,7 @@ public class GestorSesion {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
                 me = new Gson().fromJson(jsonObject.toString(), User.class);
-                notificarInicializacion();
+                getMarkersDB();
             }
         });
         Bundle parameters = new Bundle();
@@ -90,6 +92,31 @@ public class GestorSesion {
         request.executeAsync();
     }
 
+    private void getMarkersDB() {
+        firebaseDatabase.getReference("/usuarios/"+me.getId()+"/markers")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        marcadors = new ArrayList<>();
+                        for (DataSnapshot data : dataSnapshot.getChildren()) {
+                            try {
+                                Marcador value = data.getValue(Marcador.class);
+                                marcadors.add(value);
+                            } catch (Exception e) {
+                                Log.e(TAG, "No se pudo deserializar Marcador", e);
+                            }
+                        }
+                        notificarInicializacion();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        marcadors = new ArrayList<>();
+                        notificarInicializacion();
+                    }
+                });
+    }
+
     private void notificarInicializacion() {
         if (inicializado()) {
             actualizarTokenEnServidor();
@@ -98,7 +125,7 @@ public class GestorSesion {
     }
 
     public boolean inicializado() {
-        return me != null && friends != null;
+        return me != null && friends != null && marcadors != null;
     }
 
     public boolean loggeado() {

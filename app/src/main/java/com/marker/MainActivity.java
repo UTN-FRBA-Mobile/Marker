@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
+        updateTrackMenu(gestorSesion.getMarcadores());
 
 //        User emisor = gestorSesion.getUsuarioLoggeado();
 //        Marcador marker = new Marcador(emisor, null, 100);
