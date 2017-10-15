@@ -7,11 +7,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -27,11 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
-import com.facebook.login.LoginManager;
-import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -46,8 +39,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.database.FirebaseDatabase;
-import com.marker.about.AboutFragment;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -55,14 +46,14 @@ import com.marker.facebook.User;
 import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
 import com.marker.history.History;
-import com.marker.history.HistoryActivity;
 import com.marker.history.HistoryManager;
 import com.marker.locator.LatLong;
 import com.marker.locator.Locator;
 import com.marker.lugar.Lugar;
-import com.marker.lugar.LugarActivity;
 import com.marker.lugar.LugarManager;
 import com.marker.map.MarkerMap;
+import com.marker.menu.MenuEnum;
+import com.marker.menu.MenuFragment;
 import com.marker.permission.Permission;
 
 import java.util.ArrayList;
@@ -72,13 +63,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    static final int PICK_HISTORY_REQUEST = 1;
-    static final int PICK_CONTACT_REQUEST = 2;
-    static final int PICK_LUGAR_REQUEST = 3;
+
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
 
@@ -95,10 +82,7 @@ public class MainActivity extends AppCompatActivity
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    private Button mDrawerLogoutButton;
-    private TextView mDrawerUserName;
-    private TextView mDrawerUserMail;
-    private ProfilePictureView mDrawerUserPicture;
+    private MenuFragment menuFragment;
 
     public MarkerMap map;
     public Permission permission = new Permission(this);
@@ -123,7 +107,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Se inicia el marker", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                OnContactsPressed();
+                startActivityForResult(new Intent(MainActivity.this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
             }
         });
         enableTrackButton(false);
@@ -134,14 +118,15 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        mNavView.setNavigationItemSelectedListener(this);
-
-        //Esto se carga sin butterknife por un bug de Android. Que bonito sos.
-        View header = mNavView.getHeaderView(0);
-        mDrawerLogoutButton = header.findViewById(R.id.fb_logout_button);
-        mDrawerUserName = header.findViewById(R.id.drawer_user_name);
-        mDrawerUserMail = header.findViewById(R.id.drawer_user_email);
-        mDrawerUserPicture = header.findViewById(R.id.drawer_user_picture);
+        menuFragment = (MenuFragment) getFragmentManager().findFragmentById(R.id.menu_fragment);
+        mNavView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener(){
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                menuFragment.onNavigationItemSelected(item);
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
 
         gestorSesion = GestorSesion.getInstancia();
         final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
@@ -165,15 +150,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        mDrawerLogoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LoginManager.getInstance().logOut();
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
-        });
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -205,8 +181,9 @@ public class MainActivity extends AppCompatActivity
     private void onSesionInicializada() {
         historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
+        menuFragment.initializeManagers(historyManager, lugarManager);
+        menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
         initialize_geo();
-        initialize_drawer();
         updateTrackMenu(gestorSesion.getMarcadores());
 
 //        User emisor = gestorSesion.getUsuarioLoggeado();
@@ -221,16 +198,6 @@ public class MainActivity extends AppCompatActivity
         GestorSesion gestorSesion = GestorSesion.getInstancia();
         gestorSesion.getEmisorMensajes()
                 .enviar(gestorSesion.getUsuarioLoggeado(), message);
-    }
-
-    private void initialize_drawer() {
-        if (mDrawerUserName == null) {
-            return;
-        }
-        User me = gestorSesion.getUsuarioLoggeado();
-        mDrawerUserName.setText(me.getName());
-        mDrawerUserMail.setText(me.getEmail());
-        mDrawerUserPicture.setProfileId(me.getId());
     }
 
     private void initialize_geo() {
@@ -307,70 +274,7 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
 
-        if (id == R.id.nav_destinies) {
-            OnDestiniesPressed();
-        } else if (id == R.id.nav_histories) {
-            OnHistoriesPressed();
-        } else if (id == R.id.nav_settings) {
-            OnSettingsPressed();
-        } else if (id == R.id.nav_info) {
-            OnAboutPressed();
-        } else if (id == R.id.nav_test_notification) {
-            OnTestNotificationPressed();
-        }
-
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    public void OnDestiniesPressed() {
-        Intent childIntent = new Intent(this, LugarActivity.class);
-        childIntent.putParcelableArrayListExtra("lugares", lugarManager.lugares);
-        startActivityForResult(childIntent, PICK_LUGAR_REQUEST);
-    }
-
-    public void OnHistoriesPressed() {
-        Intent childIntent = new Intent(this, HistoryActivity.class);
-
-        childIntent.putParcelableArrayListExtra("histories", historyManager.histories);
-        startActivityForResult(childIntent, PICK_HISTORY_REQUEST);
-    }
-
-    public void OnContactsPressed() { startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST); }
-
-    public void OnSettingsPressed() {
-        startActivity(new Intent(this, SettingsActivity.class));
-    }
-
-    public boolean OnAboutPressed(){
-        AboutFragment af = new AboutFragment();
-        af.show(getFragmentManager(), TAG);
-        return true;
-    }
-
-
-    public void OnTestNotificationPressed() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        Uri notification = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
-        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        r.play();
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-        // Start without a delay
-        // Each element then alternates between vibrate, sleep, vibrate, sleep...
-        long[] pattern = {0, 100, 1000, 300, 200, 100, 500, 200, 100};
-
-        // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
-        v.vibrate(pattern, -1);
-
-    }
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -396,7 +300,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         switch(requestCode) {
-            case PICK_HISTORY_REQUEST:
+            case MenuEnum.PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
                     this.map.setRadio(getRadioSetting());
 
@@ -405,10 +309,10 @@ public class MainActivity extends AppCompatActivity
 
                     enableTrackButton(true);
 
-                    startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
+                    startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
                 break;
-            case PICK_CONTACT_REQUEST:
+            case MenuEnum.PICK_CONTACT_REQUEST:
                 if(resultCode == RESULT_OK){
                     // Cuando se vuelve de PICK_CONTACT ya puedo iniciar el marker
                     Bundle extras = data.getExtras();
@@ -432,7 +336,7 @@ public class MainActivity extends AppCompatActivity
                     this.map.activateFence();
                 }
                 break;
-            case PICK_LUGAR_REQUEST:
+            case MenuEnum.PICK_LUGAR_REQUEST:
                 if(resultCode == RESULT_OK) {
                     this.map.setRadio(getRadioSetting());
 
@@ -441,7 +345,7 @@ public class MainActivity extends AppCompatActivity
 
                     enableTrackButton(true);
 
-                    startActivityForResult(new Intent(this, FriendsActivity.class), PICK_CONTACT_REQUEST);
+                    startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
