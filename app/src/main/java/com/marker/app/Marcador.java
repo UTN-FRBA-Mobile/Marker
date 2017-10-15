@@ -13,7 +13,7 @@ public class Marcador {
     private List<String> usuarios = new ArrayList<>();
     private String id;
 
-    Marcador(User user, Lugar lugar, int metrosDeteccion) {
+    public Marcador(User user, Lugar lugar, int metrosDeteccion) {
         this.lugar = lugar;
         this.user = user;
         this.metrosDeteccion = metrosDeteccion;

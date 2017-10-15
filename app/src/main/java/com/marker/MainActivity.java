@@ -1,7 +1,9 @@
 package com.marker;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -44,6 +46,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.FirebaseDatabase;
 import com.marker.about.AboutFragment;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
@@ -63,6 +66,7 @@ import com.marker.map.MarkerMap;
 import com.marker.permission.Permission;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -102,6 +106,7 @@ public class MainActivity extends AppCompatActivity
     public HistoryManager historyManager;
     public LugarManager lugarManager;
     private GestorSesion gestorSesion;
+    private List<BroadcastReceiver> receivers;
 
 
     @Override
@@ -168,6 +173,32 @@ public class MainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Integer action = intent.getIntExtra(getString(R.string.BROADCAST_ACTION),-1);
+                switch (action) {
+                    case R.string.BROADCAST_ACTION_NEW_MARKER:
+                        updateTrackMenu(gestorSesion.getMarcadores());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+        receivers = new ArrayList<>();
+        receivers.add(receiver);
+        registerReceiver(receiver,
+                new IntentFilter(getString(R.string.BROADCAST_MARKER)));
+    }
+
+    @Override
+    protected void onDestroy() {
+        for (BroadcastReceiver receiver : receivers) {
+            unregisterReceiver(receiver);
+        }
+        super.onDestroy();
     }
 
     private void onSesionInicializada() {
@@ -175,6 +206,13 @@ public class MainActivity extends AppCompatActivity
         lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
         initialize_geo();
         initialize_drawer();
+
+//        User emisor = gestorSesion.getUsuarioLoggeado();
+//        Marcador marker = new Marcador(emisor, null, 100);
+//        Mensaje fcm = Mensaje.newDataMessage();
+//        fcm.setTipoData(Mensaje.TipoData.MARKER);
+//        fcm.setMarker(marker);
+//        gestorSesion.getEmisorMensajes().enviar(emisor, fcm);
     }
 
     public void generateNotification(Mensaje message) {

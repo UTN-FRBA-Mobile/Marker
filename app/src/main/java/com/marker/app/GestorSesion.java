@@ -127,6 +127,13 @@ public class GestorSesion {
         List<String> usuarios = marcador.getUsuarios();
         for (User user : contactsToShare) {
             usuarios.add(user.getId());
+
+            //Comparto el marker con cada usuario
+            //Capaz convenga hacerlo por el mismo trigger, pero vemos
+            Mensaje fcm = Mensaje.newDataMessage();
+            fcm.setTipoData(Mensaje.TipoData.MARKER);
+            fcm.setMarker(marcador);
+            emisor.enviar(user, fcm);
         }
 
         //todo controlar que no haya otro marcador que me trakee a mi mismo.

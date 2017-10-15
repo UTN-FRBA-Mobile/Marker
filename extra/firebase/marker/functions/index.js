@@ -9,6 +9,7 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
     .onCreate(event => {
         const fcm = event.data.val();
         const token = fcm.tokenReceptor;
+        console.log(token);
         const campo = fcm.esData ? "data" : "notification";
         const payload = {};
         payload[campo] = fcm.payload;
@@ -18,27 +19,37 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
     });
 
 exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
-    .onWrite(event => {
+    .onCreate(event => {
         const marker = event.data.val();
+        const markerUid = marker.user.id;
+        const uid = event.params.uid;
+        if (uid != markerUid) {
+            //Es una creacion de un marker ajeno. No se debe volver a compartir.
+            console.log("Evitando propagacion luego de creacion de " + event.data.ref);
+            return 0;
+        }
         const usuariosIds = marker.usuarios;
         const pushId = event.params.pushId;
-        const idContainer = {};
         const payload = {
               notification: {
                 title: `Nuevo Marker de ${marker.user.name}!`,
                 body: 'Toca para ver',
+                icon: markerUid
               }
             };
+        const promises = [];
         for(var index in usuariosIds) {
-            var usuarioId = usuariosIds[index];
-            admin.database()
-                .ref("/usuarios/"+usuarioId+"/token")
+            var userId = usuariosIds[index];
+            var notificacion = admin.database()
+                .ref(`/usuarios/${userId}/token`)
                 .once("value", function(snap) {
-//                    admin.database()
-//                        .ref('/pruebas/'+pushId)
-//                        .child(snap.ref.parent.key)
-//                        .set(snap.val());
                     admin.messaging().sendToDevice([snap.val()], payload);
                 });
+            var escribir = admin.database()
+                .ref(`/usuarios/${userId}/markers/${pushId}`)
+                .set(marker)
+            promises.push(notificacion);
+            promises.push(escribir);
         }
+        return Promise.all(promises);
     });
