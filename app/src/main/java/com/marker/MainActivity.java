@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fab;
     @BindView(R.id.stop_track)
     FloatingActionButton mStopTrack;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     private Button mDrawerLogoutButton;
     private TextView mDrawerUserName;
@@ -114,7 +116,6 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -143,9 +144,9 @@ public class MainActivity extends AppCompatActivity
         mDrawerUserPicture = header.findViewById(R.id.drawer_user_picture);
 
         gestorSesion = GestorSesion.getInstancia();
-        final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion
-                .getOnInicializado()
-                .getObservers();
+        final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
+
+
         if (gestorSesion.inicializado()) {
             onSesionInicializada();
         } else {
@@ -268,6 +269,8 @@ public class MainActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         mOptionsMenu = menu;
+        updateTrackMenu(gestorSesion.getMarcadores());
+
         return true;
     }
 
@@ -492,6 +495,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateTrackMenu(ArrayList<Marcador> markers) {
+        if(mOptionsMenu == null || markers == null) return;
+
         mOptionsMenu.clear();
         MenuItem search = mOptionsMenu.add(Menu.NONE, R.id.action_search,
                 Menu.FIRST, "search");
