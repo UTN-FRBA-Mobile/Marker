@@ -19,7 +19,6 @@ import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.destino.lugar.Lugar;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,7 +38,6 @@ public class GestorSesion {
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
-    private User usuarioYo;
     private User me;
     private User[] friends;
     private EmisorMensajes emisor;
@@ -144,8 +142,6 @@ public class GestorSesion {
     }
 
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion, ArrayList<User> contactsToShare) {
-        User me = SerializationUtils.clone(this.me);
-        me.setName(String.format("%s (Yo)", me.getName()));
         Marcador marcador = new Marcador(me, lugar, radioDeteccion);
 
         List<String> usuarios = marcador.getUsuarios();

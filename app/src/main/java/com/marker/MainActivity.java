@@ -19,8 +19,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +59,7 @@ import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
 import com.marker.permission.Permission;
+import com.marker.track.TrackListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     FloatingActionButton mStopTrack;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.track_list)
+    RecyclerView mTrackList;
 
     private MenuFragment menuFragment;
 
@@ -95,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
     private Destino destinoActualSeleccionado;
+    private TrackListAdapter mTrackListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +135,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             }
         });
+
+        mTrackListAdapter = new TrackListAdapter();
+        mTrackListAdapter.getOnCardAction().getObservers().add(new com.marker.track.EventoObservable.Observer() {
+            @Override
+            public void notificar(Marcador marker) {
+                onTrackMenuMarkerClick(marker);
+            }
+        });
+        mTrackList.setAdapter(mTrackListAdapter);
+        mTrackList.setLayoutManager(new LinearLayoutManager(this));
 
         gestorSesion = GestorSesion.getInstancia();
         final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
@@ -237,8 +254,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         mOptionsMenu = menu;
-        updateTrackMenu(gestorSesion.getMarcadores());
-
+        MenuItem item = menu.findItem(R.id.action_track);
+        ArrayList<Marcador> marcadores = gestorSesion.getMarcadores();
+        if (item != null) {
+            if (marcadores != null) {
+                item.setVisible(!marcadores.isEmpty());
+            } else {
+                item.setVisible(false);
+            }
+        }
         return true;
     }
 
@@ -252,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_track:
-                //todo Centrar en el mapa el marker seleccionado
+                drawer.openDrawer(mTrackList);
                 return true;
             case R.id.action_search:
                 try {
@@ -267,15 +291,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             break;
             default:
-                //Seleccion de Markers...
-                Marcador marcador = gestorSesion.getMarcadores().get(id);
-                setMarcadorActivo(marcador);
             break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-
+    private void onTrackMenuMarkerClick(Marcador marker) {
+        setMarcadorActivo(marker);
+        //todo Centrar en el mapa el marker seleccionado
+        drawer.closeDrawer(mTrackList);
+    }
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -412,18 +437,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void updateTrackMenu(ArrayList<Marcador> markers) {
-        if(mOptionsMenu == null || markers == null) return;
-
-        mOptionsMenu.clear();
-        MenuItem search = mOptionsMenu.add(Menu.NONE, R.id.action_search,
-                Menu.FIRST, "search");
-        search.setIcon(R.drawable.ic_search);
-        search.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        for(int i=0; i < markers.size(); i++){
-            User user = markers.get(i).getUser();
-            mOptionsMenu.add(R.id.action_track, i,
-                    Menu.FLAG_APPEND_TO_GROUP, user.getName());
-        }
+        mTrackListAdapter.setItems(markers);
+        invalidateOptionsMenu();
     }
 
     /**
