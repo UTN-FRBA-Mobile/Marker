@@ -2,23 +2,53 @@ package com.marker.firebase;
 
 import android.support.annotation.Nullable;
 
-import com.google.firebase.database.PropertyName;
+import com.google.firebase.database.Exclude;
+import com.google.gson.Gson;
+import com.marker.app.Marcador;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Mensaje {
-    public static final String KEY_TITLE = "title";
-    public static final String KEY_BODY = "body";
+    private static final String KEY_TITLE = "title";
+    private static final String KEY_BODY = "body";
+    private static final String KEY_TIPODATA = "tipoData";
+    private static final String KEY_MARKER = "marker";
+    private Map<String, String> payload = new HashMap<>();
+    String tokenReceptor;
+    Boolean esData;
 
-    @PropertyName("to")
-    private String tokenReceptor;
-    private HashMap<String, Object> payload = new HashMap<>();
-    private Boolean esData;
+    public enum TipoData {MARKER;}
 
     private Mensaje(boolean esData) {
         this.esData = esData;
     }
 
+    public static Mensaje newNotification() {
+        return new Mensaje(false);
+    }
+
+    public static Mensaje newDataMessage() {
+        return new Mensaje(true);
+    }
+
+    public static Mensaje newDataMessage(Map<String, String> payload) {
+        Mensaje mensaje = newDataMessage();
+        mensaje.payload = payload;
+        return mensaje;
+    }
+
+    public Map<String, String> getPayload() {
+        return payload;
+    }
+
+    public void setToken(String token) {
+        this.tokenReceptor = token;
+    }
+
+    ///////////////////////
+    //Si es Notificacion //
+    ///////////////////////
     public void setBody(String body) {
         payload.put(KEY_BODY, body);
     }
@@ -28,40 +58,45 @@ public class Mensaje {
     }
 
     @Nullable
+    @Exclude
     String getBody() {
-        return (String) payload.get(KEY_BODY);
+        return payload.get(KEY_BODY);
     }
 
     @Nullable
+    @Exclude
     String getTitle() {
-        return (String) payload.get(KEY_TITLE);
+        return payload.get(KEY_TITLE);
     }
 
-    public HashMap<String, Object> getPayload() {
-        return payload;
+    ///////////////
+    //Si es data //
+    ///////////////
+    public void setTipoData(TipoData tipo) {
+        payload.put(KEY_TIPODATA, tipo.name());
     }
 
-    public void setEsData(Boolean esData) {
-        this.esData = esData;
+    public void setMarker(Marcador marker) {
+        payload.put(KEY_MARKER, new Gson().toJson(marker));
     }
 
-    public Boolean getEsData() {
-        return esData;
+    @Nullable
+    @Exclude
+    public TipoData getTipoData() {
+        String tipo = payload.get(KEY_TIPODATA);
+        if (tipo != null) {
+            return TipoData.valueOf(tipo);
+        }
+        return null;
     }
 
-    public String getTokenReceptor() {
-        return tokenReceptor;
-    }
-
-    public void setToken(String token) {
-        this.tokenReceptor = token;
-    }
-
-    public static Mensaje newNotification() {
-        return new Mensaje(false);
-    }
-
-    public static Mensaje newDataMessage() {
-        return new Mensaje(true);
+    @Nullable
+    @Exclude
+    public Marcador getMarker() {
+        String marker = payload.get(KEY_MARKER);
+        if (marker != null) {
+            return new Gson().fromJson(marker, Marcador.class);
+        }
+        return null;
     }
 }

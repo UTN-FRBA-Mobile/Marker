@@ -6,9 +6,6 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-/**
- * Created by sdamilano on 12/10/17.
- */
 
 public class BorrarLugarFragment extends DialogFragment {
 
@@ -30,6 +27,8 @@ public class BorrarLugarFragment extends DialogFragment {
                 .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface deleteDialog, int id) {
                         borrarDestino(lugar);
+                        //KILL ME!
+                        ((LugarActivity)getActivity()).getAdapter().deleteLugar(lugar);
                     }
                 });
 

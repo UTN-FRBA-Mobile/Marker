@@ -17,6 +17,10 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.marker.MainActivity;
 import com.marker.R;
+import com.marker.app.GestorSesion;
+import com.marker.app.Marcador;
+
+import java.util.Map;
 
 public class ServicioMensajeria extends FirebaseMessagingService {
 
@@ -29,8 +33,9 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+        Map<String, String> data = remoteMessage.getData();
+        if (data.size() > 0) {
+            onDataPayload(data);
         }
         // Check if message contains a notification payload.
         RemoteMessage.Notification notification = remoteMessage.getNotification();
@@ -38,6 +43,23 @@ public class ServicioMensajeria extends FirebaseMessagingService {
             String notificationBody = notification.getBody();
             Log.d(TAG, "Message Notification Body: " + notificationBody);
             sendNotification(notification);
+        }
+    }
+
+    private void onDataPayload(Map<String, String> data) {
+        Log.d(TAG, "Message data payload: " + data);
+        Mensaje fcm = Mensaje.newDataMessage(data);
+        switch (fcm.getTipoData()) {
+            case MARKER:
+                Marcador marker = fcm.getMarker();
+                GestorSesion.getInstancia().getMarcadores().add(marker);
+                Intent intent = new Intent(getString(R.string.BROADCAST_MARKER));
+                intent.putExtra(getString(R.string.BROADCAST_ACTION),
+                        R.string.BROADCAST_ACTION_NEW_MARKER);
+                sendBroadcast(intent);
+                break;
+            default:
+                break;
         }
     }
 
