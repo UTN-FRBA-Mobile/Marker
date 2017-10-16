@@ -1,6 +1,5 @@
 package com.marker.app;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -18,15 +17,12 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
-import com.marker.firebase.Mensaje;
 import com.marker.lugar.Lugar;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**Singleton para gestionar lo que ocurre en la app
@@ -42,7 +38,6 @@ public class GestorSesion {
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
-    private User usuarioYo;
     private User me;
     private User[] friends;
     private EmisorMensajes emisor;
@@ -147,8 +142,6 @@ public class GestorSesion {
     }
 
     public Marcador crearMarcador(Lugar lugar, int radioDeteccion, ArrayList<User> contactsToShare) {
-        User me = SerializationUtils.clone(this.me);
-        me.setName(String.format("%s (Yo)", me.getName()));
         Marcador marcador = new Marcador(me, lugar, radioDeteccion);
 
         List<String> usuarios = marcador.getUsuarios();
