@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public LugarManager lugarManager;
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
-
+    private Place destinoActualSeleccionado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -326,6 +326,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     setMarcadorActivo(marcador);
 
+                    // Agrego el destino seleccionadoo al historial
+                    historyManager.addPlace(destinoActualSeleccionado);
+
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     this.locator.getLocation();
                     try {
@@ -359,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Lugar lugar = new Lugar(place.getName().toString(), "", LatLong.of(place.getLatLng()));
                     map.setLugar(lugar);
 
-                    historyManager.addPlace(place);
+                    destinoActualSeleccionado = place;
 
                     enableTrackButton(true);
 
