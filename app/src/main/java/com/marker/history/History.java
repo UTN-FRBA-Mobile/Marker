@@ -5,10 +5,14 @@ import android.os.Parcelable;
 
 import com.marker.locator.LatLong;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 
 public class History implements Parcelable {
     public String location;
     public LatLong position;
+    public Date datetime;
 
     public History(){
         // Default constructor required for calls to DataSnapshot.getValue(History.class)
@@ -54,4 +58,8 @@ public class History implements Parcelable {
             return new History[size];
         }
     };
+
+    public void setCurrentTime() {
+        this.datetime = GregorianCalendar.getInstance().getTime();
+    }
 }

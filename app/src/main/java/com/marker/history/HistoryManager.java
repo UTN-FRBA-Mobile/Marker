@@ -71,6 +71,7 @@ public class HistoryManager {
     public void writeHistory(String location, LatLong position) {
         String uid = mDatabase.child("usuarios").child(userId).child("histories").push().getKey();
         History history = new History(location, position);
+        history.setCurrentTime();
         mDatabase.child("usuarios").child(userId).child("histories").child(uid).setValue(history);
     }
 }
