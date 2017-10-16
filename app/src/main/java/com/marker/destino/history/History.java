@@ -1,4 +1,4 @@
-package com.marker.history;
+package com.marker.destino.history;
 
 import android.os.Parcel;
 import android.os.Parcelable;

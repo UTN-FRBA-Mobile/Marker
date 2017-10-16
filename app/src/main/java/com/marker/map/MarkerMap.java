@@ -20,7 +20,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
 import com.marker.R;
-import com.marker.lugar.Lugar;
+import com.marker.destino.lugar.Lugar;
 
 
 public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {

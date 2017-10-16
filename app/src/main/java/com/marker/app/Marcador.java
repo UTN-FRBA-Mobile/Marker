@@ -1,7 +1,7 @@
 package com.marker.app;
 
 import com.marker.facebook.User;
-import com.marker.lugar.Lugar;
+import com.marker.destino.lugar.Lugar;
 
 import java.util.ArrayList;
 import java.util.List;

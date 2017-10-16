@@ -3,7 +3,7 @@ package com.marker;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.marker.lugar.LugarActivity;
+import com.marker.destino.lugar.LugarActivity;
 
 import org.junit.Rule;
 import org.junit.Test;

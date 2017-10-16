@@ -1,40 +1,30 @@
-package com.marker.history;
+package com.marker.destino.lugar;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
-import com.marker.lugar.GuardarLugarFragment;
-import com.marker.lugar.Lugar;
-import com.marker.lugar.LugarManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.OnItemLongClick;
 import butterknife.OnLongClick;
 
-public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder> {
+public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
 
-    private final ArrayList<History> histories = new ArrayList<>();
+    private ArrayList<Lugar> lugares = new ArrayList<>();
     private Context context;
     public LugarManager lugarManager;
 
@@ -43,7 +33,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
-                .inflate(R.layout.activity_histories_item_list, parent, false);
+                .inflate(R.layout.activity_lugares_item_list, parent, false);
         return new ViewHolder(view);
     }
 
@@ -54,12 +44,23 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
     @Override
     public int getItemCount() {
-        return histories.size();
+        return lugares.size();
     }
 
-    public void setItems(Collection<History> items) {
-        histories.clear();
-        histories.addAll(items);
+    public void setItems(ArrayList<Lugar> items) {
+        lugares = items;
+        notifyDataSetChanged();
+    }
+
+    public void deleteLugar(Lugar removedLugar) {
+        int position = 0;
+        for (Lugar lugar : lugares) {
+            if(lugar.uid.equals(removedLugar.uid))
+                break;
+            position += 1;
+        }
+
+        lugares.remove(position);
         notifyDataSetChanged();
     }
 
@@ -67,44 +68,43 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         @BindView(R.id.card)
         CardView card;
 
-        @BindView(R.id.imageViewHistory)
-        ImageView imageViewHistory;
+        @BindView(R.id.imageViewLugar)
+        ImageView imageViewLugar;
 
-        @BindView(R.id.textHistory)
-        TextView textViewHistory;
+        @BindView(R.id.txtLugar)
+        TextView txtLugar;
 
-        private History history;
+        private Lugar lugar;
 
-        public ViewHolder(View view) {
-            super(view);
+        ViewHolder(View itemView) {
+            super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
         void bind(int position) {
-            history = histories.get(position);
-            textViewHistory.setText(history.location);
+            lugar = lugares.get(position);
+            txtLugar.setText(lugar.nombre);
         }
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
+            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("history", history);
+            resultIntent.putExtra("lugar", lugar);
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
         }
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
-
-            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment();
+            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            BorrarLugarFragment borrarLugarFragment = new BorrarLugarFragment();
             Bundle args = new Bundle();
-            args.putParcelable("history", history);
+            args.putParcelable("lugar", lugar);
             args.putParcelable("lugarManager", lugarManager);
-            guardarLugarFragment.setArguments(args);
-            guardarLugarFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
-
+            borrarLugarFragment.setArguments(args);
+            borrarLugarFragment.show(parentActivity.getFragmentManager(), "LugarActivity");
+;
             return true;
         }
     }

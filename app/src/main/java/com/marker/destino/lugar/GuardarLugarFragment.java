@@ -1,4 +1,4 @@
-package com.marker.lugar;
+package com.marker.destino.lugar;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,7 +9,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
 
-import com.marker.history.History;
+import com.marker.destino.history.History;
 
 
 

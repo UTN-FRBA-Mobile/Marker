@@ -1,4 +1,4 @@
-package com.marker.lugar;
+package com.marker.destino.lugar;
 
 import android.os.Parcel;
 import android.os.Parcelable;

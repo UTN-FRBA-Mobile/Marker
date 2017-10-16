@@ -1,4 +1,4 @@
-package com.marker.history;
+package com.marker.destino.history;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
-import com.marker.MainActivity;
 import com.marker.R;
 
 import java.util.ArrayList;

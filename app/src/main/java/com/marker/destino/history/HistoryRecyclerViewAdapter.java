@@ -1,4 +1,4 @@
-package com.marker.lugar;
+package com.marker.destino.history;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,8 @@ import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
+import com.marker.destino.lugar.GuardarLugarFragment;
+import com.marker.destino.lugar.LugarManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +25,9 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 
-public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
+public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder> {
 
-    private ArrayList<Lugar> lugares = new ArrayList<>();
+    private final ArrayList<History> histories = new ArrayList<>();
     private Context context;
     public LugarManager lugarManager;
 
@@ -34,7 +36,7 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
-                .inflate(R.layout.activity_lugares_item_list, parent, false);
+                .inflate(R.layout.activity_histories_item_list, parent, false);
         return new ViewHolder(view);
     }
 
@@ -45,23 +47,12 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
 
     @Override
     public int getItemCount() {
-        return lugares.size();
+        return histories.size();
     }
 
-    public void setItems(ArrayList<Lugar> items) {
-        lugares = items;
-        notifyDataSetChanged();
-    }
-
-    public void deleteLugar(Lugar removedLugar) {
-        int position = 0;
-        for (Lugar lugar : lugares) {
-            if(lugar.uid.equals(removedLugar.uid))
-                break;
-            position += 1;
-        }
-
-        lugares.remove(position);
+    public void setItems(Collection<History> items) {
+        histories.clear();
+        histories.addAll(items);
         notifyDataSetChanged();
     }
 
@@ -69,43 +60,44 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         @BindView(R.id.card)
         CardView card;
 
-        @BindView(R.id.imageViewLugar)
-        ImageView imageViewLugar;
+        @BindView(R.id.imageViewHistory)
+        ImageView imageViewHistory;
 
-        @BindView(R.id.txtLugar)
-        TextView txtLugar;
+        @BindView(R.id.textHistory)
+        TextView textViewHistory;
 
-        private Lugar lugar;
+        private History history;
 
-        ViewHolder(View itemView) {
-            super(itemView);
+        public ViewHolder(View view) {
+            super(view);
             ButterKnife.bind(this, itemView);
         }
 
         void bind(int position) {
-            lugar = lugares.get(position);
-            txtLugar.setText(lugar.nombre);
+            history = histories.get(position);
+            textViewHistory.setText(history.location);
         }
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("lugar", lugar);
+            resultIntent.putExtra("history", history);
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
         }
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
-            BorrarLugarFragment borrarLugarFragment = new BorrarLugarFragment();
+            Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
+
+            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment();
             Bundle args = new Bundle();
-            args.putParcelable("lugar", lugar);
+            args.putParcelable("history", history);
             args.putParcelable("lugarManager", lugarManager);
-            borrarLugarFragment.setArguments(args);
-            borrarLugarFragment.show(parentActivity.getFragmentManager(), "LugarActivity");
-;
+            guardarLugarFragment.setArguments(args);
+            guardarLugarFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
+
             return true;
         }
     }
