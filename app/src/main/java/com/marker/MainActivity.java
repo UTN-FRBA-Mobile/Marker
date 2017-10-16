@@ -109,6 +109,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
+        this.map = new MarkerMap(this);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,11 +201,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void onSesionInicializada() {
+        initialize_geo();
         historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
         destinoManager = new DestinoManager(gestorSesion.getUsuarioLoggeado().getId());
         menuFragment.initializeManagers(historyManager, destinoManager);
         menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
-        initialize_geo();
         updateTrackMenu(gestorSesion.getMarcadores());
 
 //        User emisor = gestorSesion.getUsuarioLoggeado();
@@ -229,14 +234,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
 
-        this.map = new MarkerMap(this);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
-        this.locator = new Locator(this);
-        this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
-        this.locator.getLocation();
+        getLocation();
     }
 
     @Override
@@ -306,6 +305,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         this.map.setMap(map);
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        getLocation();
+    }
+
+    private void getLocation() {
+        // FIXME: aca deberiamos preguntar si el marker activo es el nuestro u otro y obtener la ubicacion acorde
+        try {
+            this.locator.getLocation();
+        } catch(NullPointerException e) {
+            this.locator = new Locator(this);
+            this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
+            this.locator.getLocation();
+        }
+    }
+
     private float getRadioSetting(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         return (float) preferences.getInt("pr1", 200);
@@ -362,11 +379,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     historyManager.addPlace(lugarActualSeleccionado);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
-                    this.locator.getLocation();
+                    getLocation();
                     try {
                         this.map.centerCamera();
                     } catch (Exception e) {
-                        showSnackbar("GPS is not on!");
+                        showSnackbar("El GPS no esta prendido");
                     }
                     this.map.activateFence();
                 }
@@ -381,6 +398,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     enableTrackButton(true);
 
                     lugarActualSeleccionado = destino;
+
+                    enableTrackButton(true);
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
@@ -397,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     map.setDestino(destino);
 
                     lugarActualSeleccionado = destino;
+                    getLocation();
 
                     enableTrackButton(true);
 
