@@ -310,6 +310,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     enableTrackButton(true);
 
+                    destinoActualSeleccionado = history;
+
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
                 break;
@@ -348,6 +350,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     this.map.setPosition(LatLong.toLatLng(lugar.posicion));
 
                     enableTrackButton(true);
+
+                    destinoActualSeleccionado = lugar;
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
