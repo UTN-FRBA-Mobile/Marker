@@ -9,7 +9,7 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
     .onCreate(event => {
         const fcm = event.data.val();
         const token = fcm.tokenReceptor;
-        console.log(token);
+        //console.log(token);
         const campo = fcm.esData ? "data" : "notification";
         const payload = {};
         payload[campo] = fcm.payload;
@@ -35,6 +35,9 @@ exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
                 title: `Nuevo Marker de ${marker.user.name}!`,
                 body: 'Toca para ver',
                 icon: markerUid
+              }, data: {
+                "marker": JSON.stringify(marker),
+                "tipoData": "MARKER"
               }
             };
         const promises = [];
