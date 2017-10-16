@@ -31,7 +31,7 @@ import butterknife.OnClick;
 public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
 
     private ArrayList<Marcador> markers = new ArrayList<>();
-    private HashMap<String, Integer> colores = new HashMap<>();
+    private static HashMap<String, Integer> colores = new HashMap<>();
     private Context context;
     private EventoObservable onCardAction = new EventoObservable();
     private String[] colorColeccion = { "#ff6e40", "#388e3c", "#039be5", "#039be5", "#8e24aa", "#e53935", "#8e24aa"};
