@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Lugar lugar = new Lugar(place.getName().toString(), "", LatLong.of(place.getLatLng()));
                     map.setLugar(lugar);
 
-                    historyManager.writePlace(place);
+                    historyManager.addPlace(place);
 
                     enableTrackButton(true);
 

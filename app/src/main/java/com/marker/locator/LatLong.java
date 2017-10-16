@@ -21,4 +21,9 @@ public class LatLong {
     public static LatLng toLatLng(LatLong latLong){
         return new LatLng(latLong.latitude, latLong.longitude);
     }
+
+    public boolean isEquivalentTo(LatLong position) {
+        return this.latitude.equals(position.latitude) &&
+                this.longitude.equals(position.longitude);
+    }
 }
