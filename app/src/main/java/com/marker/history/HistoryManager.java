@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public class HistoryManager {
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("usuarios").child(userId).child("histories").addChildEventListener(childEventListener);
+        Query orderedQuery = mDatabase.child("usuarios").child(userId).child("histories").orderByChild("datetime");
+        orderedQuery.addChildEventListener(childEventListener);
 
     }
 

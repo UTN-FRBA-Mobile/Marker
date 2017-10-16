@@ -34,7 +34,10 @@ public class HistoryActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         adapter = new HistoryRecyclerViewAdapter();
         rvHistories.setAdapter(adapter);
-        rvHistories.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        layoutManager.setStackFromEnd(true);
+        rvHistories.setLayoutManager(layoutManager);
 
         Bundle extras = getIntent().getExtras();
         // Obtengo los contactos seleccionados para compartir mi marker
