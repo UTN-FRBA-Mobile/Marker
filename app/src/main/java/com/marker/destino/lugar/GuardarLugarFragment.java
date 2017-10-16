@@ -29,7 +29,7 @@ public class GuardarLugarFragment extends DialogFragment {
         final EditText nombreDestino = new EditText(getContext());
 
         AlertDialog.Builder saveDialog = new AlertDialog.Builder(getContext())
-                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.location))
+                .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.nombre))
                 .setMessage("Puede cambiarle el nombre:")
                 .setView(nombreDestino)
                 .setCancelable(true)
@@ -43,8 +43,8 @@ public class GuardarLugarFragment extends DialogFragment {
     }
 
     private void guardarDestino(History history, Editable nombreDestino) {
-        String nombre = TextUtils.isEmpty(nombreDestino) ? history.location : nombreDestino.toString();
-        this.lugarManager.writeLugar(nombre, history.position);
+        String nombre = TextUtils.isEmpty(nombreDestino) ? history.nombre : nombreDestino.toString();
+        this.lugarManager.writeLugar(nombre, history.posicion);
     }
 
 }

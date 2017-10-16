@@ -75,7 +75,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
         void bind(int position) {
             history = histories.get(position);
-            textViewHistory.setText(history.location);
+            textViewHistory.setText(history.nombre);
         }
 
         @OnClick(R.id.card)

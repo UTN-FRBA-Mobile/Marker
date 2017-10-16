@@ -9,6 +9,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.marker.destino.Destino;
 import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
@@ -74,22 +75,21 @@ public class HistoryManager {
 
     }
 
-    public void addPlace(Place place){
-        LatLong position = new LatLong(place.getLatLng().latitude, place.getLatLng().longitude);
-        String location = place.getName().toString();
+    public void addPlace(Destino destination){
+        String nombre = destination.nombre;
 
         // Borro el history si ya existe
         for(History history : histories){
-            if(history.location.equals(location))
+            if(history.nombre.equals(nombre))
                 deleteHistory(history.uid);
         }
 
-        this.writeHistory(location, position);
+        this.writeHistory(nombre, destination.posicion);
     }
 
-    public void writeHistory(String location, LatLong position) {
+    public void writeHistory(String nombre, LatLong posicion) {
         String uid = mDatabase.child("usuarios").child(userId).child("histories").push().getKey();
-        History history = new History(location, position);
+        History history = new History(nombre, posicion);
         history.setCurrentTime();
         history.uid = uid;
         mDatabase.child("usuarios").child(userId).child("histories").child(uid).setValue(history);

@@ -1,6 +1,5 @@
 package com.marker.locator;
 
-
 import com.google.android.gms.maps.model.LatLng;
 
 public class LatLong {

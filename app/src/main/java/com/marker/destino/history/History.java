@@ -3,25 +3,24 @@ package com.marker.destino.history;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.marker.destino.Destino;
 import com.marker.locator.LatLong;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class History implements Parcelable {
-    public String uid;
-    public String location;
-    public LatLong position;
+public class History extends Destino implements Parcelable{
+
     public Date datetime;
 
     public History(){
         // Default constructor required for calls to DataSnapshot.getValue(History.class)
     }
 
-    public History(String location, LatLong position){
-        this.location = location;
-        this.position = position;
+    public History(String nombre, LatLong posicion){
+        this.nombre = nombre;
+        this.posicion = posicion;
     }
 
     // Parcelling part
@@ -30,10 +29,10 @@ public class History implements Parcelable {
 
         in.readStringArray(data);
         // the order needs to be the same as in writeToParcel() method
-        this.location = data[0];
+        this.nombre = data[0];
         double lat = Double.parseDouble(data[1]);
         double lon = Double.parseDouble(data[2]);
-        this.position = new LatLong(lat, lon);
+        this.posicion = new LatLong(lat, lon);
     }
 
     @Override
@@ -44,9 +43,9 @@ public class History implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeStringArray(new String[]
-                { this.location,
-                    String.valueOf(this.position.latitude),
-                    String.valueOf(this.position.longitude)
+                { this.nombre,
+                    String.valueOf(this.posicion.latitude),
+                    String.valueOf(this.posicion.longitude)
                 });
     }
 

@@ -42,6 +42,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.destino.Destino;
 import com.marker.facebook.User;
 import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public LugarManager lugarManager;
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
-    private Place destinoActualSeleccionado;
+    private Destino destinoActualSeleccionado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -305,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     this.map.setRadio(getRadioSetting());
 
                     History history = data.getParcelableExtra("history");
-                    this.map.setPosition(new LatLng(history.position.latitude, history.position.longitude));
+                    this.map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
 
                     enableTrackButton(true);
 
@@ -344,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     this.map.setRadio(getRadioSetting());
 
                     Lugar lugar = data.getParcelableExtra("lugar");
-                    this.map.setPosition(LatLong.toLatLng(lugar.position));
+                    this.map.setPosition(LatLong.toLatLng(lugar.posicion));
 
                     enableTrackButton(true);
 
@@ -362,7 +363,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Lugar lugar = new Lugar(place.getName().toString(), "", LatLong.of(place.getLatLng()));
                     map.setLugar(lugar);
 
-                    destinoActualSeleccionado = place;
+                    destinoActualSeleccionado = lugar;
 
                     enableTrackButton(true);
 

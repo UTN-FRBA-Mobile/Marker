@@ -3,20 +3,19 @@ package com.marker.destino.lugar;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.marker.destino.Destino;
 import com.marker.locator.LatLong;
 
-public class Lugar implements Parcelable{
-    public String uid;
-    public String nombre;
+public class Lugar extends Destino{
+
     public String urlImagen;
-    public LatLong position;
 
     public Lugar(){}
 
-    public Lugar(String nombre, String urlImagen, LatLong position) {
+    public Lugar(String nombre, String urlImagen, LatLong posicion) {
         this.nombre = nombre;
         this.urlImagen = urlImagen;
-        this.position = position;
+        this.posicion = posicion;
     }
 
     // Parcelling part
@@ -30,7 +29,7 @@ public class Lugar implements Parcelable{
         this.urlImagen = data[2];
         double lat = Double.parseDouble(data[3]);
         double lon = Double.parseDouble(data[4]);
-        this.position = new LatLong(lat, lon);
+        this.posicion = new LatLong(lat, lon);
     }
 
     @Override
@@ -44,8 +43,8 @@ public class Lugar implements Parcelable{
                 {   this.uid,
                     this.nombre,
                     this.urlImagen,
-                    String.valueOf(this.position.latitude),
-                    String.valueOf(this.position.longitude)
+                    String.valueOf(this.posicion.latitude),
+                    String.valueOf(this.posicion.longitude)
                 });
     }
 
