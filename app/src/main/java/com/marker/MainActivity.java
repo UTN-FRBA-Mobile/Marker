@@ -330,6 +330,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     setMarcadorActivo(marcador);
 
                     // Agrego el destino seleccionadoo al historial
+                    // 2 casos:     1 - Fue seleccionado por búsqueda, historial o favoritos. Se deja como está.
+                    //              2 - Fue seleccionado del mapa. Hay que actualizarlo porque está en null o marca otro lugar.
+                    if(!map.markerPlacedOn(destinoActualSeleccionado)) {
+                        destinoActualSeleccionado = map.getLugar();
+                    }
                     historyManager.addPlace(destinoActualSeleccionado);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion

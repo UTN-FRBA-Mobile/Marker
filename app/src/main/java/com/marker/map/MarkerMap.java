@@ -20,7 +20,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
 import com.marker.R;
+import com.marker.destino.Destino;
 import com.marker.destino.lugar.Lugar;
+import com.marker.locator.LatLong;
 
 
 public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
@@ -97,6 +99,9 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
             marker.setPosition(position);
             createGeofences();
         }
+        LatLong posicion = LatLong.of(marker.getPosition());
+        String nombre = String.format("%f, %f", posicion.latitude, posicion.longitude);
+        this.setLugar(new Lugar(nombre, "", posicion));
     }
 
     public Location getLocation(){
@@ -188,5 +193,9 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public void setRadio(float radio) {
         this.radio = radio;
+    }
+
+    public boolean markerPlacedOn(Destino destino) {
+        return destino != null && getLugar().posicion.isEquivalentTo(destino.posicion);
     }
 }
