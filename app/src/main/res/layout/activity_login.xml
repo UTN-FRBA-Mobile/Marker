@@ -13,23 +13,32 @@
             android:adjustViewBounds="false"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@+id/fb_login_button"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             app:srcCompat="@drawable/wall_s" />
 
-        <com.facebook.login.widget.LoginButton
+
+        <Button
             android:id="@+id/fb_login_button"
             android:layout_width="234dp"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginRight="8dp"
-            app:layout_constraintRight_toRightOf="parent"
             android:layout_marginLeft="8dp"
+            android:layout_marginBottom="20dp"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="20dp" />
+            android:drawableLeft="@drawable/com_facebook_button_icon"
+            android:text="@string/com_facebook_loginview_log_in_button_long"
+            style="@style/com_facebook_button"
+            />
 
-    </android.support.constraint.ConstraintLayout>
+
+    <include layout="@layout/progress_overlay" />
+
+
+</android.support.constraint.ConstraintLayout>
