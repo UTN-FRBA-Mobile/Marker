@@ -5,8 +5,8 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_lugares"
+        android:id="@+id/rv_destinos"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/activity_lugares_item_list" />
+        tools:listitem="@layout/activity_destinos_item_list" />
 </LinearLayout>

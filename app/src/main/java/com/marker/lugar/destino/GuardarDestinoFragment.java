@@ -1,4 +1,4 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,21 +9,21 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
 
-import com.marker.destino.history.History;
+import com.marker.lugar.history.History;
 
 
 
-public class GuardarLugarFragment extends DialogFragment {
+public class GuardarDestinoFragment extends DialogFragment {
 
     private History history;
-    private LugarManager lugarManager;
+    private DestinoManager destinoManager;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         Bundle bundle = getArguments();
         if(bundle != null){
             history = bundle.getParcelable("history");
-            lugarManager = bundle.getParcelable("lugarManager");
+            destinoManager = bundle.getParcelable("destinoManager");
         }
 
         final EditText nombreDestino = new EditText(getContext());
@@ -44,7 +44,7 @@ public class GuardarLugarFragment extends DialogFragment {
 
     private void guardarDestino(History history, Editable nombreDestino) {
         String nombre = TextUtils.isEmpty(nombreDestino) ? history.nombre : nombreDestino.toString();
-        this.lugarManager.writeLugar(nombre, history.posicion);
+        this.destinoManager.writeLugar(nombre, history.posicion);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.marker.app;
 
 import com.marker.facebook.User;
-import com.marker.destino.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,21 +9,21 @@ import java.util.List;
 public class Marcador {
     private int metrosDeteccion;
     private User user;
-    private Lugar lugar;
+    private Destino destino;
     private List<String> usuarios = new ArrayList<>();
     private String id;
 
     //Lo usa Firebase.. NO BORRAR
     Marcador() {}
 
-    public Marcador(User user, Lugar lugar, int metrosDeteccion) {
-        this.lugar = lugar;
+    public Marcador(User user, Destino destino, int metrosDeteccion) {
+        this.destino = destino;
         this.user = user;
         this.metrosDeteccion = metrosDeteccion;
     }
 
-    public Lugar getLugar() {
-        return lugar;
+    public Destino getDestino() {
+        return destino;
     }
 
     public User getUser() {

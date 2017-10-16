@@ -25,11 +25,11 @@ import com.marker.LoginActivity;
 import com.marker.R;
 import com.marker.SettingsActivity;
 import com.marker.about.AboutFragment;
+import com.marker.lugar.destino.DestinoManager;
 import com.marker.facebook.User;
-import com.marker.destino.history.HistoryActivity;
-import com.marker.destino.history.HistoryManager;
-import com.marker.destino.lugar.LugarActivity;
-import com.marker.destino.lugar.LugarManager;
+import com.marker.lugar.history.HistoryActivity;
+import com.marker.lugar.history.HistoryManager;
+import com.marker.lugar.destino.DestinoActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,7 +47,7 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
     ProfilePictureView mDrawerUserPicture;
 
     public HistoryManager historyManager;
-    public LugarManager lugarManager;
+    public DestinoManager destinoManager;
 
     public MenuFragment() {
         // Required empty public constructor
@@ -83,9 +83,9 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
         mDrawerUserPicture.setProfileId(me.getId());
     }
 
-    public void initializeManagers(HistoryManager historyManager, LugarManager lugarManager){
+    public void initializeManagers(HistoryManager historyManager, DestinoManager destinoManager){
         this.historyManager = historyManager;
-        this.lugarManager = lugarManager;
+        this.destinoManager = destinoManager;
     }
 
     @Override
@@ -120,9 +120,9 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
 
 
     public void OnDestiniesPressed() {
-        Intent childIntent = new Intent(getActivity(), LugarActivity.class);
-        childIntent.putParcelableArrayListExtra("lugares", lugarManager.lugares);
-        getActivity().startActivityForResult(childIntent, MenuEnum.PICK_LUGAR_REQUEST);
+        Intent childIntent = new Intent(getActivity(), DestinoActivity.class);
+        childIntent.putParcelableArrayListExtra("destinos", destinoManager.destinos);
+        getActivity().startActivityForResult(childIntent, MenuEnum.PICK_DESTINO_REQUEST);
     }
 
     public void OnHistoriesPressed() {

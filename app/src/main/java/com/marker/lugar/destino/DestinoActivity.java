@@ -1,4 +1,4 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,25 +15,25 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LugarActivity extends AppCompatActivity {
+public class DestinoActivity extends AppCompatActivity {
 
-    private ArrayList<Lugar> lugares;
+    private ArrayList<Destino> destinos;
 
-    @BindView(R.id.rv_lugares)
-    RecyclerView rvLugares;
+    @BindView(R.id.rv_destinos)
+    RecyclerView rvDestinos;
 
-    private LugaresRecyclerViewAdapter adapter;
+    private DestinosRecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
 
-        setContentView(R.layout.activity_lugares);
+        setContentView(R.layout.activity_destinos);
         ButterKnife.bind(this);
-        adapter = new LugaresRecyclerViewAdapter();
-        rvLugares.setAdapter(adapter);
-        rvLugares.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new DestinosRecyclerViewAdapter();
+        rvDestinos.setAdapter(adapter);
+        rvDestinos.setLayoutManager(new LinearLayoutManager(this));
 
         Bundle extras = getIntent().getExtras();
 
@@ -41,9 +41,9 @@ public class LugarActivity extends AppCompatActivity {
             extras = savedInstanceState;
         }
 
-        lugares = extras.getParcelableArrayList("lugares");
+        destinos = extras.getParcelableArrayList("destinos");
 
-        adapter.setItems(lugares);
+        adapter.setItems(destinos);
     }
 
     private void setupActionBar() {
@@ -64,13 +64,13 @@ public class LugarActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public LugaresRecyclerViewAdapter getAdapter(){
+    public DestinosRecyclerViewAdapter getAdapter(){
         return adapter;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("lugares", lugares);
+        outState.putParcelableArrayList("destinos", destinos);
     }
 }

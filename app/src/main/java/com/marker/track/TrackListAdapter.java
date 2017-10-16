@@ -18,7 +18,7 @@ import com.marker.R;
 import com.marker.app.*;
 import com.marker.facebook.User;
 import com.marker.locator.LatLong;
-import com.marker.destino.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -88,7 +88,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
         public void bind(int position) {
             marker = markers.get(position);
             setUsuario(marker.getUser());
-            setLugar(marker.getLugar());
+            setLugar(marker.getDestino());
             setColor();
         }
 
@@ -120,16 +120,16 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
             mTxtNombreUsuario.setText(name);
         }
 
-        private void setLugar(Lugar lugar) {
-            if (lugar == null) {
-                mTxtMarker.setText("Sin lugar especificado");
+        private void setLugar(Destino destino) {
+            if (destino == null) {
+                mTxtMarker.setText("Sin destino especificado");
                 return;
             }
-            String nombreLugar = lugar.nombre;
+            String nombreLugar = destino.nombre;
             if (nombreLugar != null) {
                 mTxtMarker.setText(nombreLugar);
             } else {
-                LatLong latLon = lugar.posicion;
+                LatLong latLon = destino.posicion;
                 mTxtMarker.setText(String.format("Lat: %s Long: %s",
                         latLon.latitude, latLon.longitude));
             }

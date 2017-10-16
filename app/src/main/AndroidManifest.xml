@@ -27,9 +27,9 @@
             android:label="@string/title_activity_settings" />
         <activity android:name=".friends.FriendsActivity"
             android:label="@string/title_activity_friends"></activity>
-        <activity android:name=".destino.lugar.LugarActivity"
+        <activity android:name=".lugar.destino.DestinoActivity"
             android:label="@string/title_activity_lugar"/>
-        <activity android:name=".destino.history.HistoryActivity"
+        <activity android:name=".lugar.history.HistoryActivity"
             android:label="@string/title_activity_history"/>
 
         <meta-data

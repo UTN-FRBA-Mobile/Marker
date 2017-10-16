@@ -17,7 +17,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
-import com.marker.destino.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -133,16 +133,16 @@ public class GestorSesion {
 
     /**
      * Crea un marker con mi propio usuario
-     * @param lugar lugar del marker
+     * @param destino destino del marker
      * @param radioDeteccion radio de deteccion del marker
      * @return marker creado
      */
-    public Marcador crearMarcador(Lugar lugar, int radioDeteccion) {
-        return crearMarcador(lugar, radioDeteccion, new ArrayList<User>());
+    public Marcador crearMarcador(Destino destino, int radioDeteccion) {
+        return crearMarcador(destino, radioDeteccion, new ArrayList<User>());
     }
 
-    public Marcador crearMarcador(Lugar lugar, int radioDeteccion, ArrayList<User> contactsToShare) {
-        Marcador marcador = new Marcador(me, lugar, radioDeteccion);
+    public Marcador crearMarcador(Destino destino, int radioDeteccion, ArrayList<User> contactsToShare) {
+        Marcador marcador = new Marcador(me, destino, radioDeteccion);
 
         List<String> usuarios = marcador.getUsuarios();
         for (User user : contactsToShare) {

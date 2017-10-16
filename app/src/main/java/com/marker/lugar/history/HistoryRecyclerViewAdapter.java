@@ -1,4 +1,4 @@
-package com.marker.destino.history;
+package com.marker.lugar.history;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
-import com.marker.destino.lugar.GuardarLugarFragment;
-import com.marker.destino.lugar.LugarManager;
+import com.marker.lugar.destino.DestinoManager;
+import com.marker.lugar.destino.GuardarDestinoFragment;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,11 +29,11 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
 
     private final ArrayList<History> histories = new ArrayList<>();
     private Context context;
-    public LugarManager lugarManager;
+    public DestinoManager destinoManager;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
+        destinoManager = new DestinoManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_histories_item_list, parent, false);
@@ -91,12 +91,12 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         boolean onLongClickCard(){
             Activity parentActivity = (Activity) HistoryRecyclerViewAdapter.this.context;
 
-            GuardarLugarFragment guardarLugarFragment = new GuardarLugarFragment();
+            GuardarDestinoFragment guardarDestinoFragment = new GuardarDestinoFragment();
             Bundle args = new Bundle();
             args.putParcelable("history", history);
-            args.putParcelable("lugarManager", lugarManager);
-            guardarLugarFragment.setArguments(args);
-            guardarLugarFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
+            args.putParcelable("destinoManager", destinoManager);
+            guardarDestinoFragment.setArguments(args);
+            guardarDestinoFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
 
             return true;
         }

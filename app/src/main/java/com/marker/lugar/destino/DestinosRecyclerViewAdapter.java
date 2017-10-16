@@ -1,4 +1,4 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.app.Activity;
 import android.content.Context;
@@ -22,18 +22,18 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnLongClick;
 
-public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecyclerViewAdapter.ViewHolder> {
+public class DestinosRecyclerViewAdapter extends RecyclerView.Adapter<DestinosRecyclerViewAdapter.ViewHolder> {
 
-    private ArrayList<Lugar> lugares = new ArrayList<>();
+    private ArrayList<Destino> destinos = new ArrayList<>();
     private Context context;
-    public LugarManager lugarManager;
+    public DestinoManager destinoManager;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        lugarManager = new LugarManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
+        destinoManager = new DestinoManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
-                .inflate(R.layout.activity_lugares_item_list, parent, false);
+                .inflate(R.layout.activity_destinos_item_list, parent, false);
         return new ViewHolder(view);
     }
 
@@ -44,23 +44,23 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
 
     @Override
     public int getItemCount() {
-        return lugares.size();
+        return destinos.size();
     }
 
-    public void setItems(ArrayList<Lugar> items) {
-        lugares = items;
+    public void setItems(ArrayList<Destino> items) {
+        destinos = items;
         notifyDataSetChanged();
     }
 
-    public void deleteLugar(Lugar removedLugar) {
+    public void deleteDestino(Destino removedDestino) {
         int position = 0;
-        for (Lugar lugar : lugares) {
-            if(lugar.uid.equals(removedLugar.uid))
+        for (Destino destino : destinos) {
+            if(destino.uid.equals(removedDestino.uid))
                 break;
             position += 1;
         }
 
-        lugares.remove(position);
+        destinos.remove(position);
         notifyDataSetChanged();
     }
 
@@ -74,7 +74,7 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         @BindView(R.id.txtLugar)
         TextView txtLugar;
 
-        private Lugar lugar;
+        private Destino destino;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -82,28 +82,28 @@ public class LugaresRecyclerViewAdapter extends RecyclerView.Adapter<LugaresRecy
         }
 
         void bind(int position) {
-            lugar = lugares.get(position);
-            txtLugar.setText(lugar.nombre);
+            destino = destinos.get(position);
+            txtLugar.setText(destino.nombre);
         }
 
         @OnClick(R.id.card)
         void onClickCard() {
-            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
+            Activity parentActivity = (Activity) DestinosRecyclerViewAdapter.this.context;
             Intent resultIntent = new Intent();
-            resultIntent.putExtra("lugar", lugar);
+            resultIntent.putExtra("destino", destino);
             parentActivity.setResult(Activity.RESULT_OK, resultIntent);
             parentActivity.finish();
         }
 
         @OnLongClick(R.id.card)
         boolean onLongClickCard(){
-            Activity parentActivity = (Activity) LugaresRecyclerViewAdapter.this.context;
-            BorrarLugarFragment borrarLugarFragment = new BorrarLugarFragment();
+            Activity parentActivity = (Activity) DestinosRecyclerViewAdapter.this.context;
+            BorrarDestinoFragment borrarDestinoFragment = new BorrarDestinoFragment();
             Bundle args = new Bundle();
-            args.putParcelable("lugar", lugar);
-            args.putParcelable("lugarManager", lugarManager);
-            borrarLugarFragment.setArguments(args);
-            borrarLugarFragment.show(parentActivity.getFragmentManager(), "LugarActivity");
+            args.putParcelable("destino", destino);
+            args.putParcelable("destinoManager", destinoManager);
+            borrarDestinoFragment.setArguments(args);
+            borrarDestinoFragment.show(parentActivity.getFragmentManager(), "DestinoActivity");
 ;
             return true;
         }

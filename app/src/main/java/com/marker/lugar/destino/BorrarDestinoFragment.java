@@ -1,4 +1,4 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -7,36 +7,36 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 
-public class BorrarLugarFragment extends DialogFragment {
+public class BorrarDestinoFragment extends DialogFragment {
 
-    private Lugar lugar;
-    private LugarManager lugarManager;
+    private Destino destino;
+    private DestinoManager destinoManager;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState){
         Bundle bundle = getArguments();
         if(bundle != null){
-            lugar = bundle.getParcelable("lugar");
-            lugarManager = bundle.getParcelable("lugarManager");
+            destino = bundle.getParcelable("destino");
+            destinoManager = bundle.getParcelable("destinoManager");
         }
 
         AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Borrar")
-                .setMessage(String.format("¿Borrar %s de \"Mis Destinos\"?", lugar.nombre))
+                .setMessage(String.format("¿Borrar %s de \"Mis Destinos\"?", destino.nombre))
                 .setCancelable(true)
                 .setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface deleteDialog, int id) {
-                        borrarDestino(lugar);
+                        borrarDestino(destino);
                         //KILL ME!
-                        ((LugarActivity)getActivity()).getAdapter().deleteLugar(lugar);
+                        ((DestinoActivity)getActivity()).getAdapter().deleteDestino(destino);
                     }
                 });
 
         return deleteDialog.create();
     }
 
-    private void borrarDestino(Lugar lugar) {
-        this.lugarManager.deleteLugar(lugar.uid);
+    private void borrarDestino(Destino destino) {
+        this.destinoManager.deleteLugar(destino.uid);
     }
 
 }

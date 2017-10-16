@@ -1,16 +1,16 @@
-package com.marker.destino.history;
+package com.marker.lugar.history;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.marker.destino.Destino;
+import com.marker.lugar.Lugar;
 import com.marker.locator.LatLong;
 
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 
-public class History extends Destino implements Parcelable{
+public class History extends Lugar implements Parcelable{
 
     public Date datetime;
 

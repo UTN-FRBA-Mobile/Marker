@@ -1,4 +1,4 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -14,20 +14,20 @@ import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
 
-public class LugarManager implements Parcelable{
-    private static final String TAG = "Lugar";
+public class DestinoManager implements Parcelable{
+    private static final String TAG = "Destino";
     private static DatabaseReference mDatabase;
-    public  ArrayList<Lugar> lugares = new ArrayList<>();
+    public  ArrayList<Destino> destinos = new ArrayList<>();
     private String userId;
 
-    public LugarManager(String userId){
+    public DestinoManager(String userId){
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
 
-                Lugar lugar = dataSnapshot.getValue(Lugar.class);
-                lugares.add(lugar);
+                Destino destino = dataSnapshot.getValue(Destino.class);
+                destinos.add(destino);
 
             }
 
@@ -35,23 +35,23 @@ public class LugarManager implements Parcelable{
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
 
-                Lugar lugar = dataSnapshot.getValue(Lugar.class);
+                Destino destino = dataSnapshot.getValue(Destino.class);
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-                Lugar removedLugar = dataSnapshot.getValue(Lugar.class);
+                Destino removedDestino = dataSnapshot.getValue(Destino.class);
 
                 // FML
                 int position = 0;
-                for (Lugar lugar : lugares) {
-                    if(lugar.uid.equals(removedLugar.uid))
+                for (Destino lugar : destinos) {
+                    if(lugar.uid.equals(removedDestino.uid))
                         break;
                     position += 1;
                 }
 
-                lugares.remove(position);
+                destinos.remove(position);
             }
 
             @Override
@@ -68,24 +68,24 @@ public class LugarManager implements Parcelable{
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("usuarios").child(userId).child("lugares").addChildEventListener(childEventListener);
+        mDatabase.child("usuarios").child(userId).child("destinos").addChildEventListener(childEventListener);
 
     }
 
-    protected LugarManager(Parcel in) {
-        lugares = in.createTypedArrayList(Lugar.CREATOR);
+    protected DestinoManager(Parcel in) {
+        destinos = in.createTypedArrayList(Destino.CREATOR);
         userId = in.readString();
     }
 
-    public static final Creator<LugarManager> CREATOR = new Creator<LugarManager>() {
+    public static final Creator<DestinoManager> CREATOR = new Creator<DestinoManager>() {
         @Override
-        public LugarManager createFromParcel(Parcel in) {
-            return new LugarManager(in);
+        public DestinoManager createFromParcel(Parcel in) {
+            return new DestinoManager(in);
         }
 
         @Override
-        public LugarManager[] newArray(int size) {
-            return new LugarManager[size];
+        public DestinoManager[] newArray(int size) {
+            return new DestinoManager[size];
         }
     };
 
@@ -95,14 +95,14 @@ public class LugarManager implements Parcelable{
     }
 
     public void writeLugar(String location, LatLong position) {
-        String uid = mDatabase.child("usuarios").child(userId).child("lugares").push().getKey();
-        Lugar lugar = new Lugar(location, "", position);
-        lugar.uid = uid;
-        mDatabase.child("usuarios").child(userId).child("lugares").child(uid).setValue(lugar);
+        String uid = mDatabase.child("usuarios").child(userId).child("destinos").push().getKey();
+        Destino destino = new Destino(location, "", position);
+        destino.uid = uid;
+        mDatabase.child("usuarios").child(userId).child("destinos").child(uid).setValue(destino);
     }
 
     public void deleteLugar(String uid){
-        mDatabase.child("usuarios").child(userId).child("lugares").child(uid).removeValue();
+        mDatabase.child("usuarios").child(userId).child("destinos").child(uid).removeValue();
     }
 
     @Override
@@ -113,6 +113,6 @@ public class LugarManager implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.userId);
-        dest.writeList(this.lugares);
+        dest.writeList(this.destinos);
     }
 }

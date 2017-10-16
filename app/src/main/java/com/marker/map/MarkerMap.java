@@ -20,8 +20,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
 import com.marker.R;
-import com.marker.destino.Destino;
-import com.marker.destino.lugar.Lugar;
+import com.marker.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
 import com.marker.locator.LatLong;
 
 
@@ -37,7 +37,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     private Marker userMarker;
     private Circle circle;
     private Location userLocation;
-    private Lugar lugar;
+    private Destino destino;
     private float radio = 200.0f;
     // Geofence
     private Geofence geoFence;
@@ -101,7 +101,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         }
         LatLong posicion = LatLong.of(marker.getPosition());
         String nombre = String.format("%f, %f", posicion.latitude, posicion.longitude);
-        this.setLugar(new Lugar(nombre, "", posicion));
+        this.setDestino(new Destino(nombre, "", posicion));
     }
 
     public Location getLocation(){
@@ -179,12 +179,12 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         }
     }
 
-    public void setLugar(Lugar lugar) {
-        this.lugar = lugar;
+    public void setDestino(Destino destino) {
+        this.destino = destino;
     }
 
-    public Lugar getLugar() {
-        return lugar;
+    public Destino getDestino() {
+        return destino;
     }
 
     public float getRadio() {
@@ -195,7 +195,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         this.radio = radio;
     }
 
-    public boolean markerPlacedOn(Destino destino) {
-        return destino != null && getLugar().posicion.isEquivalentTo(destino.posicion);
+    public boolean markerPlacedOn(Lugar lugar) {
+        return lugar != null && getDestino().posicion.isEquivalentTo(lugar.posicion);
     }
 }

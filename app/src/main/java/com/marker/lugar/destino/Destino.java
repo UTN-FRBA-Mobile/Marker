@@ -1,25 +1,25 @@
-package com.marker.destino.lugar;
+package com.marker.lugar.destino;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.marker.destino.Destino;
+import com.marker.lugar.Lugar;
 import com.marker.locator.LatLong;
 
-public class Lugar extends Destino{
+public class Destino extends Lugar {
 
     public String urlImagen;
 
-    public Lugar(){}
+    public Destino(){}
 
-    public Lugar(String nombre, String urlImagen, LatLong posicion) {
+    public Destino(String nombre, String urlImagen, LatLong posicion) {
         this.nombre = nombre;
         this.urlImagen = urlImagen;
         this.posicion = posicion;
     }
 
     // Parcelling part
-    public Lugar(Parcel in){
+    public Destino(Parcel in){
         String[] data = new String[5];
 
         in.readStringArray(data);
@@ -49,12 +49,12 @@ public class Lugar extends Destino{
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
-        public Lugar createFromParcel(Parcel in) {
-            return new Lugar(in);
+        public Destino createFromParcel(Parcel in) {
+            return new Destino(in);
         }
 
-        public Lugar[] newArray(int size) {
-            return new Lugar[size];
+        public Destino[] newArray(int size) {
+            return new Destino[size];
         }
     };
 }

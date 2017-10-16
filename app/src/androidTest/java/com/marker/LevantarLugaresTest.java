@@ -3,7 +3,7 @@ package com.marker;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.marker.destino.lugar.LugarActivity;
+import com.marker.lugar.destino.DestinoActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,8 +13,8 @@ import org.junit.runner.RunWith;
 public class LevantarLugaresTest {
 
     @Rule
-    public ActivityTestRule<LugarActivity> rule = new ActivityTestRule<>(
-            LugarActivity.class);
+    public ActivityTestRule<DestinoActivity> rule = new ActivityTestRule<>(
+            DestinoActivity.class);
 
     @Test
     public void run() throws Exception {

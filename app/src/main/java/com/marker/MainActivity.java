@@ -23,7 +23,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,16 +44,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
-import com.marker.destino.Destino;
+import com.marker.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
 import com.marker.facebook.User;
 import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
-import com.marker.destino.history.History;
-import com.marker.destino.history.HistoryManager;
+import com.marker.lugar.history.History;
+import com.marker.lugar.history.HistoryManager;
 import com.marker.locator.LatLong;
 import com.marker.locator.Locator;
-import com.marker.destino.lugar.Lugar;
-import com.marker.destino.lugar.LugarManager;
+import com.marker.lugar.destino.DestinoManager;
 import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
@@ -97,10 +96,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleApiClient mGoogleApiClient;
     private Menu mOptionsMenu;
     public HistoryManager historyManager;
-    public LugarManager lugarManager;
+    public DestinoManager destinoManager;
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
-    private Destino destinoActualSeleccionado;
+    private Lugar lugarActualSeleccionado;
     private TrackListAdapter mTrackListAdapter;
 
     @Override
@@ -198,8 +197,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onSesionInicializada() {
         historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
-        lugarManager = new LugarManager(gestorSesion.getUsuarioLoggeado().getId());
-        menuFragment.initializeManagers(historyManager, lugarManager);
+        destinoManager = new DestinoManager(gestorSesion.getUsuarioLoggeado().getId());
+        menuFragment.initializeManagers(historyManager, destinoManager);
         menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
         initialize_geo();
         updateTrackMenu(gestorSesion.getMarcadores());
@@ -335,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     enableTrackButton(true);
 
-                    destinoActualSeleccionado = history;
+                    lugarActualSeleccionado = history;
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
@@ -348,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
                     //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
                     Marcador marcador = gestorSesion
-                            .crearMarcador(map.getLugar(), 100, contactsToShare);
+                            .crearMarcador(map.getDestino(), 100, contactsToShare);
                     updateTrackMenu(gestorSesion.getMarcadores());
                     //TODO: Compartir el marker
 
@@ -357,10 +356,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     // Agrego el destino seleccionadoo al historial
                     // 2 casos:     1 - Fue seleccionado por búsqueda, historial o favoritos. Se deja como está.
                     //              2 - Fue seleccionado del mapa. Hay que actualizarlo porque está en null o marca otro lugar.
-                    if(!map.markerPlacedOn(destinoActualSeleccionado)) {
-                        destinoActualSeleccionado = map.getLugar();
+                    if(!map.markerPlacedOn(lugarActualSeleccionado)) {
+                        lugarActualSeleccionado = map.getDestino();
                     }
-                    historyManager.addPlace(destinoActualSeleccionado);
+                    historyManager.addPlace(lugarActualSeleccionado);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     this.locator.getLocation();
@@ -372,16 +371,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     this.map.activateFence();
                 }
                 break;
-            case MenuEnum.PICK_LUGAR_REQUEST:
+            case MenuEnum.PICK_DESTINO_REQUEST:
                 if(resultCode == RESULT_OK) {
                     this.map.setRadio(getRadioSetting());
 
-                    Lugar lugar = data.getParcelableExtra("lugar");
-                    this.map.setPosition(LatLong.toLatLng(lugar.posicion));
+                    Destino destino = data.getParcelableExtra("destino");
+                    this.map.setPosition(LatLong.toLatLng(destino.posicion));
 
                     enableTrackButton(true);
 
-                    destinoActualSeleccionado = lugar;
+                    lugarActualSeleccionado = destino;
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
@@ -394,10 +393,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     map.setPosition(place.getLatLng());
                     map.updateCamera();
-                    Lugar lugar = new Lugar(place.getName().toString(), "", LatLong.of(place.getLatLng()));
-                    map.setLugar(lugar);
+                    Destino destino = new Destino(place.getName().toString(), "", LatLong.of(place.getLatLng()));
+                    map.setDestino(destino);
 
-                    destinoActualSeleccionado = lugar;
+                    lugarActualSeleccionado = destino;
 
                     enableTrackButton(true);
 

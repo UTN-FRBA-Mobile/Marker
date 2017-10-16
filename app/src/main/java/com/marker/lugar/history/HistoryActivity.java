@@ -1,4 +1,4 @@
-package com.marker.destino.history;
+package com.marker.lugar.history;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,15 +1,14 @@
-package com.marker.destino.history;
+package com.marker.lugar.history;
 
 import android.util.Log;
 
-import com.google.android.gms.location.places.Place;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.marker.destino.Destino;
+import com.marker.lugar.Lugar;
 import com.marker.locator.LatLong;
 
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class HistoryManager {
 
     }
 
-    public void addPlace(Destino destination){
+    public void addPlace(Lugar destination){
         String nombre = destination.nombre;
 
         // Borro el history si ya existe
