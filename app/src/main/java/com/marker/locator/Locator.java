@@ -84,14 +84,14 @@ public class Locator {
 
     public void showGPSDiabledDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("GPS Disabled");
-        builder.setMessage("Gps is disabled, in order to use the application properly you need to enable GPS of your device");
-        builder.setPositiveButton("Enable GPS", new DialogInterface.OnClickListener() {
+        builder.setTitle("GPS Deshabilitado");
+        builder.setMessage("El GPS no esta encendido, por lo que no podra utilizar todas las funcionalidades de la aplicacion");
+        builder.setPositiveButton("Activar GPS", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 activity.startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), GPS_ENABLE_REQUEST);
             }
-        }).setNegativeButton("No, Just Exit", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("No, solo salir", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
