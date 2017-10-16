@@ -42,8 +42,17 @@ public class HistoryManager {
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
-                History removedHistory = (History) dataSnapshot.getValue();
-                histories.remove(removedHistory);
+                History removedHistory = dataSnapshot.getValue(History.class);
+
+                // FML
+                int position = 0;
+                for (History history : histories) {
+                    if(history.uid.equals(removedHistory.uid))
+                        break;
+                    position += 1;
+                }
+
+                histories.remove(position);
             }
 
             @Override
@@ -65,15 +74,28 @@ public class HistoryManager {
 
     }
 
-    public void writePlace(Place place){
-        LatLong latLong = new LatLong(place.getLatLng().latitude, place.getLatLng().longitude);
-        this.writeHistory(place.getName().toString(), latLong);
+    public void addPlace(Place place){
+        LatLong position = new LatLong(place.getLatLng().latitude, place.getLatLng().longitude);
+        String location = place.getName().toString();
+
+        // Borro el history si ya existe
+        for(History history : histories){
+            if(history.location.equals(location))
+                deleteHistory(history.uid);
+        }
+
+        this.writeHistory(location, position);
     }
 
     public void writeHistory(String location, LatLong position) {
         String uid = mDatabase.child("usuarios").child(userId).child("histories").push().getKey();
         History history = new History(location, position);
         history.setCurrentTime();
+        history.uid = uid;
         mDatabase.child("usuarios").child(userId).child("histories").child(uid).setValue(history);
+    }
+
+    private void deleteHistory(String uid){
+        mDatabase.child("usuarios").child(userId).child("histories").child(uid).removeValue();
     }
 }

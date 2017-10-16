@@ -10,6 +10,7 @@ import java.util.GregorianCalendar;
 
 
 public class History implements Parcelable {
+    public String uid;
     public String location;
     public LatLong position;
     public Date datetime;
