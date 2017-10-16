@@ -1,5 +1,7 @@
 package com.marker.app;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -18,6 +20,7 @@ import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.lugar.destino.Destino;
+import android.preference.PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,6 +32,7 @@ import java.util.List;
  */
 public class GestorSesion {
     private static final String TAG = GestorSesion.class.getSimpleName();
+    private static final String KEY_MARKER_SELECCIONADO = "markerSeleccionado";
     private static GestorSesion singleton;
     private final EventoObservable onInicializado = new EventoObservable();
     //Markers activos
@@ -42,6 +46,7 @@ public class GestorSesion {
     private User[] friends;
     private EmisorMensajes emisor;
     private Marcador marcadorActivo;
+    private SharedPreferences preferences;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -56,7 +61,7 @@ public class GestorSesion {
     /**Inicializa el usuario y amigos
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
-    public void inicializar() throws Exception {
+    public void inicializar(Context context) throws Exception {
         token = AccessToken.getCurrentAccessToken();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth == null || token == null) {
@@ -85,6 +90,8 @@ public class GestorSesion {
             }
         });
         request.executeAsync();
+        preferences = PreferenceManager
+                .getDefaultSharedPreferences(context);
     }
 
     private void getMarkersDB() {
@@ -93,13 +100,22 @@ public class GestorSesion {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         marcadors = new ArrayList<>();
+                        String idMarker = preferences.getString(KEY_MARKER_SELECCIONADO, null);
                         for (DataSnapshot data : dataSnapshot.getChildren()) {
                             try {
                                 Marcador value = data.getValue(Marcador.class);
                                 marcadors.add(value);
+                                if (value.getId().equals(idMarker)) {
+                                    marcadorActivo = value;
+                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "No se pudo deserializar Marcador", e);
                             }
+                        }
+                        if (marcadorActivo == null) {
+                            preferences.edit()
+                                    .remove(KEY_MARKER_SELECCIONADO)
+                                    .apply();
                         }
                         notificarInicializacion();
                     }
@@ -208,6 +224,13 @@ public class GestorSesion {
 
     public void setMarcadorActivo(Marcador marcadorActivo) {
         this.marcadorActivo = marcadorActivo;
+        String id = null;
+        if (marcadorActivo != null) {
+            id = marcadorActivo.getId();
+        }
+        preferences.edit()
+                .putString(KEY_MARKER_SELECCIONADO, id)
+                .apply();
     }
 
     public Marcador getMarcadorActivo() {

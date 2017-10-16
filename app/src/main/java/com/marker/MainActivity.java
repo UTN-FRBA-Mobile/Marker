@@ -101,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<BroadcastReceiver> receivers;
     private Lugar lugarActualSeleccionado;
     private TrackListAdapter mTrackListAdapter;
+    private boolean mapReady;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,8 +166,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             });
             try {
-                gestorSesion.inicializar();
-
+                gestorSesion.inicializar(this);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -207,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         menuFragment.initializeManagers(historyManager, destinoManager);
         menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
         updateTrackMenu(gestorSesion.getMarcadores());
+        if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
 
 //        User emisor = gestorSesion.getUsuarioLoggeado();
 //        Marcador marker = new Marcador(emisor, null, 100);
@@ -301,8 +302,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
-        this.map.setMap(map);
+    public void onMapReady(GoogleMap gmap) {
+        map.setMap(gmap);
+        mapReady = true;
+        Marcador activo = gestorSesion.getMarcadorActivo();
+        if (activo != null) {
+            setMarcadorActivo(activo);
+        }
+    }
+
+    private void mostrarMarcador(Marcador marker) {
+        if (marker != null) {
+            LatLong latLon = marker.getDestino().posicion;
+            map.setPosition(new LatLng(latLon.latitude, latLon.longitude));
+            centrarCamara();
+        }
     }
 
     @Override
@@ -380,11 +394,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     getLocation();
-                    try {
-                        this.map.centerCamera();
-                    } catch (Exception e) {
-                        showSnackbar("El GPS no esta prendido");
-                    }
+                    centrarCamara();
                     this.map.activateFence();
                 }
                 break;
@@ -431,6 +441,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    private void centrarCamara() {
+        try {
+            this.map.centerCamera();
+        } catch (Exception e) {
+            showSnackbar("El GPS no esta prendido");
+        }
+    }
+
     private void setMarcadorActivo(Marcador marcador) {
         if (marcador == null) {
             fab.setVisibility(View.VISIBLE);
@@ -442,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000).show();
         }
         gestorSesion.setMarcadorActivo(marcador);
+        mostrarMarcador(marcador);
     }
 
     public void enableTrackButton(boolean enabled) {
