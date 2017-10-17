@@ -10,7 +10,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.marker.app.EventoObservable;
 import com.marker.locator.LatLong;
+import com.marker.lugar.history.History;
 
 import java.util.ArrayList;
 
@@ -19,16 +23,20 @@ public class DestinoManager implements Parcelable{
     private static DatabaseReference mDatabase;
     public  ArrayList<Destino> destinos = new ArrayList<>();
     private String userId;
+    private EventoObservable onInicializado = new EventoObservable();
 
-    public DestinoManager(String userId){
-        ChildEventListener childEventListener = new ChildEventListener() {
+    public DestinoManager() {}
+
+    public void inicializar(String userId){
+        final ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
 
                 Destino destino = dataSnapshot.getValue(Destino.class);
-                destinos.add(destino);
-
+                if (!destinos.contains(destino)) {
+                    destinos.add(destino);
+                }
             }
 
             @Override
@@ -68,8 +76,28 @@ public class DestinoManager implements Parcelable{
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("usuarios").child(userId).child("destinos").addChildEventListener(childEventListener);
 
+        final Query orderedQuery = mDatabase
+                .child("usuarios")
+                .child(userId)
+                .child("destinos")
+                .orderByChild("datetime");
+        orderedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Destino destino = snapshot.getValue(Destino.class);
+                    destinos.add(destino);
+                }
+                onInicializado.notificar();
+                orderedQuery.addChildEventListener(childEventListener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     protected DestinoManager(Parcel in) {
@@ -114,5 +142,9 @@ public class DestinoManager implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.userId);
         dest.writeList(this.destinos);
+    }
+
+    public EventoObservable getOnInicializado() {
+        return onInicializado;
     }
 }

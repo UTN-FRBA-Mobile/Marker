@@ -20,6 +20,9 @@ import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.lugar.destino.Destino;
+import com.marker.lugar.destino.DestinoManager;
+import com.marker.lugar.history.HistoryManager;
+
 import android.preference.PreferenceManager;
 
 import org.json.JSONArray;
@@ -47,6 +50,10 @@ public class GestorSesion {
     private EmisorMensajes emisor;
     private Marcador marcadorActivo;
     private SharedPreferences preferences;
+    private HistoryManager historyManager;
+    private DestinoManager destinoManager;
+    private boolean historyInicializado;
+    private boolean destinosInicializado;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -75,6 +82,8 @@ public class GestorSesion {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
                 me = new Gson().fromJson(jsonObject.toString(), User.class);
+                inicializarHistoryManager();
+                inicializarDestinosManager();
                 getMarkersDB();
             }
         });
@@ -92,6 +101,32 @@ public class GestorSesion {
         request.executeAsync();
         preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
+    }
+
+    private void inicializarDestinosManager() {
+        destinoManager = new DestinoManager();
+        destinoManager.getOnInicializado().getObservers()
+                .add(new EventoObservable.ObserverSesion() {
+                    @Override
+                    public void notificar() {
+                        destinosInicializado = true;
+                        notificarInicializacion();
+                    }
+                });
+        destinoManager.inicializar(me.getId());
+    }
+
+    private void inicializarHistoryManager() {
+        historyManager = new HistoryManager();
+        historyManager.getOnInicializado().getObservers()
+                .add(new EventoObservable.ObserverSesion() {
+                    @Override
+                    public void notificar() {
+                        historyInicializado = true;
+                        notificarInicializacion();
+                    }
+                });
+        historyManager.inicializar(me.getId());
     }
 
     private void getMarkersDB() {
@@ -136,7 +171,8 @@ public class GestorSesion {
     }
 
     public boolean inicializado() {
-        return me != null && friends != null && marcadors != null;
+        return me != null && friends != null && marcadors != null
+                && historyInicializado && destinosInicializado;
     }
 
     public boolean loggeado() {
@@ -235,5 +271,13 @@ public class GestorSesion {
 
     public Marcador getMarcadorActivo() {
         return marcadorActivo;
+    }
+
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
+    public DestinoManager getDestinosManager() {
+        return destinoManager;
     }
 }

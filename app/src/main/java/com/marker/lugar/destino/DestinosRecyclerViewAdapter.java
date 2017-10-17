@@ -28,9 +28,12 @@ public class DestinosRecyclerViewAdapter extends RecyclerView.Adapter<DestinosRe
     private Context context;
     public DestinoManager destinoManager;
 
+    public DestinosRecyclerViewAdapter() {
+        destinoManager = GestorSesion.getInstancia().getDestinosManager();
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        destinoManager = new DestinoManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_destinos_item_list, parent, false);

@@ -95,8 +95,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Locator locator;
     private GoogleApiClient mGoogleApiClient;
     private Menu mOptionsMenu;
-    public HistoryManager historyManager;
-    public DestinoManager destinoManager;
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
     private Lugar lugarActualSeleccionado;
@@ -185,9 +183,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onSesionInicializada() {
         initialize_geo();
-        historyManager = new HistoryManager(gestorSesion.getUsuarioLoggeado().getId());
-        destinoManager = new DestinoManager(gestorSesion.getUsuarioLoggeado().getId());
-        menuFragment.initializeManagers(historyManager, destinoManager);
+        menuFragment.initializeManagers(gestorSesion.getHistoryManager(),
+                gestorSesion.getDestinosManager());
         menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
         updateTrackMenu(gestorSesion.getMarcadores());
         if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
@@ -356,7 +353,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(!map.markerPlacedOn(lugarActualSeleccionado)) {
                         lugarActualSeleccionado = map.getDestino();
                     }
-                    historyManager.addPlace(lugarActualSeleccionado);
+                    gestorSesion.getHistoryManager()
+                            .addPlace(lugarActualSeleccionado);
 
                     Bundle extras = data.getExtras();
                     // Obtengo los contactos seleccionados para compartir mi marker

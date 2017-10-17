@@ -14,4 +14,12 @@ public abstract class Lugar implements Parcelable{
     public String nombre;
     public LatLong posicion;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && obj instanceof Lugar) {
+            Lugar otro = (Lugar) obj;
+            return uid != null && uid.equals(otro.uid);
+        }
+        return super.equals(obj);
+    }
 }

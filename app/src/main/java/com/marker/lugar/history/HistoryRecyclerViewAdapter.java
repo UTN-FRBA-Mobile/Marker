@@ -32,11 +32,14 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     private final ArrayList<History> histories = new ArrayList<>();
     private final ArrayList<Destino> destinos = new ArrayList<>();
     private Context context;
-    public DestinoManager destinoManager;
+    private DestinoManager destinoManager;
+
+    HistoryRecyclerViewAdapter() {
+        destinoManager = GestorSesion.getInstancia().getDestinosManager();
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        destinoManager = new DestinoManager(GestorSesion.getInstancia().getUsuarioLoggeado().getId());
         context = parent.getContext();
         View view = LayoutInflater.from(context)
                 .inflate(R.layout.activity_histories_item_list, parent, false);

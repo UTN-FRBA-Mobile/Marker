@@ -8,6 +8,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.marker.app.EventoObservable;
 import com.marker.lugar.Lugar;
 import com.marker.locator.LatLong;
 
@@ -18,16 +20,18 @@ public class HistoryManager {
     private static DatabaseReference mDatabase;
     public  ArrayList<History> histories = new ArrayList<>();
     private String userId;
+    private EventoObservable onInicializado = new EventoObservable();
 
-    public HistoryManager(String userId){
-        ChildEventListener childEventListener = new ChildEventListener() {
+    public void inicializar(String userId){
+        final ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
 
                 History history = dataSnapshot.getValue(History.class);
-                histories.add(history);
-
+                if (!histories.contains(history)) {
+                    histories.add(history);
+                }
             }
 
             @Override
@@ -69,9 +73,27 @@ public class HistoryManager {
         this.userId = userId;
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query orderedQuery = mDatabase.child("usuarios").child(userId).child("histories").orderByChild("datetime");
-        orderedQuery.addChildEventListener(childEventListener);
+        final Query orderedQuery = mDatabase
+                .child("usuarios")
+                .child(userId)
+                .child("histories")
+                .orderByChild("datetime");
+        orderedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    History history = snapshot.getValue(History.class);
+                    histories.add(history);
+                }
+                onInicializado.notificar();
+                orderedQuery.addChildEventListener(childEventListener);
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public void addPlace(Lugar destination){
@@ -96,5 +118,9 @@ public class HistoryManager {
 
     private void deleteHistory(String uid){
         mDatabase.child("usuarios").child(userId).child("histories").child(uid).removeValue();
+    }
+
+    public EventoObservable getOnInicializado() {
+        return onInicializado;
     }
 }
