@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -30,14 +31,10 @@ public class GuardarDestinoFragment extends DialogFragment {
             destinos = bundle.getParcelableArrayList("destinos");
         }
 
-        AlertDialog.Builder dialogBuilder;
-
         if(destinoYaExistente())
-            dialogBuilder = this.existentDestinationDialogBuilder();
+            return this.existentDestinationDialogBuilder();
         else
-            dialogBuilder = this.saveDialogBuilder();
-
-        return dialogBuilder.create();
+            return this.saveDialogBuilder();
     }
 
     private boolean destinoYaExistente() {
@@ -48,31 +45,51 @@ public class GuardarDestinoFragment extends DialogFragment {
         return false;
     }
 
-    private AlertDialog.Builder saveDialogBuilder(){
+    private AlertDialog saveDialogBuilder(){
         final EditText nombreDestino = new EditText(getContext());
 
-        return new AlertDialog.Builder(getContext())
+        AlertDialog.Builder saveDialogBuilder = new AlertDialog.Builder(getContext())
                 .setTitle(String.format("¿Guardar %s en \"Mis Destinos\"?", history.nombre))
                 .setMessage("Puede cambiarle el nombre:")
                 .setView(nombreDestino)
                 .setCancelable(true)
-                .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface saveDialog, int id) {
-                        guardarDestino(history, nombreDestino.getText());
-                        Toast.makeText(getContext(), "Destino guardado", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                .setPositiveButton("Guardar", null);
+
+        final AlertDialog saveDialog = saveDialogBuilder.show();
+
+        saveDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if(nombreDestinoYaExistente(nombreDestino.getText()))
+                    Toast.makeText(getContext(), "Ya existe un destino con ese nombre", Toast.LENGTH_LONG).show();
+                else {
+                    guardarDestino(history, nombreDestino.getText());
+                    saveDialog.dismiss();
+                    Toast.makeText(getContext(), "Destino guardado", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        return saveDialog;
     }
 
-    private AlertDialog.Builder existentDestinationDialogBuilder() {
+    private boolean nombreDestinoYaExistente(Editable nombreDestino) {
+        for(Destino destino : destinos){
+            if(destino.nombre.equals(nombreDestino.toString()))
+                return true;
+        }
+        return false;
+    }
+
+    private AlertDialog existentDestinationDialogBuilder() {
         return new AlertDialog.Builder(getContext())
                 .setTitle("¡Destino ya guardado!")
                 .setCancelable(true)
-                .setNegativeButton("Aceptar", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.dismiss();
                     }
-                });
+                }).create();
     }
 
     private void guardarDestino(History history, Editable nombreDestino) {
