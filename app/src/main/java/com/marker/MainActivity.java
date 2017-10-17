@@ -154,24 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         gestorSesion = GestorSesion.getInstancia();
         final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
 
-
-        if (gestorSesion.inicializado()) {
-            onSesionInicializada();
-        } else {
-            observers.add(new EventoObservable.ObserverSesion() {
-                @Override
-                public void notificar() {
-                    onSesionInicializada();
-                    observers.remove(this);
-                }
-            });
-            try {
-                gestorSesion.inicializar(this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
+        onSesionInicializada();
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -208,13 +191,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
         updateTrackMenu(gestorSesion.getMarcadores());
         if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
-
-//        User emisor = gestorSesion.getUsuarioLoggeado();
-//        Marcador marker = new Marcador(emisor, null, 100);
-//        Mensaje fcm = Mensaje.newDataMessage();
-//        fcm.setTipoData(Mensaje.TipoData.MARKER);
-//        fcm.setMarker(marker);
-//        gestorSesion.getEmisorMensajes().enviar(emisor, fcm);
     }
 
     public void generateNotification(Mensaje message) {

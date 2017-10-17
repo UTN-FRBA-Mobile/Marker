@@ -61,8 +61,6 @@ public class LoginActivity extends AppCompatActivity implements FacebookCallback
 
     }
 
-
-
     @Override
     public void onSuccess(LoginResult loginResult) {
         //Facebook OK
@@ -81,32 +79,36 @@ public class LoginActivity extends AppCompatActivity implements FacebookCallback
     @Override
     public void onComplete(@NonNull Task<AuthResult> task) {
         progress_overlay.setVisibility(View.GONE);
-
         if (task.isSuccessful()) {
             //Firebase OK
 
             // Sign in success, update UI with the signed-in user's information
             Log.d(TAG, "signInWithCredential:success");
 
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+//            Intent intent = new Intent(this, MainActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(intent);
+            setResult(RESULT_OK);
         } else {
             // If sign in fails, display a message to the user.
             Log.w(TAG, "signInWithCredential:failure", task.getException());
             Toast.makeText(LoginActivity.this, "Authentication failed.",
                     Toast.LENGTH_SHORT).show();
+            setResult(-1);
         }
+        onBackPressed();
     }
 
     @Override
     public void onCancel() {
-
+        setResult(-1);
+        onBackPressed();
     }
 
     @Override
     public void onError(FacebookException error) {
-
+        setResult(-1);
+        onBackPressed();
     }
 
     @Override

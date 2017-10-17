@@ -24,6 +24,7 @@ import com.facebook.login.widget.ProfilePictureView;
 import com.marker.LoginActivity;
 import com.marker.R;
 import com.marker.SettingsActivity;
+import com.marker.SplashActivity;
 import com.marker.about.AboutFragment;
 import com.marker.lugar.destino.DestinoManager;
 import com.marker.facebook.User;
@@ -70,7 +71,7 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
             public void onClick(View view) {
                 LoginManager.getInstance().logOut();
 
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                Intent intent = new Intent(getActivity(), SplashActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
