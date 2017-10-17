@@ -128,6 +128,7 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
     public void OnHistoriesPressed() {
         Intent childIntent = new Intent(getActivity(), HistoryActivity.class);
         childIntent.putParcelableArrayListExtra("histories", historyManager.histories);
+        childIntent.putParcelableArrayListExtra("destinos", destinoManager.destinos);
         getActivity().startActivityForResult(childIntent, MenuEnum.PICK_HISTORY_REQUEST);
     }
 

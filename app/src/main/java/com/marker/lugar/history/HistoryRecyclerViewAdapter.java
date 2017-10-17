@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.marker.R;
 import com.marker.app.GestorSesion;
+import com.marker.lugar.destino.Destino;
 import com.marker.lugar.destino.DestinoManager;
 import com.marker.lugar.destino.GuardarDestinoFragment;
 
@@ -28,6 +30,7 @@ import butterknife.OnLongClick;
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<History> histories = new ArrayList<>();
+    private final ArrayList<Destino> destinos = new ArrayList<>();
     private Context context;
     public DestinoManager destinoManager;
 
@@ -53,6 +56,12 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     public void setItems(Collection<History> items) {
         histories.clear();
         histories.addAll(items);
+        notifyDataSetChanged();
+    }
+
+    public void setDestinos(Collection<Destino> items) {
+        destinos.clear();
+        destinos.addAll(items);
         notifyDataSetChanged();
     }
 
@@ -95,6 +104,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
             Bundle args = new Bundle();
             args.putParcelable("history", history);
             args.putParcelable("destinoManager", destinoManager);
+            args.putParcelableArrayList("destinos", destinos);
             guardarDestinoFragment.setArguments(args);
             guardarDestinoFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
 

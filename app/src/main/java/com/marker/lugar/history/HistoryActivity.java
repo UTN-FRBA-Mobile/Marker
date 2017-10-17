@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
 import com.marker.R;
+import com.marker.lugar.destino.Destino;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,10 @@ public class HistoryActivity extends AppCompatActivity {
         ArrayList<History> hist = extras.getParcelableArrayList("histories");
         List<History> histories =  hist;
 
+        ArrayList<Destino> destinos = extras.getParcelableArrayList("destinos");
+
         adapter.setItems(histories);
+        adapter.setDestinos(destinos);
     }
 
     private void setupActionBar() {
