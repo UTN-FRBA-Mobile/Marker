@@ -373,16 +373,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             case MenuEnum.PICK_CONTACT_REQUEST:
                 if(resultCode == RESULT_OK){
                     // Cuando se vuelve de PICK_CONTACT ya puedo iniciar el marker
-                    Bundle extras = data.getExtras();
-                    // Obtengo los contactos seleccionados para compartir mi marker
-                    ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
-                    //FIXME: en un futuro el update del menu deberia ser con los contactos trackeados
-                    Marcador marcador = gestorSesion
-                            .crearMarcador(map.getDestino(), 100, contactsToShare);
-                    updateTrackMenu(gestorSesion.getMarcadores());
-                    //TODO: Compartir el marker
-
-                    setMarcadorActivo(marcador);
 
                     // Agrego el destino seleccionadoo al historial
                     // 2 casos:     1 - Fue seleccionado por búsqueda, historial o favoritos. Se deja como está.
@@ -391,6 +381,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         lugarActualSeleccionado = map.getDestino();
                     }
                     historyManager.addPlace(lugarActualSeleccionado);
+
+                    Bundle extras = data.getExtras();
+                    // Obtengo los contactos seleccionados para compartir mi marker
+                    ArrayList<User> contactsToShare = (ArrayList<User>) extras.getSerializable("selectedFriends");
+                    Destino destino = new Destino();
+                    destino.nombre = lugarActualSeleccionado.nombre;
+                    destino.posicion = lugarActualSeleccionado.posicion;
+                    Marcador marcador = gestorSesion
+                            .crearMarcador(destino, 100, contactsToShare);
+
+                    updateTrackMenu(gestorSesion.getMarcadores());
+                    setMarcadorActivo(marcador);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     getLocation();
