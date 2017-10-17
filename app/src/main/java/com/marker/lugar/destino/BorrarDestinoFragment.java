@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.widget.Toast;
 
 
 public class BorrarDestinoFragment extends DialogFragment {
@@ -29,6 +30,7 @@ public class BorrarDestinoFragment extends DialogFragment {
                         borrarDestino(destino);
                         //KILL ME!
                         ((DestinoActivity)getActivity()).getAdapter().deleteDestino(destino);
+                        Toast.makeText(getContext(), "Destino borrado", Toast.LENGTH_SHORT).show();
                     }
                 });
 

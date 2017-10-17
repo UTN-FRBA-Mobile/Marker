@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.marker.lugar.history.History;
 
@@ -36,6 +37,7 @@ public class GuardarDestinoFragment extends DialogFragment {
                 .setPositiveButton("Guardar", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface saveDialog, int id) {
                         guardarDestino(history, nombreDestino.getText());
+                        Toast.makeText(getContext(), "Destino guardado", Toast.LENGTH_SHORT).show();
                     }
                 });
 
