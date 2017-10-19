@@ -19,7 +19,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
+import com.marker.Manifest;
 import com.marker.R;
+import com.marker.app.Marcador;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.locator.LatLong;
@@ -64,13 +66,19 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     @Override
-    public void onMapLongClick(LatLng point) {
-        confirmClick(point);
-    }
+    public void onMapLongClick(LatLng point) { this.handleClicks(point); }
 
     @Override
     public void onMapClick(LatLng point) {
-        confirmClick(point);
+        this.handleClicks(point);
+    }
+
+    private void handleClicks(LatLng point){
+        MainActivity mActivity = (MainActivity) this.context;
+        Marcador activeMarker = mActivity.getGestorSesion().getMarcadorActivo();
+        if(activeMarker == null) {
+            confirmClick(point);
+        }
     }
 
     private void confirmClick(LatLng point) {
@@ -110,17 +118,26 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public void setLocation(Location location){
         this.userLocation = location;
+
+        addUserMarker();
+    }
+
+    private void addUserMarker() {
         LatLng latLng = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
 
         if(userMarker == null){
-            BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_marker);
-
-            userMarker = map.addMarker(new MarkerOptions().position(latLng)
-                            .title("Location")
-                            .icon(icon));
+            drawMarker(latLng);
         } else {
             userMarker.setPosition(latLng);
         }
+    }
+
+    private void drawMarker(LatLng latLng){
+        BitmapDescriptor icon = BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_marker);
+
+        userMarker = map.addMarker(new MarkerOptions().position(latLng)
+                .title("Location")
+                .icon(icon));
     }
 
     public void addMarker(LatLng position){
@@ -197,5 +214,13 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public boolean markerPlacedOn(Lugar lugar) {
         return lugar != null && getDestino().posicion.isEquivalentTo(lugar.posicion);
+    }
+
+    public void deleteMarker(){
+        this.geoFence = null;
+        this.marker.remove();
+        this.marker = null;
+        this.circle.remove();
+        this.circle = null;
     }
 }

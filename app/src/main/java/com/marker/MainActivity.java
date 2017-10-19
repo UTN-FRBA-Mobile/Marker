@@ -324,6 +324,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         fab.setVisibility(View.VISIBLE);
         enableTrackButton(false);
         mStopTrack.setVisibility(View.GONE);
+
+        map.deleteMarker();
     }
 
     @Override
@@ -518,4 +520,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     }
+
+    public GestorSesion getGestorSesion(){ return this.gestorSesion; }
 }
