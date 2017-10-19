@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.locator.LocatorService;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.facebook.User;
@@ -210,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         getLocation();
+
+        startService(new Intent(this, LocatorService.class));
     }
 
     @Override
@@ -299,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         getLocation();
     }
 
-    private void getLocation() {
+    public void getLocation() {
         // FIXME: aca deberiamos preguntar si el marker activo es el nuestro u otro y obtener la ubicacion acorde
         try {
             this.locator.getLocation();

@@ -21,6 +21,7 @@ import com.marker.map.MarkerMap;
 public class Locator {
     private FusedLocationProviderClient fusedClient;
     private MainActivity activity;
+    private Context context;
     private LocationManager manager;
 
     static final int GPS_ENABLE_REQUEST = 40;
@@ -28,6 +29,11 @@ public class Locator {
     public Locator(MainActivity activity){
         this.activity = activity;
         this.manager = (LocationManager) activity.getSystemService( Context.LOCATION_SERVICE );
+    }
+
+    public Locator(Context context){
+        this.context = context;
+        this.manager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
     }
 
     public void setClient(FusedLocationProviderClient client){
