@@ -211,4 +211,10 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         this.circle.remove();
         this.circle = null;
     }
+
+    public void clear() {
+        deleteMarker();
+        userMarker.remove();
+        userMarker = null;
+    }
 }

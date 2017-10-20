@@ -44,7 +44,8 @@
 
     <string name="facebook_app_id">353969525063305</string>
     <string name="fb_login_protocol_scheme">fb353969525063305</string>
-    <string name="BROADCAST_MARKER">com.marker.nuevoMarker</string>
+    <string name="BROADCAST_MARKER">com.marker.broadcast.intent</string>
     <string name="BROADCAST_ACTION">action</string>
     <string name="BROADCAST_ACTION_NEW_MARKER">nuevo marker</string>
+    <string name="BROADCAST_ACTION_POSITION">posicion</string>
 </resources>

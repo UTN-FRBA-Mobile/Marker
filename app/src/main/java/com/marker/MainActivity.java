@@ -68,6 +68,7 @@ import com.marker.permission.Permission;
 import com.marker.track.TrackListAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -107,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Lugar lugarActualSeleccionado;
     private TrackListAdapter mTrackListAdapter;
     private boolean mapReady;
+    private HashMap<String, LatLng> posiciones = new HashMap<>();
+    private String usuarioActivoId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -169,6 +172,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     case R.string.BROADCAST_ACTION_NEW_MARKER:
                         updateTrackMenu(gestorSesion.getMarcadores());
                         break;
+                    case R.string.BROADCAST_ACTION_POSITION:
+                        LatLng posicion = intent.getParcelableExtra("posicion");
+                        String uid = intent.getStringExtra("usuario");
+                        posiciones.put(uid, posicion);
+                        if (usuarioActivoId != null &&
+                            usuarioActivoId.equals(uid)) {
+                            mostrarPosicion(uid);
+                        }
                     default:
                         break;
                 }
@@ -281,8 +292,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mostrarPosicionPropia();
         } else {
             gestorSesion.solicitarPosicion(user);
+            mostrarPosicion(user.getId());
         }
         drawer.closeDrawer(mTrackList);
+    }
+
+    private void mostrarPosicion(String id) {
+        usuarioActivoId = id;
+        LatLng latLng = posiciones.get(id);
+        if (latLng == null) {
+            map.clear();
+            return;
+        }
+        map.setUserPosition(latLng);
+        map.centerCamera();
     }
 
     private void mostrarPosicionPropia() {
