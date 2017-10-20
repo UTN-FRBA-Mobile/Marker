@@ -5,20 +5,27 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.locator.Locator;
 
 import java.util.Map;
 
@@ -48,15 +55,30 @@ public class ServicioMensajeria extends FirebaseMessagingService {
 
     private void onDataPayload(Map<String, String> data) {
         Log.d(TAG, "Message data payload: " + data);
-        Mensaje fcm = Mensaje.newDataMessage(data);
+        final Mensaje fcm = Mensaje.newDataMessage(data);
+        final GestorSesion gestorSesion = GestorSesion.getInstancia();
         switch (fcm.getTipoData()) {
             case MARKER:
                 Marcador marker = fcm.getMarker();
-                GestorSesion.getInstancia().getMarcadores().add(marker);
+                gestorSesion.getMarcadores().add(marker);
                 Intent intent = new Intent(getString(R.string.BROADCAST_MARKER));
                 intent.putExtra(getString(R.string.BROADCAST_ACTION),
                         R.string.BROADCAST_ACTION_NEW_MARKER);
                 sendBroadcast(intent);
+                break;
+            case PEDIDO_POSICION:
+                gestorSesion.getLocator()
+                    .getLocation(new Locator.ResultadoListener() {
+                        @Override
+                        public void onResultado(LatLng latLng) {
+                            Mensaje mensaje = Mensaje.newDataMessage();
+                            mensaje.setTipoData(Mensaje.TipoData.POSICION);
+                            mensaje.getPayload().put("posicion", new Gson().toJson(latLng));
+                            String idEmisor = fcm.getPayload().get("idEmisor");
+                            gestorSesion.getEmisorMensajes()
+                                    .enviar(idEmisor, mensaje);
+                        }
+                    });
                 break;
             default:
                 break;

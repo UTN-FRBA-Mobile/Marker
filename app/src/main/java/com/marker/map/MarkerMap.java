@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
 import com.marker.Manifest;
 import com.marker.R;
+import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
@@ -38,12 +39,12 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     private Marker marker;
     private Marker userMarker;
     private Circle circle;
-    private Location userLocation;
     private Destino destino;
     private float radio = 200.0f;
     // Geofence
     private Geofence geoFence;
     private GeoFenceHandler geoFenceHandler;
+    private LatLng userPosition;
 
     public MarkerMap(Context context){
         this.context = context;
@@ -75,7 +76,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     private void handleClicks(LatLng point){
         MainActivity mActivity = (MainActivity) this.context;
-        Marcador activeMarker = mActivity.getGestorSesion().getMarcadorActivo();
+        Marcador activeMarker = GestorSesion.getInstancia().getMarcadorActivo();
         if(activeMarker == null) {
             confirmClick(point);
         }
@@ -112,24 +113,13 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         this.setDestino(new Destino(nombre, "", posicion));
     }
 
-    public Location getLocation(){
-        return this.userLocation;
-    }
-
-    public void setLocation(Location location){
-        this.userLocation = location;
-
-        addUserMarker();
-    }
-
-    private void addUserMarker() {
-        LatLng latLng = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
-
+    public void setUserPosition(LatLng latLng) {
         if(userMarker == null){
             drawMarker(latLng);
         } else {
             userMarker.setPosition(latLng);
         }
+        userPosition = latLng;
     }
 
     private void drawMarker(LatLng latLng){
@@ -171,21 +161,19 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     public void updateCameraOnLocation(){
-        LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-        map.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 15.0f));
+        map.moveCamera(CameraUpdateFactory.newLatLng(userPosition));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, 15.0f));
     }
 
     public void centerCamera(){
         if(marker == null){
             updateCameraOnLocation();
-        } else if(userLocation == null){
+        } else if(userPosition == null){
             updateCamera();
-        } else if(marker != null && userLocation != null){
+        } else if(marker != null && userPosition != null){
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            LatLng userLatLng = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
             builder.include(marker.getPosition());
-            builder.include(userLatLng);
+            builder.include(userPosition);
             LatLngBounds bounds = builder.build();
             int width = context.getResources().getDisplayMetrics().widthPixels;
             int height = context.getResources().getDisplayMetrics().heightPixels;

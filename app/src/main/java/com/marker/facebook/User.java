@@ -18,4 +18,14 @@ public class User implements Serializable {
     public String getEmail() {
         return email;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (id == null) return super.equals(obj);
+        if (obj != null && obj instanceof User) {
+            return id.equals(((User)obj).id);
+        } else {
+            return super.equals(obj);
+        }
+    }
 }

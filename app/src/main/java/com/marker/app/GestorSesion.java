@@ -19,6 +19,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
+import com.marker.firebase.Mensaje;
+import com.marker.locator.Locator;
 import com.marker.lugar.destino.Destino;
 import com.marker.lugar.destino.DestinoManager;
 import com.marker.lugar.history.HistoryManager;
@@ -54,6 +56,7 @@ public class GestorSesion {
     private DestinoManager destinoManager;
     private boolean historyInicializado;
     private boolean destinosInicializado;
+    private Locator locator;
 
     public static GestorSesion getInstancia(){
         if (singleton == null) {
@@ -69,6 +72,7 @@ public class GestorSesion {
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
     public void inicializar(Context context) throws Exception {
+        locator = new Locator(context);
         token = AccessToken.getCurrentAccessToken();
         mAuth = FirebaseAuth.getInstance();
         if (mAuth == null || token == null) {
@@ -279,5 +283,17 @@ public class GestorSesion {
 
     public DestinoManager getDestinosManager() {
         return destinoManager;
+    }
+
+    public void solicitarPosicion(User usuario) {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        Mensaje fcm = Mensaje.newDataMessage();
+        fcm.setTipoData(Mensaje.TipoData.PEDIDO_POSICION);
+        fcm.getPayload().put("tokenEmisor", token);
+        emisor.enviar(usuario, fcm);
+    }
+
+    public Locator getLocator() {
+        return locator;
     }
 }

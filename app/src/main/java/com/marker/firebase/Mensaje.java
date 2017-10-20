@@ -18,7 +18,7 @@ public class Mensaje {
     String tokenReceptor;
     Boolean esData;
 
-    public enum TipoData {MARKER;}
+    public enum TipoData {MARKER, PEDIDO_POSICION, POSICION;}
 
     private Mensaje(boolean esData) {
         this.esData = esData;

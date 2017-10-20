@@ -8,9 +8,13 @@ import com.marker.facebook.User;
 
 public class EmisorMensajes {
 
-    public void enviar(User usuario, final Mensaje fcm) {
+    public void enviar(User user, Mensaje fcm) {
+        enviar(user.getId(), fcm);
+    }
+
+    public void enviar(String uid, final Mensaje fcm) {
         FirebaseDatabase.getInstance()
-            .getReference("usuarios/" + usuario.getId() + "/token")
+            .getReference("usuarios/" + uid + "/token")
             .addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

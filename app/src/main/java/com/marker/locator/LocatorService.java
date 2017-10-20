@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.marker.app.GestorSesion;
 
 public class LocatorService extends IntentService {
     private static final String TAG = "Locator Service";
@@ -27,11 +29,14 @@ public class LocatorService extends IntentService {
     }
     @Override
     protected void onHandleIntent(Intent intent) {
-        Context context = this;
-        Locator locator = new Locator(context);
         // Pido la ubicacion
-        locator.setClient(LocationServices.getFusedLocationProviderClient(context));
-        locator.getLastLocation();
+        GestorSesion.getInstancia().getLocator()
+                .getLocation(new Locator.ResultadoListener() {
+            @Override
+            public void onResultado(LatLng latLng) {
+                //Nada?
+            }
+        });
         Log.i(TAG, "Solicitud de ubicacion");
 
         // Genero una alarma que va a llamar a este mismo servicio en un minuto

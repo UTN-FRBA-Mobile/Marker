@@ -2,11 +2,13 @@ package com.marker;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,6 +45,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -74,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
+    static final int GPS_ENABLE_REQUEST = 40;
 
     private static final String TAG = "MainActivity";
 
@@ -93,8 +99,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MenuFragment menuFragment;
 
     public MarkerMap map;
-    public Permission permission = new Permission(this);
-    private Locator locator;
+    private Permission permission = new Permission(this);
     private GoogleApiClient mGoogleApiClient;
     private Menu mOptionsMenu;
     private GestorSesion gestorSesion;
@@ -210,9 +215,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
 
-
-        getLocation();
-
         startService(new Intent(this, LocatorService.class));
     }
 
@@ -274,14 +276,34 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onTrackMenuMarkerClick(Marcador marker) {
         setMarcadorActivo(marker);
-        //todo Centrar en el mapa el marker seleccionado
+        User user = marker.getUser();
+        if (gestorSesion.getUsuarioLoggeado().equals(user)) {
+            mostrarPosicionPropia();
+        } else {
+            gestorSesion.solicitarPosicion(user);
+        }
         drawer.closeDrawer(mTrackList);
+    }
+
+    private void mostrarPosicionPropia() {
+        if (!permission.checkPermissions()) {
+            permission.requestPermissions();
+            return;
+        }
+        gestorSesion.getLocator().getLocation(new Locator.ResultadoListener() {
+            @Override
+            public void onResultado(LatLng latLng) {
+                map.setUserPosition(latLng);
+                map.centerCamera();
+            }
+        });
     }
 
     @Override
     public void onMapReady(GoogleMap gmap) {
         map.setMap(gmap);
         mapReady = true;
+        mostrarPosicionPropia();
         Marcador activo = gestorSesion.getMarcadorActivo();
         if (activo != null) {
             setMarcadorActivo(activo);
@@ -293,24 +315,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             LatLong latLon = marker.getDestino().posicion;
             map.setPosition(new LatLng(latLon.latitude, latLon.longitude));
             centrarCamara();
-        }
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-
-        getLocation();
-    }
-
-    public void getLocation() {
-        // FIXME: aca deberiamos preguntar si el marker activo es el nuestro u otro y obtener la ubicacion acorde
-        try {
-            this.locator.getLocation();
-        } catch(NullPointerException e) {
-            this.locator = new Locator(this);
-            this.locator.setClient(LocationServices.getFusedLocationProviderClient(this));
-            this.locator.getLocation();
         }
     }
 
@@ -375,8 +379,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     setMarcadorActivo(marcador);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
-                    getLocation();
-                    centrarCamara();
+                    mostrarPosicionPropia();
                     this.map.activateFence();
                 }
                 break;
@@ -408,7 +411,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     map.setDestino(destino);
 
                     lugarActualSeleccionado = destino;
-                    getLocation();
+                    mostrarPosicionPropia();
 
                     enableTrackButton(true);
 
@@ -503,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted.
-                this.locator.getLocationOnMap();
+                mostrarPosicionPropia();
             } else {
                 // Permission denied.
                 showSnackbar(R.string.permission_denied_explanation, R.string.action_settings,
@@ -525,5 +528,21 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    public GestorSesion getGestorSesion(){ return this.gestorSesion; }
+    public void showGPSDiabledDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("GPS Deshabilitado");
+        builder.setMessage("El GPS no esta encendido, por lo que no podra utilizar todas las funcionalidades de la aplicacion");
+        builder.setPositiveButton("Activar GPS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), GPS_ENABLE_REQUEST);
+            }
+        }).setNegativeButton("No, solo salir", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.create().show();
+    }
 }
