@@ -214,7 +214,9 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public void clear() {
         deleteMarker();
-        userMarker.remove();
-        userMarker = null;
+        if (userMarker != null) {
+            userMarker.remove();
+            userMarker = null;
+        }
     }
 }
