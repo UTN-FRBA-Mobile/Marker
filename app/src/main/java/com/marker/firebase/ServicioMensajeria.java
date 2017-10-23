@@ -86,9 +86,11 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 LatLng posicion = new Gson()
                         .fromJson(gsonPosicion, LatLng.class);
                 String uid = fcm.getPayload().get("idEmisor");
-                Intent intentPos = new Intent(getString(R.string.BROADCAST_ACTION_POSITION));
+                Intent intentPos = new Intent(getString(R.string.BROADCAST_MARKER));
                 intentPos.putExtra("posicion", posicion);
                 intentPos.putExtra("usuario", uid);
+                intentPos.putExtra(getString(R.string.BROADCAST_ACTION),
+                        R.string.BROADCAST_ACTION_POSITION);
                 sendBroadcast(intentPos);
                 break;
             default:
