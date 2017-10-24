@@ -15,8 +15,17 @@ public class Mensaje {
     private static final String KEY_TIPODATA = "tipoData";
     private static final String KEY_MARKER = "marker";
     private Map<String, String> payload = new HashMap<>();
-    String tokenReceptor;
     Boolean esData;
+    String idReceptor;
+    String idEmisor;
+
+    public void setIdReceptor(String idReceptor) {
+        this.idReceptor = idReceptor;
+    }
+
+    public void setIdEmisor(String idEmisor) {
+        this.idEmisor = idEmisor;
+    }
 
     public enum TipoData {MARKER, PEDIDO_POSICION, POSICION;}
 
@@ -40,10 +49,6 @@ public class Mensaje {
 
     public Map<String, String> getPayload() {
         return payload;
-    }
-
-    public void setToken(String token) {
-        this.tokenReceptor = token;
     }
 
     ///////////////////////

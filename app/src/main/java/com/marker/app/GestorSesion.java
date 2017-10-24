@@ -288,7 +288,6 @@ public class GestorSesion {
     public void solicitarPosicion(User usuario) {
         Mensaje fcm = Mensaje.newDataMessage();
         fcm.setTipoData(Mensaje.TipoData.PEDIDO_POSICION);
-        fcm.getPayload().put("idEmisor", me.getId());
         emisor.enviar(usuario, fcm);
     }
 

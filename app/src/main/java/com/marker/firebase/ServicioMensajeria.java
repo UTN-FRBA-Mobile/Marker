@@ -74,7 +74,6 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                             Mensaje mensaje = Mensaje.newDataMessage();
                             mensaje.setTipoData(Mensaje.TipoData.POSICION);
                             mensaje.getPayload().put("posicion", new Gson().toJson(latLng));
-                            mensaje.getPayload().put("idEmisor", gestorSesion.getUsuarioLoggeado().getId());
                             String idEmisor = fcm.getPayload().get("idEmisor");
                             gestorSesion.getEmisorMensajes()
                                     .enviar(idEmisor, mensaje);
