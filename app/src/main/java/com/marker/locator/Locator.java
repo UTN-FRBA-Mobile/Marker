@@ -31,7 +31,7 @@ public class Locator {
         setClient(LocationServices.getFusedLocationProviderClient(context));
     }
 
-    private void setClient(FusedLocationProviderClient client){
+    public void setClient(FusedLocationProviderClient client){
         this.fusedClient = client;
     }
     /**
@@ -43,7 +43,7 @@ public class Locator {
      * Note: this method should be called after location permission has been granted.
      */
     @SuppressWarnings("MissingPermission")
-    private Task<Location> getLastLocation() {
+    public Task<Location> getLastLocation() {
         return fusedClient.getLastLocation();
     }
 
