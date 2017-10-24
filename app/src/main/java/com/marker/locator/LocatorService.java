@@ -37,5 +37,11 @@ public class LocatorService extends IntentService {
         locator.getLastLocation();
 
         Log.i(TAG, "Solicitud de ubicacion");
+     
+        // Genero una alarma que va a llamar a este mismo servicio en un minuto
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent(LocatorService.this, LocatorService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(LocatorService.this, 1, alarmIntent, 0);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 60000, pendingIntent);
     }
 }
