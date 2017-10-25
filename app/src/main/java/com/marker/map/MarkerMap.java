@@ -2,7 +2,6 @@ package com.marker.map;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Vibrator;
 
 import com.google.android.gms.location.Geofence;
@@ -19,7 +18,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.marker.MainActivity;
-import com.marker.Manifest;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -87,7 +85,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         MainActivity mActivity = (MainActivity) context;
         Vibrator vibe = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
         vibe.vibrate(50);
-        mActivity.enableTrackButton(true);
+        mActivity.updateTrackButton(true);
     }
 
     public void setMap(GoogleMap map){

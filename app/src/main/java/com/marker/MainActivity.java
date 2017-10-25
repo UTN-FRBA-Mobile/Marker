@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivityForResult(new Intent(MainActivity.this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
             }
         });
-        enableTrackButton(false);
+        updateTrackButton(false);
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -318,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateTrackMenu(gestorSesion.getMarcadores());
 
         fab.setVisibility(View.VISIBLE);
-        enableTrackButton(false);
+        updateTrackButton(false);
         mStopTrack.setVisibility(View.GONE);
 
         map.deleteMarker();
@@ -334,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
 
-                    enableTrackButton(true);
+                    updateTrackButton(true);
 
                     lugarActualSeleccionado = history;
 
@@ -378,11 +377,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Destino destino = data.getParcelableExtra("destino");
                     this.map.setPosition(LatLong.toLatLng(destino.posicion));
 
-                    enableTrackButton(true);
+                    updateTrackButton(true);
 
                     lugarActualSeleccionado = destino;
 
-                    enableTrackButton(true);
+                    updateTrackButton(true);
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
@@ -401,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     lugarActualSeleccionado = destino;
                     mostrarPosicionPropia();
 
-                    enableTrackButton(true);
+                    updateTrackButton(true);
 
                     Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -425,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setMarcadorActivo(Marcador marcador) {
         if (marcador == null) {
             fab.setVisibility(View.VISIBLE);
-            enableTrackButton(false);
+            updateTrackButton(false);
             mStopTrack.setVisibility(View.GONE);
         } else {
             fab.setVisibility(View.GONE);
@@ -436,14 +435,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mostrarMarcador(marcador);
     }
 
-    public void enableTrackButton(boolean enabled) {
-        int color;
+    public void updateTrackButton(boolean enabled) {
         if (enabled) {
-            color = getResources().getColor(R.color.colorPrimaryLight);
+            fab.setVisibility(View.VISIBLE);
         } else {
-            color = getResources().getColor(R.color.colorDisabled);
+            fab.setVisibility(View.GONE);
         }
-        fab.setBackgroundTintList(ColorStateList.valueOf(color));
         fab.setEnabled(enabled);
     }
 
