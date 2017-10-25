@@ -48,7 +48,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                 GestorSesion gestorSesion = GestorSesion.getInstancia();
                 Mensaje fcm = Mensaje.newNotification();
                 fcm.setTitle("Marker");
-                fcm.setBody("Usuario ha llegado a destino");
+                fcm.setBody("Has llegado a destino");
                 gestorSesion.getEmisorMensajes()
                         .enviar(gestorSesion.getUsuarioLoggeado(), fcm);
                 String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)

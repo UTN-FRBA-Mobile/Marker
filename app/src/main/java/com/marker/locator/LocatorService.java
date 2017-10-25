@@ -6,6 +6,7 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -16,8 +17,6 @@ import com.marker.app.GestorSesion;
 
 public class LocatorService extends IntentService {
     private static final String TAG = "Locator Service";
-    private Handler handler = new Handler();
-    private Runnable runnable;
 
     public LocatorService() {
         super(LocatorService.class.getSimpleName());
@@ -34,10 +33,14 @@ public class LocatorService extends IntentService {
         Locator locator = new Locator(context);
         // Pido la ubicacion
         locator.setClient(LocationServices.getFusedLocationProviderClient(context));
-        locator.getLastLocation();
+        locator.getLocation(new Locator.ResultadoListener(){
 
-        Log.i(TAG, "Solicitud de ubicacion");
-     
+            @Override
+            public void onResultado(LatLng latLng) {
+                Log.i(TAG, "Solicitud de ubicacion: "+latLng.longitude+":"+latLng.latitude);
+            }
+        });
+
         // Genero una alarma que va a llamar a este mismo servicio en un minuto
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent(LocatorService.this, LocatorService.class);
