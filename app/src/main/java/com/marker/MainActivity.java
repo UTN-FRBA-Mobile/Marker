@@ -28,12 +28,10 @@ import android.view.View;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,7 +41,6 @@ import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.facebook.User;
-import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
 import com.marker.locator.LatLong;
 import com.marker.locator.Locator;
@@ -87,8 +84,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MenuFragment menuFragment;
 
     public MarkerMap map;
-    private GoogleApiClient mGoogleApiClient;
-    private Menu mOptionsMenu;
     private GestorSesion gestorSesion;
     private List<BroadcastReceiver> receivers;
     private Lugar lugarActualSeleccionado;
@@ -194,19 +189,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
     }
 
-    public void generateNotification(Mensaje message) {
-        GestorSesion gestorSesion = GestorSesion.getInstancia();
-        gestorSesion.getEmisorMensajes()
-                .enviar(gestorSesion.getUsuarioLoggeado(), message);
-    }
-
     private void initialize_geo() {
-        this.mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .build();
-
         LocationRequest locationRequest = LocationRequest.create();
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
@@ -228,7 +211,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        mOptionsMenu = menu;
         MenuItem item = menu.findItem(R.id.action_track);
         ArrayList<Marcador> marcadores = gestorSesion.getMarcadores();
         if (item != null) {
@@ -470,33 +452,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         invalidateOptionsMenu();
     }
 
-    /**
-     * Shows a {@link Snackbar} using {@code text}.
-     *
-     * @param text The Snackbar text.
-     */
+
     public void showSnackbar(final String text) {
         View container = findViewById(R.id.map);
         if (container != null) {
             Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
         }
     }
-
-    /**
-     * Shows a {@link Snackbar}.
-     *
-     * @param mainTextStringId The id for the string resource for the Snackbar text.
-     * @param actionStringId   The text of the action item.
-     * @param listener         The listener associated with the Snackbar action.
-     */
-    public void showSnackbar(final int mainTextStringId, final int actionStringId,
-                             View.OnClickListener listener) {
-        Snackbar.make(findViewById(android.R.id.content),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
-    }
-
 
     public void showGPSDiabledDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
