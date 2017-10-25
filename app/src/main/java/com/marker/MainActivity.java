@@ -6,12 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -45,19 +42,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
-import com.marker.locator.LocatorService;
-import com.marker.lugar.Lugar;
-import com.marker.lugar.destino.Destino;
 import com.marker.facebook.User;
 import com.marker.firebase.Mensaje;
 import com.marker.friends.FriendsActivity;
-import com.marker.lugar.history.History;
 import com.marker.locator.LatLong;
 import com.marker.locator.Locator;
+import com.marker.locator.LocatorService;
+import com.marker.lugar.Lugar;
+import com.marker.lugar.destino.Destino;
+import com.marker.lugar.history.History;
 import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
-import com.marker.permission.Permission;
 import com.marker.track.TrackListAdapter;
 
 import java.util.ArrayList;
@@ -70,8 +66,6 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-
-    static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
     static final int GPS_ENABLE_REQUEST = 40;
 
@@ -93,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MenuFragment menuFragment;
 
     public MarkerMap map;
-    private Permission permission = new Permission(this);
     private GoogleApiClient mGoogleApiClient;
     private Menu mOptionsMenu;
     private GestorSesion gestorSesion;
@@ -303,10 +296,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void mostrarPosicionPropia() {
-        if (!permission.checkPermissions()) {
-            permission.requestPermissions();
-            return;
-        }
         gestorSesion.getLocator().getLocation(new Locator.ResultadoListener() {
             @Override
             public void onResultado(LatLng latLng) {
@@ -508,42 +497,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    public void startLocationPermissionRequest() {
-        this.permission.startLocationPermissionRequest();
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.length <= 0) {
-
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted.
-                mostrarPosicionPropia();
-            } else {
-                // Permission denied.
-                showSnackbar(R.string.permission_denied_explanation, R.string.action_settings,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // Build intent that displays the App settings screen.
-                                Intent intent = new Intent();
-                                intent.setAction(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
-                                intent.setData(uri);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        });
-            }
-        }
-    }
 
     public void showGPSDiabledDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
