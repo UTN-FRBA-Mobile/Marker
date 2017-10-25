@@ -177,7 +177,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
             LatLngBounds bounds = builder.build();
             int width = context.getResources().getDisplayMetrics().widthPixels;
             int height = context.getResources().getDisplayMetrics().heightPixels;
-            int padding = (int) (width * 0.30); // offset from edges of the map 10% of screen
+            int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
         } else {
 
