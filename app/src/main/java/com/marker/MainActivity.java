@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivityForResult(new Intent(MainActivity.this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
             }
         });
-        updateTrackButton(false);
+        showTrackButton(false);
 
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -317,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateTrackMenu(gestorSesion.getMarcadores());
 
         fab.setVisibility(View.VISIBLE);
-        updateTrackButton(false);
+        showTrackButton(false);
         mStopTrack.setVisibility(View.GONE);
 
         map.deleteMarker();
@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
 
-                    updateTrackButton(true);
+                    showTrackButton(true);
 
                     lugarActualSeleccionado = history;
 
@@ -377,11 +377,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Destino destino = data.getParcelableExtra("destino");
                     this.map.setPosition(LatLong.toLatLng(destino.posicion));
 
-                    updateTrackButton(true);
+                    showTrackButton(true);
 
                     lugarActualSeleccionado = destino;
 
-                    updateTrackButton(true);
+                    showTrackButton(true);
 
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
@@ -400,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     lugarActualSeleccionado = destino;
                     mostrarPosicionPropia();
 
-                    updateTrackButton(true);
+                    showTrackButton(true);
 
                     Log.i(TAG, "Place: " + place.getName());
                 } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
@@ -424,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setMarcadorActivo(Marcador marcador) {
         if (marcador == null) {
             fab.setVisibility(View.VISIBLE);
-            updateTrackButton(false);
+            showTrackButton(false);
             mStopTrack.setVisibility(View.GONE);
         } else {
             fab.setVisibility(View.GONE);
@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mostrarMarcador(marcador);
     }
 
-    public void updateTrackButton(boolean enabled) {
+    public void showTrackButton(boolean enabled) {
         if (enabled) {
             fab.setVisibility(View.VISIBLE);
         } else {
