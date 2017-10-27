@@ -196,6 +196,9 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public void setRadio(float radio) {
         this.radio = radio;
+        if(this.circle != null) {
+            this.circle.setRadius(this.radio);
+        }
     }
 
     public boolean markerPlacedOn(Lugar lugar) {

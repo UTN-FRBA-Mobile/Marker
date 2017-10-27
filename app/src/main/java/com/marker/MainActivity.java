@@ -179,6 +179,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onDestroy();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(this.map != null){
+            this.map.setRadio(getRadioSetting());
+            mostrarPosicionPropia();
+        }
+    }
+
     private void onSesionInicializada() {
         initialize_geo();
         menuFragment.initializeManagers(gestorSesion.getHistoryManager(),
@@ -328,8 +337,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch(requestCode) {
             case MenuEnum.PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
-                    this.map.setRadio(getRadioSetting());
-
                     History history = data.getParcelableExtra("history");
                     this.map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
 
@@ -372,8 +379,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case MenuEnum.PICK_DESTINO_REQUEST:
                 if(resultCode == RESULT_OK) {
-                    this.map.setRadio(getRadioSetting());
-
                     Destino destino = data.getParcelableExtra("destino");
                     this.map.setPosition(LatLong.toLatLng(destino.posicion));
 
@@ -388,8 +393,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
-                    this.map.setRadio(getRadioSetting());
-
                     Place place = PlaceAutocomplete.getPlace(this, data);
 
                     map.setPosition(place.getLatLng());
