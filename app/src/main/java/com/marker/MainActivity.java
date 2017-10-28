@@ -36,6 +36,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -186,6 +187,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.map.setRadio(getRadioSetting());
             mostrarPosicionPropia();
         }
+        getStoredLocation();
+    }
+
+    private LatLng getStoredLocation(){
+        SharedPreferences mPrefs = getSharedPreferences("marker", MODE_PRIVATE);
+        String json = mPrefs.getString("location", "");
+        return new Gson().fromJson(json, LatLng.class);
     }
 
     private void onSesionInicializada() {
