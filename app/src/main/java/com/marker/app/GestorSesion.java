@@ -48,7 +48,6 @@ public class GestorSesion {
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
     private User me;
-    private EmisorMensajes emisor;
     private Marcador marcadorActivo;
     private SharedPreferences preferences;
     private HistoryManager historyManager;
@@ -78,7 +77,6 @@ public class GestorSesion {
         if (mAuth == null || token == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
         }
-        emisor = new EmisorMensajes();
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
         GraphRequest request;
@@ -240,11 +238,7 @@ public class GestorSesion {
         SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
         sharedPreferencesEditor.putString("loggedUser", (new Gson()).toJson(user));
     }
-
-    public EmisorMensajes getEmisorMensajes() {
-        return emisor;
-    }
-
+    
     public void eliminarMarcador(Marcador marcador) {
         if (marcadorActivo == marcador) {
             marcadorActivo = null;
@@ -282,6 +276,7 @@ public class GestorSesion {
     public void solicitarPosicion(User usuario) {
         Mensaje fcm = Mensaje.newDataMessage();
         fcm.setTipoData(Mensaje.TipoData.PEDIDO_POSICION);
+        EmisorMensajes emisor = new EmisorMensajes();
         emisor.enviar(getUsuarioLoggeado(), usuario, fcm);
     }
 

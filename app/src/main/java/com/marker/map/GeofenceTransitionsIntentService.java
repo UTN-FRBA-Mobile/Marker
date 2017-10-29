@@ -10,6 +10,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.marker.app.GestorSesion;
+import com.marker.firebase.EmisorMensajes;
 import com.marker.firebase.Mensaje;
 
 
@@ -49,8 +50,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                 Mensaje fcm = Mensaje.newNotification();
                 fcm.setTitle("Marker");
                 fcm.setBody("Has llegado a destino");
-                gestorSesion.getEmisorMensajes()
-                        .enviar(gestorSesion.getUsuarioLoggeado(), gestorSesion.getUsuarioLoggeado(), fcm);
+                (new EmisorMensajes()).enviar(gestorSesion.getUsuarioLoggeado(), gestorSesion.getUsuarioLoggeado(), fcm);
                 String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
                         .getRequestId();
 
