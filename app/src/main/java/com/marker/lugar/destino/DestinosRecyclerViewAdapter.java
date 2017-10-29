@@ -29,7 +29,7 @@ public class DestinosRecyclerViewAdapter extends RecyclerView.Adapter<DestinosRe
     public DestinoManager destinoManager;
 
     public DestinosRecyclerViewAdapter() {
-        destinoManager = GestorSesion.getInstancia().getDestinosManager();
+        destinoManager = GestorSesion.getInstancia(context).getDestinosManager();
     }
 
     @Override

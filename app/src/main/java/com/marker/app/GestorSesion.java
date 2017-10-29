@@ -58,9 +58,10 @@ public class GestorSesion {
     private boolean destinosInicializado;
     private Locator locator;
 
-    public static GestorSesion getInstancia(){
+    public static GestorSesion getInstancia(Context context){
         if (singleton == null) {
             singleton = new GestorSesion();
+            singleton.setPreferences(PreferenceManager.getDefaultSharedPreferences(context));
         }
         return singleton;
     }
@@ -85,7 +86,7 @@ public class GestorSesion {
         request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
-                me = new Gson().fromJson(jsonObject.toString(), User.class);
+                setUsuarioLogueado(new Gson().fromJson(jsonObject.toString(), User.class));
                 inicializarHistoryManager();
                 inicializarDestinosManager();
                 getMarkersDB();
@@ -103,8 +104,8 @@ public class GestorSesion {
             }
         });
         request.executeAsync();
-        preferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
+
+        setPreferences(PreferenceManager.getDefaultSharedPreferences(context));
     }
 
     private void inicializarDestinosManager() {
@@ -117,7 +118,7 @@ public class GestorSesion {
                         notificarInicializacion();
                     }
                 });
-        destinoManager.inicializar(me.getId());
+        destinoManager.inicializar(getUsuarioLoggeado().getId());
     }
 
     private void inicializarHistoryManager() {
@@ -130,11 +131,11 @@ public class GestorSesion {
                         notificarInicializacion();
                     }
                 });
-        historyManager.inicializar(me.getId());
+        historyManager.inicializar(getUsuarioLoggeado().getId());
     }
 
     private void getMarkersDB() {
-        firebaseDatabase.getReference("/usuarios/"+me.getId()+"/markers")
+        firebaseDatabase.getReference("/usuarios/"+getUsuarioLoggeado().getId()+"/markers")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -175,7 +176,7 @@ public class GestorSesion {
     }
 
     public boolean inicializado() {
-        return me != null && friends != null && marcadors != null
+        return getUsuarioLoggeado() != null && friends != null && marcadors != null
                 && historyInicializado && destinosInicializado;
     }
 
@@ -198,7 +199,7 @@ public class GestorSesion {
     }
 
     public Marcador crearMarcador(Destino destino, int radioDeteccion, ArrayList<User> contactsToShare) {
-        Marcador marcador = new Marcador(me, destino, radioDeteccion);
+        Marcador marcador = new Marcador(getUsuarioLoggeado(), destino, radioDeteccion);
 
         List<String> usuarios = marcador.getUsuarios();
         for (User user : contactsToShare) {
@@ -207,7 +208,7 @@ public class GestorSesion {
 
         marcadors.add(marcador);
         DatabaseReference ref = firebaseDatabase
-                .getReference("/usuarios/" + me.getId() + "/markers")
+                .getReference("/usuarios/" + getUsuarioLoggeado().getId() + "/markers")
                 .push();
         marcador.setId(ref.getKey());
         ref.setValue(marcador);
@@ -215,8 +216,8 @@ public class GestorSesion {
         return marcador;
     }
 
-    public static void actualizarTokenEnServidor() {
-        User me = getInstancia().me;
+    public void actualizarTokenEnServidor() {
+        User me = getUsuarioLoggeado();
         if (me == null) {
             return;
         }
@@ -240,7 +241,16 @@ public class GestorSesion {
     }
 
     public User getUsuarioLoggeado() {
+        if(me == null) {
+            return (new Gson()).fromJson(preferences.getString("loggedUser", ""), User.class);
+        }
         return me;
+    }
+
+    private void setUsuarioLogueado(User user) {
+        me = user;
+        SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
+        sharedPreferencesEditor.putString("loggedUser", (new Gson()).toJson(user));
     }
 
     public User[] getFriends() {
@@ -257,7 +267,7 @@ public class GestorSesion {
         }
         //todo si no hay internet habra q persistir registros por sincronizar
         firebaseDatabase
-                .getReference("/usuarios/"+me.getId()+"/markers/"+marcador.getId())
+                .getReference("/usuarios/"+getUsuarioLoggeado().getId()+"/markers/"+marcador.getId())
                 .removeValue();
         marcadors.remove(marcador);
     }
@@ -288,10 +298,14 @@ public class GestorSesion {
     public void solicitarPosicion(User usuario) {
         Mensaje fcm = Mensaje.newDataMessage();
         fcm.setTipoData(Mensaje.TipoData.PEDIDO_POSICION);
-        emisor.enviar(usuario, fcm);
+        emisor.enviar(getUsuarioLoggeado(), usuario, fcm);
     }
 
     public Locator getLocator() {
         return locator;
+    }
+
+    public void setPreferences(SharedPreferences preferences) {
+        this.preferences = preferences;
     }
 }

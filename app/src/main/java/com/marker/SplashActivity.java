@@ -103,7 +103,7 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
     }
 
     private void inicializarSesion() {
-        GestorSesion gestorSesion = GestorSesion.getInstancia();
+        GestorSesion gestorSesion = GestorSesion.getInstancia(this);
         gestorSesion.getOnInicializado()
                 .getObservers()
                 .add(this);

@@ -45,12 +45,12 @@ public class GeofenceTransitionsIntentService extends IntentService
                 // Entra a la geofence
                 Log.e(TAG, "Location Services info: Transition enter");
                 //FIXME: deberia tomar datos del usuario y enviar la notificacion a quienes compartio el marker
-                GestorSesion gestorSesion = GestorSesion.getInstancia();
+                GestorSesion gestorSesion = GestorSesion.getInstancia(this);
                 Mensaje fcm = Mensaje.newNotification();
                 fcm.setTitle("Marker");
                 fcm.setBody("Has llegado a destino");
                 gestorSesion.getEmisorMensajes()
-                        .enviar(gestorSesion.getUsuarioLoggeado(), fcm);
+                        .enviar(gestorSesion.getUsuarioLoggeado(), gestorSesion.getUsuarioLoggeado(), fcm);
                 String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
                         .getRequestId();
 

@@ -39,7 +39,7 @@ public class FriendsActivity extends AppCompatActivity {
         adapter = new FriendsRecyclerViewAdapter();
         rvFriends.setAdapter(adapter);
         rvFriends.setLayoutManager(new LinearLayoutManager(this));
-        adapter.setItems(GestorSesion.getInstancia().getFriends());
+        adapter.setItems(GestorSesion.getInstancia(this).getFriends());
     }
 
     private void setupActionBar() {

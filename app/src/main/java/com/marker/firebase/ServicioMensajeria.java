@@ -56,7 +56,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     private void onDataPayload(Map<String, String> data) {
         Log.d(TAG, "Message data payload: " + data);
         final Mensaje fcm = Mensaje.newDataMessage(data);
-        final GestorSesion gestorSesion = GestorSesion.getInstancia();
+        final GestorSesion gestorSesion = GestorSesion.getInstancia(this);
         switch (fcm.getTipoData()) {
             case MARKER:
                 Marcador marker = fcm.getMarker();
@@ -76,7 +76,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                             mensaje.getPayload().put("posicion", new Gson().toJson(latLng));
                             String idEmisor = fcm.getPayload().get("idEmisor");
                             gestorSesion.getEmisorMensajes()
-                                    .enviar(idEmisor, mensaje);
+                                    .enviar(gestorSesion.getUsuarioLoggeado().getId(), idEmisor, mensaje);
                         }
                     });
                 break;

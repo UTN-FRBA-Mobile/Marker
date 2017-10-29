@@ -114,7 +114,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
             String id = user.getId();
             mImgUsuario.setProfileId(id);
             String name = user.getName();
-            if (id.equals(GestorSesion.getInstancia().getUsuarioLoggeado().getId())) {
+            if (id.equals(GestorSesion.getInstancia(context).getUsuarioLoggeado().getId())) {
                 name += " (Yo)";
             }
             mTxtNombreUsuario.setText(name);

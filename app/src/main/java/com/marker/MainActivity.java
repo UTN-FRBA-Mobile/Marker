@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mTrackList.setAdapter(mTrackListAdapter);
         mTrackList.setLayoutManager(new LinearLayoutManager(this));
 
-        gestorSesion = GestorSesion.getInstancia();
+        gestorSesion = GestorSesion.getInstancia(this);
         final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
 
         onSesionInicializada();

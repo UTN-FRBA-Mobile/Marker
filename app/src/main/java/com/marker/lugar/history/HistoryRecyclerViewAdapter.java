@@ -35,7 +35,7 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     private DestinoManager destinoManager;
 
     HistoryRecyclerViewAdapter() {
-        destinoManager = GestorSesion.getInstancia().getDestinosManager();
+        destinoManager = GestorSesion.getInstancia(context).getDestinosManager();
     }
 
     @Override
