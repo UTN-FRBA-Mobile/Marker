@@ -11,11 +11,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
+import com.marker.facebook.User;
 import com.marker.menu.MenuEnum;
+
+import org.json.JSONObject;
 
 public class SplashActivity extends AppCompatActivity implements EventoObservable.ObserverSesion{
     private static final String TAG = SplashActivity.class.getSimpleName();
@@ -103,15 +109,23 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
     }
 
     private void inicializarSesion() {
-        GestorSesion gestorSesion = GestorSesion.getInstancia(this);
-        gestorSesion.getOnInicializado()
-                .getObservers()
-                .add(this);
-        try {
-            gestorSesion.inicializar(this);
-        } catch (Exception e) {
-            Log.e(TAG, "No se pudo inicializar sesion!", e);
-        }
+        final GestorSesion gestorSesion = GestorSesion.getInstancia(this);
+        gestorSesion.getOnInicializado().getObservers().add(this);
+
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject jsonObject, GraphResponse response) {
+                gestorSesion.setUsuarioLogueado(new Gson().fromJson(jsonObject.toString(), User.class));
+
+                try {
+                    gestorSesion.inicializar();
+                } catch (Exception e) {
+                    Log.e(TAG, "No se pudo inicializar sesion!", e);
+                }
+            }
+        });
+        request.executeAsync();
     }
 
     @Override

@@ -2,12 +2,9 @@ package com.marker.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,11 +22,6 @@ import com.marker.lugar.destino.Destino;
 import com.marker.lugar.destino.DestinoManager;
 import com.marker.lugar.history.HistoryManager;
 
-import android.preference.PreferenceManager;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,27 +30,33 @@ import java.util.List;
 public class GestorSesion {
     private static final String TAG = GestorSesion.class.getSimpleName();
     private static final String KEY_MARKER_SELECCIONADO = "markerSeleccionado";
+
     private static GestorSesion singleton;
+
     private final EventoObservable onInicializado = new EventoObservable();
+
     //Markers activos
     private ArrayList<Marcador> marcadors;
-    //Facebook token
-    private AccessToken token;
     private FirebaseAuth mAuth;
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
     private User me;
     private Marcador marcadorActivo;
+
     private SharedPreferences preferences;
+
     private HistoryManager historyManager;
     private DestinoManager destinoManager;
     private boolean historyInicializado;
     private boolean destinosInicializado;
+
     private Locator locator;
+    private Context context;
 
     public static GestorSesion getInstancia(Context context){
         if (singleton == null) {
             singleton = new GestorSesion();
+            singleton.context = context;
             singleton.setPreferences(PreferenceManager.getDefaultSharedPreferences(context));
         }
         return singleton;
@@ -70,26 +68,18 @@ public class GestorSesion {
     /**Inicializa el usuario y amigos
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
-    public void inicializar(Context context) throws Exception {
+    public void inicializar() throws Exception {
         locator = new Locator(context);
-        token = AccessToken.getCurrentAccessToken();
         mAuth = FirebaseAuth.getInstance();
-        if (mAuth == null || token == null) {
+        if (mAuth == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
         }
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
-        GraphRequest request;
-        request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject jsonObject, GraphResponse response) {
-                setUsuarioLogueado(new Gson().fromJson(jsonObject.toString(), User.class));
-                inicializarHistoryManager();
-                inicializarDestinosManager();
-                getMarkersDB();
-            }
-        });
-        request.executeAsync();
+
+        inicializarHistoryManager();
+        inicializarDestinosManager();
+        getMarkersDB();
 
         setPreferences(PreferenceManager.getDefaultSharedPreferences(context));
     }
@@ -166,10 +156,6 @@ public class GestorSesion {
                 && historyInicializado && destinosInicializado;
     }
 
-    public boolean loggeado() {
-        return mAuth != null && token != null;
-    }
-
     public ArrayList<Marcador> getMarcadores() {
         return marcadors;
     }
@@ -204,9 +190,6 @@ public class GestorSesion {
 
     public void actualizarTokenEnServidor() {
         User me = getUsuarioLoggeado();
-        if (me == null) {
-            return;
-        }
         String uid = me.getId();
         String token = FirebaseInstanceId.getInstance().getToken();
         FirebaseDatabase.getInstance()
@@ -233,12 +216,12 @@ public class GestorSesion {
         return me;
     }
 
-    private void setUsuarioLogueado(User user) {
+    public void setUsuarioLogueado(User user) {
         me = user;
         SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
         sharedPreferencesEditor.putString("loggedUser", (new Gson()).toJson(user));
     }
-    
+
     public void eliminarMarcador(Marcador marcador) {
         if (marcadorActivo == marcador) {
             marcadorActivo = null;
