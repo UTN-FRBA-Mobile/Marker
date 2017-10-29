@@ -294,7 +294,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void mostrarPosicionPropia() {
-        gestorSesion.getLocator().getLocation(new Locator.ResultadoListener() {
+        Locator locator = new Locator(this);
+        locator.getLocation(new Locator.ResultadoListener() {
             @Override
             public void onResultado(LatLng latLng) {
                 map.setUserPosition(latLng);

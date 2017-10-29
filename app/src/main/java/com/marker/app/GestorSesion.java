@@ -50,7 +50,6 @@ public class GestorSesion {
     private boolean historyInicializado;
     private boolean destinosInicializado;
 
-    private Locator locator;
     private Context context;
 
     public static GestorSesion getInstancia(Context context){
@@ -69,7 +68,6 @@ public class GestorSesion {
      * @throws Exception Si se llama a este metodo sin estar loggeado
      */
     public void inicializar() throws Exception {
-        locator = new Locator(context);
         mAuth = FirebaseAuth.getInstance();
         if (mAuth == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
@@ -261,10 +259,6 @@ public class GestorSesion {
         fcm.setTipoData(Mensaje.TipoData.PEDIDO_POSICION);
         EmisorMensajes emisor = new EmisorMensajes();
         emisor.enviar(getUsuarioLoggeado(), usuario, fcm);
-    }
-
-    public Locator getLocator() {
-        return locator;
     }
 
     public void setPreferences(SharedPreferences preferences) {

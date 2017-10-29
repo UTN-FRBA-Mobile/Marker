@@ -67,8 +67,8 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 sendBroadcast(intent);
                 break;
             case PEDIDO_POSICION:
-                gestorSesion.getLocator()
-                    .getLocation(new Locator.ResultadoListener() {
+                Locator locator = new Locator(this);
+                locator.getLocation(new Locator.ResultadoListener() {
                         @Override
                         public void onResultado(LatLng latLng) {
                             Mensaje mensaje = Mensaje.newDataMessage();
