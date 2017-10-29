@@ -2,32 +2,43 @@ package com.marker.friends;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.google.gson.Gson;
 import com.marker.R;
-import com.marker.app.GestorSesion;
 import com.marker.facebook.User;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class FriendsActivity extends AppCompatActivity {
-    public ArrayList<User> selectedFriends = new ArrayList<>();
-
     @BindView(R.id.rv_friends)
     RecyclerView rvFriends;
 
+    @BindView(R.id.progress_overlay)
+    protected View progress_overlay;
+
     private FriendsRecyclerViewAdapter adapter;
+
+    public ArrayList<User> selectedFriends = new ArrayList<>();
+    private ArrayList<User> friends = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +50,38 @@ public class FriendsActivity extends AppCompatActivity {
         adapter = new FriendsRecyclerViewAdapter();
         rvFriends.setAdapter(adapter);
         rvFriends.setLayoutManager(new LinearLayoutManager(this));
-        adapter.setItems(GestorSesion.getInstancia(this).getFriends());
+
+
+        if(savedInstanceState != null) {
+            friends = savedInstanceState.getParcelableArrayList("friends");
+            adapter.setItems(friends);
+        } else {
+            getFacebookFriends();
+        }
+    }
+
+    private void getFacebookFriends() {
+        progress_overlay.setVisibility(View.VISIBLE);
+        AccessToken token = AccessToken.getCurrentAccessToken();
+        GraphRequest request = GraphRequest.newMyFriendsRequest(token, new GraphRequest.GraphJSONArrayCallback() {
+            @Override
+            public void onCompleted(JSONArray objects, GraphResponse response) {
+                if(objects == null) {
+                    getFacebookFriends();
+                    return;
+                }
+                User friends[] = new Gson().fromJson(objects.toString(), User[].class);
+                FriendsActivity.this.friends = new ArrayList<>(Arrays.asList(friends));
+                adapter.setItems(FriendsActivity.this.friends);
+                progress_overlay.setVisibility(View.GONE);
+            }
+        });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,email");
+        request.setParameters(parameters);
+
+        request.executeAsync();
     }
 
     private void setupActionBar() {
@@ -73,5 +115,11 @@ public class FriendsActivity extends AppCompatActivity {
                 this.finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("friends", friends);
     }
 }

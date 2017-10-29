@@ -48,7 +48,6 @@ public class GestorSesion {
     private FirebaseUser firebaseUser;
     private FirebaseDatabase firebaseDatabase;
     private User me;
-    private User[] friends;
     private EmisorMensajes emisor;
     private Marcador marcadorActivo;
     private SharedPreferences preferences;
@@ -90,17 +89,6 @@ public class GestorSesion {
                 inicializarHistoryManager();
                 inicializarDestinosManager();
                 getMarkersDB();
-            }
-        });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,email");
-        request.setParameters(parameters);
-        request.executeAsync();
-        request = GraphRequest.newMyFriendsRequest(token, new GraphRequest.GraphJSONArrayCallback() {
-            @Override
-            public void onCompleted(JSONArray objects, GraphResponse response) {
-                friends = new Gson().fromJson(objects.toString(), User[].class);
-                notificarInicializacion();
             }
         });
         request.executeAsync();
@@ -176,7 +164,7 @@ public class GestorSesion {
     }
 
     public boolean inicializado() {
-        return getUsuarioLoggeado() != null && friends != null && marcadors != null
+        return getUsuarioLoggeado() != null && marcadors != null
                 && historyInicializado && destinosInicializado;
     }
 
@@ -251,10 +239,6 @@ public class GestorSesion {
         me = user;
         SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
         sharedPreferencesEditor.putString("loggedUser", (new Gson()).toJson(user));
-    }
-
-    public User[] getFriends() {
-        return friends;
     }
 
     public EmisorMensajes getEmisorMensajes() {

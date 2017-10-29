@@ -13,13 +13,15 @@ import com.facebook.login.widget.ProfilePictureView;
 import com.marker.R;
 import com.marker.facebook.User;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
 public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecyclerViewAdapter.ViewHolder> {
-    private User[] friends = new User[0];
+    private ArrayList<User> friends = new ArrayList<>();
     private Context context;
 
     @Override
@@ -37,10 +39,10 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
 
     @Override
     public int getItemCount() {
-        return friends.length;
+        return friends.size();
     }
 
-    public void setItems(User[] friends) {
+    public void setItems(ArrayList<User> friends) {
         this.friends = friends;
         notifyDataSetChanged();
     }
@@ -67,7 +69,7 @@ public class FriendsRecyclerViewAdapter extends RecyclerView.Adapter<FriendsRecy
         }
 
         void bind(int position) {
-            friend = friends[position];
+            friend = friends.get(position);
             friendNameTextView.setText(friend.getName());
             friendProfilePicture.setProfileId(friend.getId());
         }
