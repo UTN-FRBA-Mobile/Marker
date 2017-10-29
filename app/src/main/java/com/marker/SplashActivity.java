@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -103,6 +104,24 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
         dialog.show();
     }
 
+    protected void alertNoConnection() {
+        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        dialog.setTitle("Importante");
+        dialog.setMessage("No se pudo conectar al servidor, verifique su conexión a internet");
+        dialog.setCancelable(false);
+        dialog.setNegativeButton("Cerrar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                finishAffinity();
+            }
+        });
+        dialog.setPositiveButton("Reintentar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                inicializarSesion();
+            }
+        });
+        dialog.show();
+    }
+
     private void mostrarLogin() {
         Intent intent = new Intent(this, LoginActivity.class);
         startActivityForResult(intent, MenuEnum.LOGIN_REQUEST);
@@ -116,6 +135,10 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
             @Override
             public void onCompleted(JSONObject jsonObject, GraphResponse response) {
+                if(jsonObject == null) {
+                    alertNoConnection();
+                    return;
+                }
                 gestorSesion.setUsuarioLogueado(new Gson().fromJson(jsonObject.toString(), User.class));
 
                 try {
