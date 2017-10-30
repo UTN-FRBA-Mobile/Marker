@@ -48,6 +48,7 @@ import com.marker.locator.LocatorService;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.lugar.history.History;
+import com.marker.lugar.history.HistoryManager;
 import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
@@ -198,9 +199,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onSesionInicializada() {
         initialize_geo();
-        menuFragment.initializeManagers(gestorSesion.getHistoryManager(),
-                gestorSesion.getDestinosManager());
-        menuFragment.initializeFacebookUserData(gestorSesion.getUsuarioLoggeado());
+        menuFragment.initializeManagers(gestorSesion.getDestinosManager());
         updateTrackMenu(gestorSesion.getMarcadores());
         if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
     }
@@ -366,8 +365,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(!map.markerPlacedOn(lugarActualSeleccionado)) {
                         lugarActualSeleccionado = map.getDestino();
                     }
-                    gestorSesion.getHistoryManager()
-                            .addPlace(lugarActualSeleccionado);
+                    HistoryManager historyManager = new HistoryManager(GestorSesion.getInstancia(this).getUsuarioLoggeado());
+                    historyManager.addPlace(lugarActualSeleccionado);
 
                     Bundle extras = data.getExtras();
                     // Obtengo los contactos seleccionados para compartir mi marker

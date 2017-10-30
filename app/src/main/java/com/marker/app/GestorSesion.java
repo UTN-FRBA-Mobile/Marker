@@ -45,9 +45,7 @@ public class GestorSesion {
 
     private SharedPreferences preferences;
 
-    private HistoryManager historyManager;
     private DestinoManager destinoManager;
-    private boolean historyInicializado;
     private boolean destinosInicializado;
 
     private Context context;
@@ -75,7 +73,6 @@ public class GestorSesion {
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
-        inicializarHistoryManager();
         inicializarDestinosManager();
         getMarkersDB();
 
@@ -93,19 +90,6 @@ public class GestorSesion {
                     }
                 });
         destinoManager.inicializar(getUsuarioLoggeado().getId());
-    }
-
-    private void inicializarHistoryManager() {
-        historyManager = new HistoryManager();
-        historyManager.getOnInicializado().getObservers()
-                .add(new EventoObservable.ObserverSesion() {
-                    @Override
-                    public void notificar() {
-                        historyInicializado = true;
-                        notificarInicializacion();
-                    }
-                });
-        historyManager.inicializar(getUsuarioLoggeado().getId());
     }
 
     private void getMarkersDB() {
@@ -151,7 +135,7 @@ public class GestorSesion {
 
     public boolean inicializado() {
         return getUsuarioLoggeado() != null && marcadors != null
-                && historyInicializado && destinosInicializado;
+                 && destinosInicializado;
     }
 
     public ArrayList<Marcador> getMarcadores() {
@@ -244,10 +228,6 @@ public class GestorSesion {
 
     public Marcador getMarcadorActivo() {
         return marcadorActivo;
-    }
-
-    public HistoryManager getHistoryManager() {
-        return historyManager;
     }
 
     public DestinoManager getDestinosManager() {

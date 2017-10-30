@@ -26,6 +26,7 @@ import com.marker.R;
 import com.marker.SettingsActivity;
 import com.marker.SplashActivity;
 import com.marker.about.AboutFragment;
+import com.marker.app.GestorSesion;
 import com.marker.lugar.destino.DestinoManager;
 import com.marker.facebook.User;
 import com.marker.lugar.history.HistoryActivity;
@@ -47,7 +48,6 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
     @BindView(R.id.drawer_user_picture)
     ProfilePictureView mDrawerUserPicture;
 
-    public HistoryManager historyManager;
     public DestinoManager destinoManager;
 
     public MenuFragment() {
@@ -61,6 +61,7 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
         ButterKnife.bind(this, view);
 
         initializeFacebookLogoutButton();
+        initializeFacebookUserData(GestorSesion.getInstancia(getContext()).getUsuarioLoggeado());
 
         return view;
     }
@@ -78,14 +79,13 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
         });
     }
 
-    public void initializeFacebookUserData(User me) {
+    private void initializeFacebookUserData(User me) {
         mDrawerUserName.setText(me.getName());
         mDrawerUserMail.setText(me.getEmail());
         mDrawerUserPicture.setProfileId(me.getId());
     }
 
-    public void initializeManagers(HistoryManager historyManager, DestinoManager destinoManager){
-        this.historyManager = historyManager;
+    public void initializeManagers(DestinoManager destinoManager){
         this.destinoManager = destinoManager;
     }
 
@@ -128,7 +128,6 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
 
     public void OnHistoriesPressed() {
         Intent childIntent = new Intent(getActivity(), HistoryActivity.class);
-        childIntent.putParcelableArrayListExtra("histories", historyManager.histories);
         childIntent.putParcelableArrayListExtra("destinos", destinoManager.destinos);
         getActivity().startActivityForResult(childIntent, MenuEnum.PICK_HISTORY_REQUEST);
     }

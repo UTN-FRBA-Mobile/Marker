@@ -8,8 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.marker.R;
+import com.marker.app.GestorSesion;
 import com.marker.lugar.destino.Destino;
 
 import java.util.ArrayList;
@@ -23,7 +25,12 @@ public class HistoryActivity extends AppCompatActivity {
     @BindView(R.id.rv_histories)
     RecyclerView rvHistories;
 
+    @BindView(R.id.progress_overlay)
+    protected View progress_overlay;
+
     private HistoryRecyclerViewAdapter adapter;
+
+    private ArrayList<History> histories = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,14 +47,33 @@ public class HistoryActivity extends AppCompatActivity {
         rvHistories.setLayoutManager(layoutManager);
 
         Bundle extras = getIntent().getExtras();
-        // Obtengo los contactos seleccionados para compartir mi marker
-        ArrayList<History> hist = extras.getParcelableArrayList("histories");
-        List<History> histories =  hist;
+
+        if(savedInstanceState != null) {
+            histories = savedInstanceState.getParcelableArrayList("histories");
+            if(histories != null) {
+                adapter.setItems(histories);
+            } else {
+                getFirebaseHistories();
+            }
+        } else {
+            getFirebaseHistories();
+        }
 
         ArrayList<Destino> destinos = extras.getParcelableArrayList("destinos");
-
-        adapter.setItems(histories);
         adapter.setDestinos(destinos);
+    }
+
+    private void getFirebaseHistories() {
+        progress_overlay.setVisibility(View.VISIBLE);
+        HistoryManager historyManager = new HistoryManager(GestorSesion.getInstancia(this).getUsuarioLoggeado()) {
+            @Override
+            protected void onGetHistories(ArrayList<History> histories) {
+                HistoryActivity.this.histories = histories;
+                adapter.setItems(histories);
+                progress_overlay.setVisibility(View.GONE);
+            }
+        };
+        historyManager.requestHistories();
     }
 
     private void setupActionBar() {
@@ -68,8 +94,13 @@ public class HistoryActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void selectedHistory(Intent data){
-        setResult(RESULT_OK, data);
-        finish();
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(histories != null) {
+            outState.putParcelableArrayList("histories", histories);
+        }
     }
+
+
 }
