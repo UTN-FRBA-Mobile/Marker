@@ -202,6 +202,7 @@ public class GestorSesion {
         me = user;
         SharedPreferences.Editor sharedPreferencesEditor = preferences.edit();
         sharedPreferencesEditor.putString("loggedUser", (new Gson()).toJson(user));
+        sharedPreferencesEditor.apply();
     }
 
     public void eliminarMarcador(Marcador marcador) {
