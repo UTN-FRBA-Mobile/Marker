@@ -10,6 +10,8 @@ public class User implements Serializable, Parcelable {
     private String name;
     private String email;
 
+    public User() {}
+
     public String getId() { return id; }
 
     public String getName() {
