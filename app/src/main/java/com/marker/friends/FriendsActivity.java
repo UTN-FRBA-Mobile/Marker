@@ -38,7 +38,7 @@ public class FriendsActivity extends AppCompatActivity {
     private FriendsRecyclerViewAdapter adapter;
 
     public ArrayList<User> selectedFriends = new ArrayList<>();
-    private ArrayList<User> friends = new ArrayList<>();
+    private ArrayList<User> friends = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,7 +54,11 @@ public class FriendsActivity extends AppCompatActivity {
 
         if(savedInstanceState != null) {
             friends = savedInstanceState.getParcelableArrayList("friends");
-            adapter.setItems(friends);
+            if(friends != null) {
+                adapter.setItems(friends);
+            } else {
+                getFacebookFriends();
+            }
         } else {
             getFacebookFriends();
         }
@@ -120,6 +124,8 @@ public class FriendsActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("friends", friends);
+        if(friends != null) {
+            outState.putParcelableArrayList("friends", friends);
+        }
     }
 }
