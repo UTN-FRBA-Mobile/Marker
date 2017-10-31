@@ -50,7 +50,7 @@ public class DestinoManager {
     protected void onGetDestinos(ArrayList<Destino> destinos) {
     }
 
-    public void checkDestino(final Lugar destination){
+    public void checkDestino(final String name){
         mDatabase = FirebaseDatabase.getInstance().getReference();
         final Query orderedQuery = mDatabase
                 .child("usuarios")
@@ -64,7 +64,7 @@ public class DestinoManager {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Destino destino = snapshot.getValue(Destino.class);
 
-                    if(destino.nombre.equals(destination.nombre)) {
+                    if(destino.nombre.equals(name)) {
                         onCheckDestino(false);
                         return;
                     }
