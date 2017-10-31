@@ -58,9 +58,6 @@ public class HistoryActivity extends AppCompatActivity {
         } else {
             getFirebaseHistories();
         }
-
-        ArrayList<Destino> destinos = extras.getParcelableArrayList("destinos");
-        adapter.setDestinos(destinos);
     }
 
     private void getFirebaseHistories() {

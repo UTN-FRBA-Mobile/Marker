@@ -30,12 +30,10 @@ import butterknife.OnLongClick;
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder> {
 
     private final ArrayList<History> histories = new ArrayList<>();
-    private final ArrayList<Destino> destinos = new ArrayList<>();
     private Context context;
-    private DestinoManager destinoManager;
 
     HistoryRecyclerViewAdapter() {
-        destinoManager = GestorSesion.getInstancia(context).getDestinosManager();
+
     }
 
     @Override
@@ -59,12 +57,6 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     public void setItems(Collection<History> items) {
         histories.clear();
         histories.addAll(items);
-        notifyDataSetChanged();
-    }
-
-    public void setDestinos(Collection<Destino> items) {
-        destinos.clear();
-        destinos.addAll(items);
         notifyDataSetChanged();
     }
 
@@ -106,8 +98,6 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
             GuardarDestinoFragment guardarDestinoFragment = new GuardarDestinoFragment();
             Bundle args = new Bundle();
             args.putParcelable("history", history);
-            args.putParcelable("destinoManager", destinoManager);
-            args.putParcelableArrayList("destinos", destinos);
             guardarDestinoFragment.setArguments(args);
             guardarDestinoFragment.show(parentActivity.getFragmentManager(), "HistoryActivity");
 

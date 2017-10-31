@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.marker.R;
+import com.marker.app.GestorSesion;
 
 import java.util.ArrayList;
 
@@ -17,12 +19,15 @@ import butterknife.ButterKnife;
 
 public class DestinoActivity extends AppCompatActivity {
 
-    private ArrayList<Destino> destinos;
-
     @BindView(R.id.rv_destinos)
     RecyclerView rvDestinos;
 
+    @BindView(R.id.progress_overlay)
+    protected View progress_overlay;
+
     private DestinosRecyclerViewAdapter adapter;
+
+    private ArrayList<Destino> destinos = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,15 +40,30 @@ public class DestinoActivity extends AppCompatActivity {
         rvDestinos.setAdapter(adapter);
         rvDestinos.setLayoutManager(new LinearLayoutManager(this));
 
-        Bundle extras = getIntent().getExtras();
-
         if(savedInstanceState != null) {
-            extras = savedInstanceState;
+            destinos = savedInstanceState.getParcelableArrayList("destinos");
+            if(destinos != null) {
+                adapter.setItems(destinos);
+            } else {
+                getFirebaseDestinos();
+            }
+        } else {
+            getFirebaseDestinos();
         }
+    }
 
-        destinos = extras.getParcelableArrayList("destinos");
 
-        adapter.setItems(destinos);
+    private void getFirebaseDestinos() {
+        progress_overlay.setVisibility(View.VISIBLE);
+        DestinoManager destinoManager = new DestinoManager(GestorSesion.getInstancia(this).getUsuarioLoggeado()) {
+            @Override
+            protected void onGetDestinos(ArrayList<Destino> destinos) {
+                DestinoActivity.this.destinos = destinos;
+                adapter.setItems(destinos);
+                progress_overlay.setVisibility(View.GONE);
+            }
+        };
+        destinoManager.requestDestinos();
     }
 
     private void setupActionBar() {
@@ -71,6 +91,8 @@ public class DestinoActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("destinos", destinos);
+        if(destinos != null) {
+            outState.putParcelableArrayList("destinos", destinos);
+        }
     }
 }

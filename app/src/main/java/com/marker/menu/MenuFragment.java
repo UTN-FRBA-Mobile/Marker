@@ -48,7 +48,6 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
     @BindView(R.id.drawer_user_picture)
     ProfilePictureView mDrawerUserPicture;
 
-    public DestinoManager destinoManager;
 
     public MenuFragment() {
         // Required empty public constructor
@@ -85,10 +84,6 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
         mDrawerUserPicture.setProfileId(me.getId());
     }
 
-    public void initializeManagers(DestinoManager destinoManager){
-        this.destinoManager = destinoManager;
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
@@ -122,13 +117,11 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
 
     public void OnDestiniesPressed() {
         Intent childIntent = new Intent(getActivity(), DestinoActivity.class);
-        childIntent.putParcelableArrayListExtra("destinos", destinoManager.destinos);
         getActivity().startActivityForResult(childIntent, MenuEnum.PICK_DESTINO_REQUEST);
     }
 
     public void OnHistoriesPressed() {
         Intent childIntent = new Intent(getActivity(), HistoryActivity.class);
-        childIntent.putParcelableArrayListExtra("destinos", destinoManager.destinos);
         getActivity().startActivityForResult(childIntent, MenuEnum.PICK_HISTORY_REQUEST);
     }
 

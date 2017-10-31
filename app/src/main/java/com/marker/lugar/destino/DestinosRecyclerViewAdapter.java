@@ -26,10 +26,8 @@ public class DestinosRecyclerViewAdapter extends RecyclerView.Adapter<DestinosRe
 
     private ArrayList<Destino> destinos = new ArrayList<>();
     private Context context;
-    public DestinoManager destinoManager;
 
     public DestinosRecyclerViewAdapter() {
-        destinoManager = GestorSesion.getInstancia(context).getDestinosManager();
     }
 
     @Override
@@ -104,7 +102,6 @@ public class DestinosRecyclerViewAdapter extends RecyclerView.Adapter<DestinosRe
             BorrarDestinoFragment borrarDestinoFragment = new BorrarDestinoFragment();
             Bundle args = new Bundle();
             args.putParcelable("destino", destino);
-            args.putParcelable("destinoManager", destinoManager);
             borrarDestinoFragment.setArguments(args);
             borrarDestinoFragment.show(parentActivity.getFragmentManager(), "DestinoActivity");
 ;
