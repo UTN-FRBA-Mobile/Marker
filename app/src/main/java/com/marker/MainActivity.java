@@ -144,9 +144,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mTrackList.setLayoutManager(new LinearLayoutManager(this));
 
         gestorSesion = GestorSesion.getInstancia(this);
-        final ArrayList<EventoObservable.ObserverSesion> observers = gestorSesion.getOnInicializado().getObservers();
 
-        onSesionInicializada();
+        initialize_geo();
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -214,11 +213,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         SharedPreferences mPrefs = getSharedPreferences("marker", MODE_PRIVATE);
         String json = mPrefs.getString("location", "");
         return new Gson().fromJson(json, LatLng.class);
-    }
-
-    private void onSesionInicializada() {
-        initialize_geo();
-        menuFragment.initializeManagers(gestorSesion.getDestinosManager());
     }
 
     private void initialize_geo() {

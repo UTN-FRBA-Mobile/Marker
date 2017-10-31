@@ -24,7 +24,7 @@ import com.marker.menu.MenuEnum;
 
 import org.json.JSONObject;
 
-public class SplashActivity extends AppCompatActivity implements EventoObservable.ObserverSesion{
+public class SplashActivity extends AppCompatActivity{
     private static final String TAG = SplashActivity.class.getSimpleName();
     private static final int REQUEST_LOCATION = 2;
 
@@ -129,7 +129,6 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
 
     private void inicializarSesion() {
         final GestorSesion gestorSesion = GestorSesion.getInstancia(this);
-        gestorSesion.getOnInicializado().getObservers().add(this);
 
         AccessToken token = AccessToken.getCurrentAccessToken();
         GraphRequest request = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
@@ -143,6 +142,7 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
 
                 try {
                     gestorSesion.inicializar();
+                    lanzarMain();
                 } catch (Exception e) {
                     Log.e(TAG, "No se pudo inicializar sesion!", e);
                 }
@@ -156,8 +156,7 @@ public class SplashActivity extends AppCompatActivity implements EventoObservabl
         request.executeAsync();
     }
 
-    @Override
-    public void notificar() {
+    private void lanzarMain() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
