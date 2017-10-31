@@ -199,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void onSesionInicializada() {
         initialize_geo();
-        menuFragment.initializeManagers(gestorSesion.getDestinosManager());
         updateTrackMenu(gestorSesion.getMarcadores());
         if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
     }

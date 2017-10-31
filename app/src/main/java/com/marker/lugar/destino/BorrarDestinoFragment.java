@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.marker.app.GestorSesion;
+
 
 public class BorrarDestinoFragment extends DialogFragment {
 
@@ -18,8 +20,9 @@ public class BorrarDestinoFragment extends DialogFragment {
         Bundle bundle = getArguments();
         if(bundle != null){
             destino = bundle.getParcelable("destino");
-            destinoManager = bundle.getParcelable("destinoManager");
         }
+
+        destinoManager = new DestinoManager(GestorSesion.getInstancia(getContext()).getUsuarioLoggeado());
 
         AlertDialog.Builder deleteDialog = new AlertDialog.Builder(getContext())
                 .setTitle("Borrar")
@@ -38,7 +41,7 @@ public class BorrarDestinoFragment extends DialogFragment {
     }
 
     private void borrarDestino(Destino destino) {
-        this.destinoManager.deleteLugar(destino.uid);
+        this.destinoManager.deleteDestino(destino.uid);
     }
 
 }

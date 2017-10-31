@@ -17,10 +17,7 @@ import com.google.gson.Gson;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.firebase.Mensaje;
-import com.marker.locator.Locator;
 import com.marker.lugar.destino.Destino;
-import com.marker.lugar.destino.DestinoManager;
-import com.marker.lugar.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +41,6 @@ public class GestorSesion {
     private Marcador marcadorActivo;
 
     private SharedPreferences preferences;
-
-    private DestinoManager destinoManager;
-    private boolean destinosInicializado;
 
     private Context context;
 
@@ -73,23 +67,7 @@ public class GestorSesion {
         firebaseUser = mAuth.getCurrentUser();
         firebaseDatabase = FirebaseDatabase.getInstance();
 
-        inicializarDestinosManager();
         getMarkersDB();
-
-        setPreferences(PreferenceManager.getDefaultSharedPreferences(context));
-    }
-
-    private void inicializarDestinosManager() {
-        destinoManager = new DestinoManager();
-        destinoManager.getOnInicializado().getObservers()
-                .add(new EventoObservable.ObserverSesion() {
-                    @Override
-                    public void notificar() {
-                        destinosInicializado = true;
-                        notificarInicializacion();
-                    }
-                });
-        destinoManager.inicializar(getUsuarioLoggeado().getId());
     }
 
     private void getMarkersDB() {
@@ -134,8 +112,7 @@ public class GestorSesion {
     }
 
     public boolean inicializado() {
-        return getUsuarioLoggeado() != null && marcadors != null
-                 && destinosInicializado;
+        return getUsuarioLoggeado() != null && marcadors != null;
     }
 
     public ArrayList<Marcador> getMarcadores() {
@@ -231,9 +208,6 @@ public class GestorSesion {
         return marcadorActivo;
     }
 
-    public DestinoManager getDestinosManager() {
-        return destinoManager;
-    }
 
     public void solicitarPosicion(User usuario) {
         Mensaje fcm = Mensaje.newDataMessage();
