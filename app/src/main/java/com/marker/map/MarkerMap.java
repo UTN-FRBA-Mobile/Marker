@@ -21,6 +21,7 @@ import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.app.MarcadorManager;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.locator.LatLong;
@@ -74,7 +75,8 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     private void handleClicks(LatLng point){
         MainActivity mActivity = (MainActivity) this.context;
-        Marcador activeMarker = GestorSesion.getInstancia(this.context).getMarcadorActivo();
+        Marcador activeMarker = new MarcadorManager(context)
+                .getMarcadorActivo();
         if(activeMarker == null) {
             confirmClick(point);
         }

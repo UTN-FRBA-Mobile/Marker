@@ -25,6 +25,7 @@ import com.marker.MainActivity;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.app.MarcadorManager;
 import com.marker.locator.Locator;
 
 import java.util.Map;
@@ -38,10 +39,11 @@ public class ServicioMensajeria extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
+        Log.d(TAG, "FCM Recibido From: " + remoteMessage.getFrom());
         // Check if message contains a data payload.
         Map<String, String> data = remoteMessage.getData();
         if (data.size() > 0) {
+            Log.d(TAG, "FCM data");
             onDataPayload(data);
         }
         // Check if message contains a notification payload.
@@ -54,32 +56,40 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     }
 
     private void onDataPayload(Map<String, String> data) {
-        Log.d(TAG, "Message data payload: " + data);
         final Mensaje fcm = Mensaje.newDataMessage(data);
         final GestorSesion gestorSesion = GestorSesion.getInstancia(this);
-        switch (fcm.getTipoData()) {
+        Mensaje.TipoData tipoData = fcm.getTipoData();
+        Log.d(TAG, "Protocolo: " + tipoData);
+        if (tipoData == null) {
+            return;
+        }
+        switch (tipoData) {
             case MARKER:
+                Log.d(TAG, "Guardando nuevo marker");
                 Marcador marker = fcm.getMarker();
-                gestorSesion.getMarcadores().add(marker);
+                new MarcadorManager(this).agregarMarker(marker);
                 Intent intent = new Intent(getString(R.string.BROADCAST_MARKER));
                 intent.putExtra(getString(R.string.BROADCAST_ACTION),
                         R.string.BROADCAST_ACTION_NEW_MARKER);
                 sendBroadcast(intent);
                 break;
             case PEDIDO_POSICION:
+                Log.d(TAG, "Pidiendo posicion");
                 Locator locator = new Locator(this);
                 locator.getLocation(new Locator.ResultadoListener() {
                         @Override
                         public void onResultado(LatLng latLng) {
+                            Log.d(TAG, "Enviando posicion");
                             Mensaje mensaje = Mensaje.newDataMessage();
                             mensaje.setTipoData(Mensaje.TipoData.POSICION);
                             mensaje.getPayload().put("posicion", new Gson().toJson(latLng));
                             String idEmisor = fcm.getPayload().get("idEmisor");
-                            (new EmisorMensajes()).enviar(gestorSesion.getUsuarioLoggeado().getId(), idEmisor, mensaje);
+                            new EmisorMensajes().enviar(gestorSesion.getUsuarioLoggeado().getId(), idEmisor, mensaje);
                         }
                     });
                 break;
             case POSICION:
+                Log.d(TAG, "Recibiendo posicion");
                 String gsonPosicion = fcm.getPayload().get("posicion");
                 LatLng posicion = new Gson()
                         .fromJson(gsonPosicion, LatLng.class);
@@ -92,6 +102,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 sendBroadcast(intentPos);
                 break;
             default:
+                Log.d(TAG, "Protocolo desconocido");
                 break;
         }
     }

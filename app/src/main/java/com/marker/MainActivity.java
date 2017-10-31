@@ -40,6 +40,7 @@ import com.google.gson.Gson;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
+import com.marker.app.MarcadorManager;
 import com.marker.facebook.User;
 import com.marker.friends.FriendsActivity;
 import com.marker.locator.LatLong;
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean mapReady;
     private HashMap<String, LatLng> posiciones = new HashMap<>();
     private String usuarioActivoId;
+    private MarcadorManager markerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Integer action = intent.getIntExtra(getString(R.string.BROADCAST_ACTION),-1);
                 switch (action) {
                     case R.string.BROADCAST_ACTION_NEW_MARKER:
-                        updateTrackMenu(gestorSesion.getMarcadores());
+                        updateTrackMenu(markerManager.getMarcadores());
                         break;
                     case R.string.BROADCAST_ACTION_POSITION:
                         LatLng posicion = intent.getParcelableExtra("posicion");
@@ -171,6 +173,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         receivers.add(receiver);
         registerReceiver(receiver,
                 new IntentFilter(getString(R.string.BROADCAST_MARKER)));
+
+        markerManager = new MarcadorManager(this);
+        markerManager.getOnInicializado().getObservers()
+            .add(new EventoObservable.ObserverSesion() {
+                @Override
+                public void notificar() {
+                    onMarkerManagerInicializado();
+                }
+            });
+        onMarkerManagerInicializado();
+    }
+
+    private void onMarkerManagerInicializado() {
+        updateTrackMenu(markerManager.getMarcadores());
+        if (mapReady) {
+            setMarcadorActivo(markerManager.getMarcadorActivo());
+        }
     }
 
     @Override
@@ -200,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void onSesionInicializada() {
         initialize_geo();
         menuFragment.initializeManagers(gestorSesion.getDestinosManager());
-        updateTrackMenu(gestorSesion.getMarcadores());
-        if (mapReady) setMarcadorActivo(gestorSesion.getMarcadorActivo());
     }
 
     private void initialize_geo() {
@@ -227,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         MenuItem item = menu.findItem(R.id.action_track);
-        ArrayList<Marcador> marcadores = gestorSesion.getMarcadores();
+        ArrayList<Marcador> marcadores = markerManager.getMarcadores();
         if (item != null) {
             if (marcadores != null) {
                 item.setVisible(!marcadores.isEmpty());
@@ -308,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         map.setMap(gmap);
         mapReady = true;
         mostrarPosicionPropia();
-        Marcador activo = gestorSesion.getMarcadorActivo();
+        Marcador activo = markerManager.getMarcadorActivo();
         if (activo != null) {
             setMarcadorActivo(activo);
         }
@@ -329,9 +346,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @OnClick(R.id.stop_track)
     public void onStopTrack() {
-        Marcador marcador = gestorSesion.getMarcadorActivo();
-        gestorSesion.eliminarMarcador(marcador);
-        updateTrackMenu(gestorSesion.getMarcadores());
+        Marcador marcador = markerManager.getMarcadorActivo();
+        markerManager.eliminarMarcador(marcador);
+        updateTrackMenu(markerManager.getMarcadores());
 
         fab.setVisibility(View.VISIBLE);
         showTrackButton(false);
@@ -374,10 +391,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Destino destino = new Destino();
                     destino.nombre = lugarActualSeleccionado.nombre;
                     destino.posicion = lugarActualSeleccionado.posicion;
-                    Marcador marcador = gestorSesion
+                    Marcador marcador = markerManager
                             .crearMarcador(destino, 100, contactsToShare);
 
-                    updateTrackMenu(gestorSesion.getMarcadores());
+                    updateTrackMenu(markerManager.getMarcadores());
                     setMarcadorActivo(marcador);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
@@ -442,7 +459,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mStopTrack.setVisibility(View.VISIBLE);
             Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000).show();
         }
-        gestorSesion.setMarcadorActivo(marcador);
+        markerManager.setMarcadorActivo(marcador);
         mostrarMarcador(marcador);
     }
 
