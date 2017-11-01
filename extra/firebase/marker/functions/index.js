@@ -9,72 +9,106 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
     .onCreate(event => {
         const fcm = event.data.val();
         const idEmisor = fcm.idEmisor;
-        const idReceptor = fcm.idReceptor;
-        if (!idEmisor || !idReceptor) {
+        const idReceptores = fcm.idReceptores;
+        if (!idEmisor || !idReceptores) {
             console.log("Se interrumpe FCM por campos incompletos. Falta idEmisor o idReceptor");
             return -1;
         }
-        console.log("idReceptor: " + idReceptor);
         console.log("idEmisor: " + idEmisor);
-        return admin.database()
-            .ref(`/usuarios/${idReceptor}/token`)
-            .once("value", function(snap) {
-                const token = snap.val();
-                if (token == null) {
-                    console.log("No se pudo obtener token de acceso");
-                    return -1;
-                }
-                console.log("Token receptor: " + token);
-                const campo = fcm.esData ? "data" : "notification";
-                const payload = {};
-                const fcmPayload = fcm.payload;
+
+        var fcmPayload = fcm.payload;
+        fcmPayload.idEmisor = idEmisor;
+
+        var promisesTokensId = idReceptores.map(function(id) {
+            console.log("idReceptor: " + id);
+            return admin.database()
+               .ref(`/usuarios/${id}/token`)
+               .once("value");
+        });
+
+        return Promise.all(promisesTokensId)
+            .then(function(snapshots) {
+                var promises = [];
+                var campo = fcm.esData ? "data" : "notification";
+                var payload = {};
                 payload[campo] = fcmPayload;
-                //Se injecta el idEmisor
-                fcmPayload.idEmisor = idEmisor;
-                enviar = admin.messaging().sendToDevice([token], payload);
-                eliminarMsj = event.data.adminRef.remove();
-                var promises = [enviar, eliminarMsj];
+
+                var tokens = snapshots
+                    .map(s => {
+                        console.log("Token receptor: " + s.val());
+                        return s.val();
+                    }).filter(t => t);
+
+                var enviar = admin.messaging().sendToDevice(tokens, payload);
+                var eliminarMsj = event.data.adminRef.remove();
+                promises.push(enviar, eliminarMsj);
+
+                //Analizar tipoMensaje en caso de poder entregar mejores datos
                 const tipoData = fcmPayload.tipoData;
-                if (fcm.esData && tipoData) {
-                    var otraOperacion;
-                    switch(tipoData) {
-                        case "PEDIDO_POSICION":
-                            //Contestar al que pregunta con la posicion cacheada
-                            otraOperacion = admin.database()
-                                .ref(`/usuarios/${idReceptor}/ubicacion`)
-                                .once("value", function(snap1) {
-                                var pos = snap1.val();
-                                if (pos == null) {
-                                    console.log("No hay posicion cacheada.");
-                                    return;
-                                }
-                                console.log("Se logra obtener posicion cacheada.");
-                                var payloadUbicacion = { "data": {}};
-                                payloadUbicacion.data.tipoData = "POSICION";
-                                payloadUbicacion.data.posicion = pos;
-                                payloadUbicacion.data.idEmisor = idReceptor;
-                                return admin.database()
-                                    .ref(`/usuarios/${idEmisor}/token`)
-                                    .once("value", function(snap2) {
-                                        console.log("Token emisor: " + snap2.val());
-                                        return admin.messaging()
-                                            .sendToDevice([snap2.val()], payloadUbicacion);
-                                    });
-                                return admin.messaging().sendToDevice([token], payloadUbicacion);
-                            });
-                        break;
-                        case "POSICION":
-                            //Guardar la posicion en el usuario para cachearla
-                            console.log("Se persiste posicion para cachearla.");
-                            otraOperacion = admin.database()
-                                .ref(`/usuarios/${idEmisor}/ubicacion`)
-                                .set(fcmPayload.posicion);
-                        break;
-                    }
-                    promises.push(otraOperacion);
+                if (tipoData == "PEDIDO_POSICION" &&
+                    idReceptores.length == 1) {
+                    promises.push(onPedidoPosicion(idEmisor, idReceptores[0]));
+                }
+                if (tipoData == "POSICION") {
+                    promises.push(onPosicion(idEmisor, fcmPayload.posicion));
                 }
                 return Promise.all(promises);
+        });
+    });
+
+const onPosicion = function(idEmisor, pos) {
+    //Guardar la posicion en el usuario para cachearla
+    console.log("Se persiste posicion para cachearla.");
+    return admin.database()
+        .ref(`/usuarios/${idEmisor}/ubicacion`)
+        .set(pos);
+};
+
+const onPedidoPosicion = function(idEmisor, idReceptor) {
+    //Contestar al que pregunta con la posicion cacheada
+    var d = {};
+    return admin.database()
+        .ref(`/usuarios/${idReceptor}/ubicacion`)
+        .once("value")
+        .then(function(snapPosicion) {
+            var pos = snapPosicion.val();
+            if (pos == null) {
+                console.log("No hay posicion cacheada.");
+            } else {
+                console.log("Se logra obtener posicion cacheada.");
+                d.pos = pos;
+            }
+            return admin.database()
+                .ref(`/usuarios/${idEmisor}/token`)
+                .once("value");
+        }).then(function(snapTokenEmisor) {
+            if (!d.pos) {
+                return 0;
+            }
+            console.log("Token emisor: " + snapTokenEmisor.val());
+            var p = { "data": {}};
+            p.data.tipoData = "POSICION";
+            p.data.posicion = d.pos;
+            p.data.idEmisor = idReceptor;
+            return admin.messaging()
+                .sendToDevice([snapTokenEmisor.val()], p);
+        });
+};
+
+exports.onFcm1 = functions.database.ref("/fcm1/{pushId}")
+    .onCreate(event => {
+        const fcm = event.data.val();
+        const uid = fcm.uid;
+        admin.database()
+            .ref(`/usuarios/${uid}/token`)
+            .once("value")
+            .then(function(snapshot) {
+                var token = snapshot.val();
+                return event.data.adminRef.child("token").set(token);
+            }).then(function() {
+                console.log("Token persistido");
             });
+        return 0;
     });
 
 exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")

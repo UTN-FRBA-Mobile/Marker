@@ -6,7 +6,10 @@ import com.google.firebase.database.Exclude;
 import com.google.gson.Gson;
 import com.marker.app.Marcador;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 public class Mensaje {
@@ -16,11 +19,16 @@ public class Mensaje {
     private static final String KEY_MARKER = "marker";
     private Map<String, String> payload = new HashMap<>();
     Boolean esData;
-    String idReceptor;
+    ArrayList<String> idReceptores = new ArrayList<>();
     String idEmisor;
 
-    public void setIdReceptor(String idReceptor) {
-        this.idReceptor = idReceptor;
+    public void setIdReceptor(String... ids) {
+        this.idReceptores.addAll(Arrays.asList(ids));
+    }
+
+    @Exclude
+    public ArrayList<String> getIdReceptores() {
+        return idReceptores;
     }
 
     public void setIdEmisor(String idEmisor) {
