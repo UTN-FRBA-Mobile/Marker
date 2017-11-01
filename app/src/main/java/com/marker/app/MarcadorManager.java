@@ -80,18 +80,16 @@ public class MarcadorManager implements ValueEventListener {
     public void eliminarMarcador(Marcador marcador) {
         String idActivo = preferences.getString(KEY_MARKER_SELECCIONADO, "");
         String id = marcador.getId();
+        SharedPreferences.Editor edit = preferences.edit();
         if (id.equals(idActivo)) {
-            preferences.edit()
-                    .remove(KEY_MARKER_SELECCIONADO)
-                    .apply();
+            edit.remove(KEY_MARKER_SELECCIONADO);
         }
         //todo si no hay internet habra q persistir registros por sincronizar
         refMarkers.child(id).removeValue();
         ArrayList<Marcador> markers = getMarcadores();
         markers.remove(marcador);
-        preferences.edit()
-                .putString(KEY_MARKERS, new Gson().toJson(markers))
-                .apply();
+        edit.putString(KEY_MARKERS, new Gson().toJson(markers))
+            .apply();
     }
 
     public void setMarcadorActivo(Marcador marcador) {
