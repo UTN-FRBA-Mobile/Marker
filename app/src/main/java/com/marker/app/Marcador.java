@@ -45,4 +45,16 @@ public class Marcador {
     public String getId() {
         return id;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj instanceof Marcador && id != null) {
+            Marcador otro = (Marcador) obj;
+            return id.equals(otro.id);
+        }
+        return super.equals(obj);
+    }
 }
