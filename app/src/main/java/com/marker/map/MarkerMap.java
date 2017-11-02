@@ -140,9 +140,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     public void activateFence(ArrayList<String> contactsToShare ){
-        this.geoFenceHandler.setUser(MarcadorManager
-                .getInstancia(context)
-                .getMarcadorActivo().getId());
+        this.geoFenceHandler.setUser(GestorSesion.getInstancia(context).getUsuarioLoggeado().getId());
         this.geoFenceHandler.setGeoFence(geoFence);
         this.geoFenceHandler.activateFence(contactsToShare);
     }

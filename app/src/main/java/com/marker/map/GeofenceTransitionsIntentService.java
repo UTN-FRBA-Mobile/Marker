@@ -3,7 +3,6 @@ package com.marker.map;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -12,11 +11,11 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.marker.R;
 import com.marker.app.GestorSesion;
+import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.firebase.Mensaje;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class GeofenceTransitionsIntentService extends IntentService
@@ -54,24 +53,16 @@ public class GeofenceTransitionsIntentService extends IntentService
 
                 String userId = intent.getStringExtra("userId");
                 Log.i(TAG, "Contact who shares: " + userId);
+                User ble = GestorSesion.getInstancia(this).getUsuarioLoggeado();
+                sendNotification(userId, userId, geoFenceEvent);
+
                 ArrayList<String> contacts = intent.getStringArrayListExtra("contacts");
                 for(String contact : contacts){
                     Log.i(TAG, "Contact to share: " + contact);
+                    sendNotification(userId, contact, geoFenceEvent);
                 }
 
-                Intent broadcast = new Intent();
-                broadcast.setAction(getString(R.string.BROADCAST_GEOFENCE));
-                broadcast.addCategory(Intent.CATEGORY_DEFAULT);
-                sendBroadcast(broadcast);
-
-                //FIXME: deberia tomar datos del usuario y enviar la notificacion a quienes compartio el marker
-                GestorSesion gestorSesion = GestorSesion.getInstancia(this);
-                Mensaje fcm = Mensaje.newNotification();
-                fcm.setTitle("Marker");
-                fcm.setBody("Has llegado a destino");
-                (new EmisorMensajes()).enviar(gestorSesion.getUsuarioLoggeado(), gestorSesion.getUsuarioLoggeado(), fcm);
-                String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
-                        .getRequestId();
+                broadcastFinish();
 
             } else if (Geofence.GEOFENCE_TRANSITION_EXIT == transitionType) {
                 Log.e(TAG, "Location Services info: Transition exit");
@@ -79,6 +70,23 @@ public class GeofenceTransitionsIntentService extends IntentService
                 Log.e(TAG, "Location Services info: Transition dwell");
             }
         }
+    }
+
+    private void broadcastFinish() {
+        Intent broadcast = new Intent();
+        broadcast.setAction(getString(R.string.BROADCAST_GEOFENCE));
+        broadcast.addCategory(Intent.CATEGORY_DEFAULT);
+        sendBroadcast(broadcast);
+    }
+
+    private void sendNotification(String from, String to, GeofencingEvent geoFenceEvent) {
+        Mensaje fcm = Mensaje.newNotification();
+        fcm.setTitle("Marker");
+        fcm.setBody("Has llegado a destino");
+        (new EmisorMensajes()).enviar(from, to, fcm);
+        String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
+                .getRequestId();
+
     }
 
     @Override
