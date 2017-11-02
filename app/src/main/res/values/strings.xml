@@ -48,4 +48,5 @@
     <string name="BROADCAST_ACTION">action</string>
     <string name="BROADCAST_ACTION_NEW_MARKER">nuevo marker</string>
     <string name="BROADCAST_ACTION_POSITION">posicion</string>
+    <string name="DEBES_BORRAR_MARKER">Debes borrar tu marker para crear otro.</string>
 </resources>

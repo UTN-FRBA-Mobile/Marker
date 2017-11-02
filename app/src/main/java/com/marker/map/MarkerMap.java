@@ -75,7 +75,8 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     private void handleClicks(LatLng point){
         MainActivity mActivity = (MainActivity) this.context;
-        Marcador activeMarker = new MarcadorManager(context)
+        Marcador activeMarker = MarcadorManager
+                .getInstancia(context)
                 .getMarcadorActivo();
         if(activeMarker == null) {
             confirmClick(point);

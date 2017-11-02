@@ -23,12 +23,14 @@ public class MarcadorManager implements ValueEventListener {
     private static final String TAG = MarcadorManager.class.getSimpleName();
     private static final String KEY_MARKER_SELECCIONADO = "markerSeleccionado";
     private static final String KEY_MARKERS = "markers";
+    private static MarcadorManager singleton;
     private EventoObservable onInicializado = new EventoObservable();
     private SharedPreferences preferences;
     private DatabaseReference refMarkers;
     private User usuarioLoggeado;
+    private Marcador marcadorPropio;
 
-    public MarcadorManager(Context context) {
+    private MarcadorManager(Context context) {
         preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
         usuarioLoggeado = GestorSesion
@@ -147,5 +149,22 @@ public class MarcadorManager implements ValueEventListener {
 
     public EventoObservable getOnInicializado() {
         return onInicializado;
+    }
+
+    public static MarcadorManager getInstancia(Context context) {
+        if (singleton == null) {
+            singleton = new MarcadorManager(context);
+        }
+        return singleton;
+    }
+
+    public Marcador getMarcadorPropio() {
+        for (Marcador marcador : getMarcadores()) {
+            if (marcador.getUser().equals(usuarioLoggeado)) {
+                return marcador;
+            }
+        }
+
+        return null;
     }
 }

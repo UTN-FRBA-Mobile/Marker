@@ -67,7 +67,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
             case MARKER:
                 Log.d(TAG, "Guardando nuevo marker");
                 Marcador marker = fcm.getMarker();
-                new MarcadorManager(this).agregarMarker(marker);
+                MarcadorManager.getInstancia(this).agregarMarker(marker);
                 Intent intent = new Intent(getString(R.string.BROADCAST_MARKER));
                 intent.putExtra(getString(R.string.BROADCAST_ACTION),
                         R.string.BROADCAST_ACTION_NEW_MARKER);

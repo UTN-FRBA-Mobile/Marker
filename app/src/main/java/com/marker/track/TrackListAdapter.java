@@ -34,6 +34,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
     private static HashMap<String, Integer> colores = new HashMap<>();
     private Context context;
     private EventoObservable onCardAction = new EventoObservable();
+    private EventoObservable onEliminarMarker = new EventoObservable();
     private String[] colorColeccion = { "#ff6e40", "#388e3c", "#039be5", "#039be5", "#8e24aa", "#e53935", "#8e24aa"};
 
     @Override
@@ -66,6 +67,10 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
         return onCardAction;
     }
 
+    public EventoObservable getOnEliminarMarker() {
+        return onEliminarMarker;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.friend_picture)
         ProfilePictureView mImgUsuario;
@@ -90,6 +95,20 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
             setUsuario(marker.getUser());
             setLugar(marker.getDestino());
             setColor();
+            controlarSeleccion();
+        }
+
+        private void controlarSeleccion() {
+            Marcador marcadorActivo = MarcadorManager
+                    .getInstancia(context)
+                    .getMarcadorActivo();
+            mCard.setAlpha(1);
+            if (marcadorActivo == null) {
+                return;
+            }
+            if (!marcadorActivo.equals(marker)) {
+                mCard.setAlpha(.7f);
+            }
         }
 
         private void setColor() {
@@ -137,7 +156,19 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
 
         @OnClick(R.id.card)
         void onCardClick() {
+            MarcadorManager.getInstancia(context)
+                    .setMarcadorActivo(marker);
+            notifyDataSetChanged();
             onCardAction.notificar(marker);
+        }
+
+        @OnClick(R.id.btn_eliminar)
+        void onEliminar() {
+            onEliminarMarker.notificar(marker);
+            MarcadorManager.getInstancia(context)
+                    .eliminarMarcador(marker);
+            markers.remove(marker);
+            notifyDataSetChanged();
         }
     }
 }

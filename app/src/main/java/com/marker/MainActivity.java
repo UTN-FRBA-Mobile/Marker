@@ -140,6 +140,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 onTrackMenuMarkerClick(marker);
             }
         });
+        mTrackListAdapter.getOnEliminarMarker().getObservers().add(new com.marker.track.EventoObservable.Observer() {
+            @Override
+            public void notificar(Marcador marker) {
+                onTrackMenuMarkerDelete(marker);
+            }
+        });
         mTrackList.setAdapter(mTrackListAdapter);
         mTrackList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -173,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         registerReceiver(receiver,
                 new IntentFilter(getString(R.string.BROADCAST_MARKER)));
 
-        markerManager = new MarcadorManager(this);
+        markerManager = MarcadorManager.getInstancia(this);
         markerManager.getOnInicializado().getObservers()
             .add(new EventoObservable.ObserverSesion() {
                 @Override
@@ -188,6 +194,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         updateTrackMenu(markerManager.getMarcadores());
         if (mapReady) {
             setMarcadorActivo(markerManager.getMarcadorActivo());
+            if (markerManager.getMarcadorPropio() != null) {
+                mStopTrack.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -228,9 +237,31 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+            return;
         }
+        if (drawer.isDrawerOpen(GravityCompat.END)) {
+            drawer.closeDrawer(GravityCompat.END);
+            return;
+        }
+        if (fab.getVisibility() == View.VISIBLE) {
+            map.deleteMarker();
+            fab.setVisibility(View.GONE);
+            return;
+        }
+        if (markerManager.getMarcadorActivo() != null) {
+            markerManager.setMarcadorActivo(null);
+            map.deleteMarker();
+            Locator locator = new Locator(this);
+            locator.getLocation(new Locator.ResultadoListener() {
+                @Override
+                public void onResultado(LatLng latLng) {
+                    map.setUserPosition(latLng);
+                }
+            });
+            mTrackListAdapter.notifyDataSetChanged();
+            return;
+        }
+        super.onBackPressed();
     }
 
     @Override
@@ -291,6 +322,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         drawer.closeDrawer(mTrackList);
     }
 
+    private void onTrackMenuMarkerDelete(Marcador marker) {
+        Marcador marcadorMapa = markerManager.getMarcadorActivo();
+        if (marker.equals(marcadorMapa)) {
+            map.deleteMarker();
+        }
+        User user = gestorSesion.getUsuarioLoggeado();
+        if (marker.getUser().equals(user)) {
+            onStopTrack();
+        }
+    }
+
     private void mostrarPosicion(String id) {
         usuarioActivoId = id;
         LatLng latLng = posiciones.get(id);
@@ -340,15 +382,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @OnClick(R.id.stop_track)
     public void onStopTrack() {
-        Marcador marcador = markerManager.getMarcadorActivo();
-        markerManager.eliminarMarcador(marcador);
-        updateTrackMenu(markerManager.getMarcadores());
-
         fab.setVisibility(View.VISIBLE);
         showTrackButton(false);
         mStopTrack.setVisibility(View.GONE);
 
-        map.deleteMarker();
+        Marcador marcadorPropio = markerManager.getMarcadorPropio();
+        if (marcadorPropio == null) {
+            return;
+        }
+
+        Marcador marcadorMapa = markerManager.getMarcadorActivo();
+        if (marcadorPropio.equals(marcadorMapa)) {
+            map.deleteMarker();
+        }
+
+        markerManager.eliminarMarcador(marcadorPropio);
+        updateTrackMenu(markerManager.getMarcadores());
     }
 
     @Override
@@ -356,8 +405,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch(requestCode) {
             case MenuEnum.PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
+                    if (markerManager.getMarcadorPropio() != null) {
+                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
+                            .show();
+                        return;
+                    }
                     History history = data.getParcelableExtra("history");
-                    this.map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
+                    map.setPosition(new LatLng(history.posicion.latitude, history.posicion.longitude));
 
                     showTrackButton(true);
 
@@ -388,30 +442,37 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Marcador marcador = markerManager
                             .crearMarcador(destino, 100, contactsToShare);
 
-                    updateTrackMenu(markerManager.getMarcadores());
                     setMarcadorActivo(marcador);
+                    updateTrackMenu(markerManager.getMarcadores());
+                    mStopTrack.setVisibility(View.VISIBLE);
+                    showTrackButton(false);
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     mostrarPosicionPropia();
-                    this.map.activateFence();
+                    map.activateFence();
                 }
                 break;
             case MenuEnum.PICK_DESTINO_REQUEST:
                 if(resultCode == RESULT_OK) {
+                    if (markerManager.getMarcadorPropio() != null) {
+                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
+                                .show();
+                        return;
+                    }
                     Destino destino = data.getParcelableExtra("destino");
-                    this.map.setPosition(LatLong.toLatLng(destino.posicion));
-
+                    map.setPosition(LatLong.toLatLng(destino.posicion));
                     showTrackButton(true);
-
                     lugarActualSeleccionado = destino;
-
-                    showTrackButton(true);
-
                     startActivityForResult(new Intent(this, FriendsActivity.class), MenuEnum.PICK_CONTACT_REQUEST);
                 }
                 break;
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
+                    if (markerManager.getMarcadorPropio() != null) {
+                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
+                                .show();
+                        return;
+                    }
                     Place place = PlaceAutocomplete.getPlace(this, data);
 
                     map.setPosition(place.getLatLng());
@@ -444,17 +505,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void setMarcadorActivo(Marcador marcador) {
-        if (marcador == null) {
-            fab.setVisibility(View.VISIBLE);
-            showTrackButton(false);
-            mStopTrack.setVisibility(View.GONE);
-        } else {
-            fab.setVisibility(View.GONE);
-            mStopTrack.setVisibility(View.VISIBLE);
-            Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000).show();
+        if (marcador != null) {
+            Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000)
+                    .show();
         }
-        markerManager.setMarcadorActivo(marcador);
         mostrarMarcador(marcador);
+        markerManager.setMarcadorActivo(marcador);
     }
 
     public void showTrackButton(boolean enabled) {
