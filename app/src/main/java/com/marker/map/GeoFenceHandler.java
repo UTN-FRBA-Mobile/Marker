@@ -8,19 +8,28 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.marker.MainActivity;
+import com.marker.facebook.User;
+
+import java.util.ArrayList;
 
 public class GeoFenceHandler {
     private Geofence geoFence;
     private GeofencingClient geoFenceClient;
     private PendingIntent geofencePendingIntent;
     private Context context;
+    private String userId;
+
+    private static final String TAG = "Geofence Handler";
 
     public GeoFenceHandler(Context context){
         this.context = context;
@@ -31,6 +40,10 @@ public class GeoFenceHandler {
         this.geoFence = fence;
     }
 
+    public void setUser(String userId){
+        this.userId = userId;
+    }
+
     private GeofencingRequest getGeofencingRequest() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
@@ -38,12 +51,14 @@ public class GeoFenceHandler {
         return builder.build();
     }
 
-    private PendingIntent getGeofencePendingIntent() {
+    private PendingIntent getGeofencePendingIntent(ArrayList<String> contactsToShare) {
         // Reuse the PendingIntent if we already have it.
         if (geofencePendingIntent != null) {
             return geofencePendingIntent;
         }
         Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
+        intent.putExtra("userId", userId);
+        intent.putStringArrayListExtra("contacts", contactsToShare);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().
         geofencePendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.
@@ -51,11 +66,11 @@ public class GeoFenceHandler {
         return geofencePendingIntent;
     }
 
-    public void activateFence(){
+    public void activateFence(ArrayList<String> contactsToShare ){
         if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        geoFenceClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+        geoFenceClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent(contactsToShare))
                 .addOnSuccessListener((MainActivity) context, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

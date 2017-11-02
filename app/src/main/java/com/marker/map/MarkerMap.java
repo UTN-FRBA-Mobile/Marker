@@ -22,9 +22,12 @@ import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.app.MarcadorManager;
+import com.marker.facebook.User;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.locator.LatLong;
+
+import java.util.ArrayList;
 
 
 public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
@@ -47,10 +50,11 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public MarkerMap(Context context){
         this.context = context;
-        this.geoFenceHandler = new GeoFenceHandler(context);
     }
 
     public void createGeofences() {
+        this.geoFenceHandler = new GeoFenceHandler(context);
+
         // Create internal "flattened" objects containing the geofence data.
         SimpleGeoFence sFence = new SimpleGeoFence(
                 ANDROID_BUILDING_ID,
@@ -74,7 +78,6 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     private void handleClicks(LatLng point){
-        MainActivity mActivity = (MainActivity) this.context;
         Marcador activeMarker = MarcadorManager
                 .getInstancia(context)
                 .getMarcadorActivo();
@@ -136,9 +139,12 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         createGeofences();
     }
 
-    public void activateFence(){
+    public void activateFence(ArrayList<String> contactsToShare ){
+        this.geoFenceHandler.setUser(MarcadorManager
+                .getInstancia(context)
+                .getMarcadorActivo().getId());
         this.geoFenceHandler.setGeoFence(geoFence);
-        this.geoFenceHandler.activateFence();
+        this.geoFenceHandler.activateFence(contactsToShare);
     }
 
     public void addFence(SimpleGeoFence fence) {
@@ -199,9 +205,6 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
 
     public void setRadio(float radio) {
         this.radio = radio;
-        if(this.circle != null) {
-            this.circle.setRadius(this.radio);
-        }
     }
 
     public boolean markerPlacedOn(Lugar lugar) {

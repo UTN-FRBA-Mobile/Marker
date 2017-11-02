@@ -49,4 +49,6 @@
     <string name="BROADCAST_ACTION_NEW_MARKER">nuevo marker</string>
     <string name="BROADCAST_ACTION_POSITION">posicion</string>
     <string name="DEBES_BORRAR_MARKER">Debes borrar tu marker para crear otro.</string>
+    <string name="BROADCAST_GEOFENCE">com.marker.geofence.intent</string>
+    <string name="BROADCAST_GEOFENCE_FINISH">finish</string>
 </resources>

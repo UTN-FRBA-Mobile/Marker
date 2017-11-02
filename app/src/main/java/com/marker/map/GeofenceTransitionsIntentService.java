@@ -3,20 +3,26 @@ package com.marker.map;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.os.ResultReceiver;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.firebase.Mensaje;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class GeofenceTransitionsIntentService extends IntentService
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = "Geofence Service";
+    static final int GEO_FENCE_RESULT = 41;
 
     public GeofenceTransitionsIntentService() {
         super(GeofenceTransitionsIntentService.class.getSimpleName());
@@ -44,7 +50,20 @@ public class GeofenceTransitionsIntentService extends IntentService
 
             if (Geofence.GEOFENCE_TRANSITION_ENTER == transitionType) {
                 // Entra a la geofence
-                Log.e(TAG, "Location Services info: Transition enter");
+                Log.i(TAG, "Location Services info: Transition enter");
+
+                String userId = intent.getStringExtra("userId");
+                Log.i(TAG, "Contact who shares: " + userId);
+                ArrayList<String> contacts = intent.getStringArrayListExtra("contacts");
+                for(String contact : contacts){
+                    Log.i(TAG, "Contact to share: " + contact);
+                }
+
+                Intent broadcast = new Intent();
+                broadcast.setAction(getString(R.string.BROADCAST_GEOFENCE));
+                broadcast.addCategory(Intent.CATEGORY_DEFAULT);
+                sendBroadcast(broadcast);
+
                 //FIXME: deberia tomar datos del usuario y enviar la notificacion a quienes compartio el marker
                 GestorSesion gestorSesion = GestorSesion.getInstancia(this);
                 Mensaje fcm = Mensaje.newNotification();

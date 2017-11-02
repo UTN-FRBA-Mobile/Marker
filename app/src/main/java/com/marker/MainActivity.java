@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -50,6 +52,7 @@ import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.lugar.history.History;
 import com.marker.lugar.history.HistoryManager;
+import com.marker.map.GeofenceTransitionsIntentService;
 import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
@@ -63,10 +66,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
     static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 35;
     static final int GPS_ENABLE_REQUEST = 40;
+    static final int GEO_FENCE_RESULT = 41;
 
     private static final String TAG = "MainActivity";
 
@@ -178,6 +182,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         receivers.add(receiver);
         registerReceiver(receiver,
                 new IntentFilter(getString(R.string.BROADCAST_MARKER)));
+
+        BroadcastReceiver geoBroad = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "Has llegado a destino, se finaliza marker");
+                onStopTrack();
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(getString(R.string.BROADCAST_GEOFENCE));
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        this.registerReceiver(geoBroad, filter);
 
         markerManager = MarcadorManager.getInstancia(this);
         markerManager.getOnInicializado().getObservers()
@@ -398,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         markerManager.eliminarMarcador(marcadorPropio);
         updateTrackMenu(markerManager.getMarcadores());
+
     }
 
     @Override
@@ -447,9 +465,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mStopTrack.setVisibility(View.VISIBLE);
                     showTrackButton(false);
 
+                    ArrayList<String> uidsToShare = new ArrayList<>();
+                    for(User contact : contactsToShare){
+                        uidsToShare.add(contact.getId());
+                    }
+
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     mostrarPosicionPropia();
-                    map.activateFence();
+                    map.activateFence(uidsToShare);
                 }
                 break;
             case MenuEnum.PICK_DESTINO_REQUEST:
