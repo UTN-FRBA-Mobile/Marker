@@ -84,7 +84,7 @@ public class GeofenceTransitionsIntentService extends IntentService
         if(fromName == ""){
             fcm.setBody("Has llegado a destino");
         } else {
-            fcm.setBody(fromName + "ha llegado a destino");
+            fcm.setBody(fromName + " ha llegado a destino");
         }
         (new EmisorMensajes()).enviar(from, to, fcm);
     }
