@@ -28,6 +28,7 @@ public class GeoFenceHandler {
     private PendingIntent geofencePendingIntent;
     private Context context;
     private String userId;
+    private String userName;
 
     private static final String TAG = "Geofence Handler";
 
@@ -40,8 +41,12 @@ public class GeoFenceHandler {
         this.geoFence = fence;
     }
 
-    public void setUser(String userId){
+    public void setUserId(String userId){
         this.userId = userId;
+    }
+
+    public void setUserName(String userName){
+        this.userName = userName;
     }
 
     private GeofencingRequest getGeofencingRequest() {
@@ -58,6 +63,7 @@ public class GeoFenceHandler {
         }
         Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
         intent.putExtra("userId", userId);
+        intent.putExtra("userName", userName);
         intent.putStringArrayListExtra("contacts", contactsToShare);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().

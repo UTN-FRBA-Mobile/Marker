@@ -44,7 +44,6 @@ public class GeofenceTransitionsIntentService extends IntentService
             int errorCode = geoFenceEvent.getErrorCode();
             Log.e(TAG, "Location Services error: " + errorCode);
         } else {
-
             int transitionType = geoFenceEvent.getGeofenceTransition();
 
             if (Geofence.GEOFENCE_TRANSITION_ENTER == transitionType) {
@@ -52,22 +51,22 @@ public class GeofenceTransitionsIntentService extends IntentService
                 Log.i(TAG, "Location Services info: Transition enter");
 
                 String userId = intent.getStringExtra("userId");
+                String userName = intent.getStringExtra("userName");
                 Log.i(TAG, "Contact who shares: " + userId);
-                User ble = GestorSesion.getInstancia(this).getUsuarioLoggeado();
-                sendNotification(userId, userId, geoFenceEvent);
+                sendNotification(userId, userId, "");
 
                 ArrayList<String> contacts = intent.getStringArrayListExtra("contacts");
                 for(String contact : contacts){
                     Log.i(TAG, "Contact to share: " + contact);
-                    sendNotification(userId, contact, geoFenceEvent);
+                    sendNotification(userId, contact, userName);
                 }
 
                 broadcastFinish();
 
             } else if (Geofence.GEOFENCE_TRANSITION_EXIT == transitionType) {
-                Log.e(TAG, "Location Services info: Transition exit");
+                Log.i(TAG, "Location Services info: Transition exit");
             } else if (Geofence.GEOFENCE_TRANSITION_DWELL == transitionType) {
-                Log.e(TAG, "Location Services info: Transition dwell");
+                Log.i(TAG, "Location Services info: Transition dwell");
             }
         }
     }
@@ -79,14 +78,15 @@ public class GeofenceTransitionsIntentService extends IntentService
         sendBroadcast(broadcast);
     }
 
-    private void sendNotification(String from, String to, GeofencingEvent geoFenceEvent) {
+    private void sendNotification(String from, String to, String fromName) {
         Mensaje fcm = Mensaje.newNotification();
         fcm.setTitle("Marker");
-        fcm.setBody("Has llegado a destino");
+        if(fromName == ""){
+            fcm.setBody("Has llegado a destino");
+        } else {
+            fcm.setBody(fromName + "ha llegado a destino");
+        }
         (new EmisorMensajes()).enviar(from, to, fcm);
-        String triggeredGeoFenceId = geoFenceEvent.getTriggeringGeofences().get(0)
-                .getRequestId();
-
     }
 
     @Override

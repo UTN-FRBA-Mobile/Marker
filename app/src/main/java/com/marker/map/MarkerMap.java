@@ -22,7 +22,6 @@ import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.app.MarcadorManager;
-import com.marker.facebook.User;
 import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.locator.LatLong;
@@ -140,7 +139,8 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     public void activateFence(ArrayList<String> contactsToShare ){
-        this.geoFenceHandler.setUser(GestorSesion.getInstancia(context).getUsuarioLoggeado().getId());
+        this.geoFenceHandler.setUserId(GestorSesion.getInstancia(context).getUsuarioLoggeado().getId());
+        this.geoFenceHandler.setUserName(GestorSesion.getInstancia(context).getUsuarioLoggeado().getName());
         this.geoFenceHandler.setGeoFence(geoFence);
         this.geoFenceHandler.activateFence(contactsToShare);
     }
