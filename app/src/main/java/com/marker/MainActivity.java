@@ -332,9 +332,11 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         User user = marker.getUser();
         if (gestorSesion.getUsuarioLoggeado().equals(user)) {
             mostrarPosicionPropia();
+            mStopTrack.setVisibility(View.VISIBLE);
         } else {
             gestorSesion.solicitarPosicion(user);
             mostrarPosicion(user.getId());
+            mStopTrack.setVisibility(View.GONE);
         }
         drawer.closeDrawer(mTrackList);
     }
