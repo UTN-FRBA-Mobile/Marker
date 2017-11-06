@@ -265,16 +265,16 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             fab.setVisibility(View.GONE);
             return;
         }
-        if (markerManager.getMarcadorActivo() != null) {
-            markerManager.setMarcadorActivo(null);
-            map.deleteMarker();
-            Locator locator = new Locator(this);
-            locator.getLocation(new Locator.ResultadoListener() {
-                @Override
-                public void onResultado(LatLng latLng) {
-                    map.setUserPosition(latLng);
-                }
-            });
+        if (markerManager.getMarcadorActivo() != null &&
+                !gestorSesion.getUsuarioLoggeado().equals(markerManager.getMarcadorActivo().getUser())) {
+            markerManager.setMarcadorActivo(markerManager.getMarcadorPropio());
+            if (markerManager.getMarcadorPropio() != null) {
+                setMarcadorActivo(markerManager.getMarcadorPropio());
+                mStopTrack.setVisibility(View.VISIBLE);
+            }else {
+                map.deleteMarker();
+            }
+            mostrarPosicionPropia();
             mTrackListAdapter.notifyDataSetChanged();
             return;
         }
@@ -332,7 +332,8 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         User user = marker.getUser();
         if (gestorSesion.getUsuarioLoggeado().equals(user)) {
             mostrarPosicionPropia();
-            mStopTrack.setVisibility(View.VISIBLE);
+            if(markerManager.getMarcadorPropio() != null)
+                mStopTrack.setVisibility(View.VISIBLE);
         } else {
             gestorSesion.solicitarPosicion(user);
             mostrarPosicion(user.getId());
