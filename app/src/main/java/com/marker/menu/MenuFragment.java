@@ -128,8 +128,12 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
     public void OnTestNotificationPressed() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Uri notification = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
-        Ringtone r = RingtoneManager.getRingtone(getContext(), notification);
-        r.play();
+        Ringtone ringtone = RingtoneManager.getRingtone(getContext(), notification);
+        if (ringtone == null){
+            notification = RingtoneManager.getActualDefaultRingtoneUri(getContext(), RingtoneManager.TYPE_NOTIFICATION);
+            ringtone = RingtoneManager.getRingtone(getContext(), notification);
+        }
+        ringtone.play();
         // Get instance of Vibrator from current Context
         Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
 

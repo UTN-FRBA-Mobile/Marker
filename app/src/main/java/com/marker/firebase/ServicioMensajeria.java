@@ -135,8 +135,12 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     private void alert(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         Uri notif = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
-        Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notif);
-        r.play();
+        Ringtone ringtone = RingtoneManager.getRingtone(getApplicationContext(), notif);
+        if (ringtone == null){
+            notif = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_NOTIFICATION);
+            ringtone = RingtoneManager.getRingtone(getApplicationContext(), notif);
+        }
+        ringtone.play();
         // Get instance of Vibrator from current Context
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
