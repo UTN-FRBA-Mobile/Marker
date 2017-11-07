@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     private HashMap<String, LatLng> posiciones = new HashMap<>();
     private String usuarioActivoId;
     private MarcadorManager markerManager;
+    private Snackbar markerSnackbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -273,6 +274,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 mStopTrack.setVisibility(View.VISIBLE);
             }else {
                 map.deleteMarker();
+                markerSnackbar.dismiss();
             }
             mostrarPosicionPropia();
             mTrackListAdapter.notifyDataSetChanged();
@@ -532,8 +534,12 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
 
     private void setMarcadorActivo(Marcador marcador) {
         if (marcador != null) {
-            Snackbar.make(mStopTrack, marcador.getUser().getName(), 1000)
-                    .show();
+            if (markerSnackbar != null)
+                markerSnackbar.dismiss();
+            String name = marcador.getUser().getName();
+            int duration = name.equals(gestorSesion.getUsuarioLoggeado().getName()) ? 1000 : Snackbar.LENGTH_INDEFINITE;
+            markerSnackbar = Snackbar.make(mStopTrack, name, duration);
+            markerSnackbar.show();
         }
         mostrarMarcador(marcador);
         markerManager.setMarcadorActivo(marcador);
