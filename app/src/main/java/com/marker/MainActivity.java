@@ -408,16 +408,11 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         showTrackButton(false);
         mStopTrack.setVisibility(View.GONE);
 
+        Snackbar.make(mStopTrack, "Marcador desactivado", 3000)
+                .show();
+
+        map.deleteMarker();
         Marcador marcadorPropio = markerManager.getMarcadorPropio();
-        if (marcadorPropio == null) {
-            return;
-        }
-
-        Marcador marcadorMapa = markerManager.getMarcadorActivo();
-        if (marcadorPropio.equals(marcadorMapa)) {
-            map.deleteMarker();
-        }
-
         markerManager.eliminarMarcador(marcadorPropio);
         updateTrackMenu(markerManager.getMarcadores());
 
