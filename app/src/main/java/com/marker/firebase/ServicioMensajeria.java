@@ -45,6 +45,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
         if (data.size() > 0) {
             Log.d(TAG, "FCM data");
             onDataPayload(data);
+            notificarData(data);
         }
         // Check if message contains a notification payload.
         RemoteMessage.Notification notification = remoteMessage.getNotification();
@@ -105,6 +106,33 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 Log.d(TAG, "Protocolo desconocido");
                 break;
         }
+    }
+
+    private void notificarData(Map<String, String> data) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                0 /* Request code */, intent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        String titulo = data.get("titulo");
+        String cuerpo = data.get("cuerpo");
+        titulo = titulo != null ? titulo : "";
+        cuerpo = cuerpo != null ? cuerpo : "";
+
+        //Este codigo esta deprecado.. deberiamos usar la version stable
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(titulo)
+                .setContentText(cuerpo)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent);
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0, notificationBuilder.build());
+        alert();
     }
 
     /**Create and show a simple notification containing the received FCM message.
