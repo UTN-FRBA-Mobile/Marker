@@ -149,3 +149,24 @@ exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
         }
         return Promise.all(promises);
     });
+
+exports.onDeleteMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
+    .onDelete(event => {
+        const marker = event.data.previous.val();
+        const markerUid = marker.user.id;
+        const uid = event.params.uid;
+        if (uid != markerUid) {
+            //Es una eliminación de un marker ajeno. No se debe volver a compartir.
+            console.log("Evitando propagacion luego de eliminacion de " + event.data.ref);
+            return 0;
+        }
+        const usuariosIds = marker.usuarios;
+        const pushId = event.params.pushId;
+        for(var index in usuariosIds) {
+            var userId = usuariosIds[index];
+            admin.database()
+                .ref(`/usuarios/${userId}/markers/${pushId}`)
+                .remove();
+        }
+        return 0;
+    });
