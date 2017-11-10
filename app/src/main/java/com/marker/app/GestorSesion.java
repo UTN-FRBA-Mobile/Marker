@@ -42,6 +42,7 @@ public class GestorSesion {
         if (mAuth == null) {
             throw new Exception("Debes loggearte antes de inicializar la sesion");
         }
+        actualizarTokenEnServidor();
     }
 
     public void actualizarTokenEnServidor() {
