@@ -42,17 +42,19 @@ public class ServicioMensajeria extends FirebaseMessagingService {
         Log.d(TAG, "FCM Recibido From: " + remoteMessage.getFrom());
         // Check if message contains a data payload.
         Map<String, String> data = remoteMessage.getData();
-        if (data.size() > 0) {
-            Log.d(TAG, "FCM data");
-            onDataPayload(data);
-            notificarData(data);
+        if (data.isEmpty()) {
+            return;
         }
-        // Check if message contains a notification payload.
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
-        if (notification != null) {
-            String notificationBody = notification.getBody();
-            Log.d(TAG, "Message Notification Body: " + notificationBody);
-            sendNotification(notification);
+        Log.d(TAG, "FCM data");
+        String esData = data.get("esData");
+        if (esData != null) {
+            if (Boolean.valueOf(esData)) {
+                onDataPayload(data);
+            } else {
+                notificarData(data);
+            }
+        } else {
+            onDataPayload(data);
         }
     }
 
@@ -73,6 +75,10 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 intent.putExtra(getString(R.string.BROADCAST_ACTION),
                         R.string.BROADCAST_ACTION_NEW_MARKER);
                 sendBroadcast(intent);
+                data.put("titulo", "Nuevo marker de " +
+                    marker.getUser().getName() + "!");
+                data.put("cuerpo", "Toca para ver");
+                notificarData(data);
                 break;
             case PEDIDO_POSICION:
                 Log.d(TAG, "Pidiendo posicion");
@@ -125,31 +131,6 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(titulo)
                 .setContentText(cuerpo)
-                .setAutoCancel(true)
-                .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0, notificationBuilder.build());
-        alert();
-    }
-
-    /**Create and show a simple notification containing the received FCM message.
-     * @param notification FCM message body received.
-     */
-    private void sendNotification(RemoteMessage.Notification notification) {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
-
-        //Este codigo esta deprecado.. deberiamos usar la version stable
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(notification.getTitle())
-                .setContentText(notification.getBody())
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 

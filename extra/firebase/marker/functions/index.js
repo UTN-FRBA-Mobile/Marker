@@ -29,9 +29,9 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
         return Promise.all(promisesTokensId)
             .then(function(snapshots) {
                 var promises = [];
-                var campo = fcm.esData ? "data" : "notification";
                 var payload = {};
-                payload[campo] = fcmPayload;
+                payload.data = fcmPayload;
+                payload.data.esData = fcm.esData;
 
                 var tokens = snapshots
                     .map(s => {
@@ -90,6 +90,7 @@ const onPedidoPosicion = function(idEmisor, idReceptor) {
             p.data.tipoData = "POSICION";
             p.data.posicion = d.pos;
             p.data.idEmisor = idReceptor;
+            p.data.esData = true;
             return admin.messaging()
                 .sendToDevice([snapTokenEmisor.val()], p);
         });
@@ -123,30 +124,35 @@ exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
         }
         const usuariosIds = marker.usuarios;
         const pushId = event.params.pushId;
-        const payload = {
-              notification: {
-                title: `Nuevo Marker de ${marker.user.name}!`,
-                body: 'Toca para ver',
-                icon: markerUid
-              }, data: {
+        const payloadMarker = {
+               data: {
                 "marker": JSON.stringify(marker),
-                "tipoData": "MARKER"
+                "tipoData": "MARKER",
+                "esData": true
               }
             };
         const promises = [];
+        const tokenPromises = [];
         for(var index in usuariosIds) {
             var userId = usuariosIds[index];
             var notificacion = admin.database()
                 .ref(`/usuarios/${userId}/token`)
-                .once("value", function(snap) {
-                    admin.messaging().sendToDevice([snap.val()], payload);
-                });
+                .once("value");
             var escribir = admin.database()
                 .ref(`/usuarios/${userId}/markers/${pushId}`)
-                .set(marker)
-            promises.push(notificacion);
+                .set(marker);
             promises.push(escribir);
+            tokenPromises.push(notificacion);
         }
+        var envios = Promise.all(tokenPromises)
+            .then(function(tokenSnapshots) {
+                var tokens = snapshots
+                    .map(s => s.val())
+                    .filter(t => t);
+                return admin.messaging()
+                    .sendToDevice(tokens, payloadMarker);
+            });
+        promises.push(envios);
         return Promise.all(promises);
     });
 
