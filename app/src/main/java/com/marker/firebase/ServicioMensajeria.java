@@ -1,21 +1,29 @@
 package com.marker.firebase;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -28,11 +36,15 @@ import com.marker.app.Marcador;
 import com.marker.app.MarcadorManager;
 import com.marker.locator.Locator;
 
+import java.text.MessageFormat;
 import java.util.Map;
 
 public class ServicioMensajeria extends FirebaseMessagingService {
 
     private static final String TAG = ServicioMensajeria.class.getSimpleName();
+    public static final String CH_DEFAULT = "channel_00";
+    public static final String CH_MARKERS = "channel_01";
+    public static final String CH_LLEGADAS = "channel_02";
 
     /**Called when message is received.
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
@@ -75,10 +87,7 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 intent.putExtra(getString(R.string.BROADCAST_ACTION),
                         R.string.BROADCAST_ACTION_NEW_MARKER);
                 sendBroadcast(intent);
-                data.put("titulo", "Nuevo marker de " +
-                    marker.getUser().getName() + "!");
-                data.put("cuerpo", "Toca para ver");
-                notificarData(data);
+                notificarMarker(marker);
                 break;
             case PEDIDO_POSICION:
                 Log.d(TAG, "Pidiendo posicion");
@@ -114,30 +123,56 @@ public class ServicioMensajeria extends FirebaseMessagingService {
         }
     }
 
+    private void notificarMarker(Marcador marker) {
+        NotificationManager nManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String texto = MessageFormat.format("Nuevo marker de {0}!",
+                marker.getUser().getName());
+
+        for (StatusBarNotification sbn : nManager.getActiveNotifications()) {
+            if (CH_MARKERS.equals(sbn.getTag())) {
+                Bundle extras = sbn.getNotification().extras;
+                texto = extras.getString(Notification.EXTRA_TEXT) +
+                        "\n" + texto;
+                break;
+            }
+        }
+
+        notificar(CH_MARKERS, texto, "Nuevos markers!");
+    }
+
     private void notificarData(Map<String, String> data) {
+        Mensaje fcm = Mensaje.newDataMessage(data);
+        String titulo = fcm.getTitle();
+        String cuerpo = fcm.getBody();
+        String channel = data.get("channel");
+        titulo = titulo != null ? titulo : "";
+        cuerpo = cuerpo != null ? cuerpo : "";
+        channel = channel != null ? channel : CH_DEFAULT;
+        notificar(channel, cuerpo, titulo);
+    }
+
+    private void notificar(String channel, String texto, String titulo) {
+        Bitmap icono = BitmapFactory
+                .decodeResource(getResources(), R.mipmap.ic_launcher_round);
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
-
-        String titulo = data.get("titulo");
-        String cuerpo = data.get("cuerpo");
-        titulo = titulo != null ? titulo : "";
-        cuerpo = cuerpo != null ? cuerpo : "";
-
-        //Este codigo esta deprecado.. deberiamos usar la version stable
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+        NotificationCompat.Builder notificationBuilder =
+                new NotificationCompat.Builder(this, channel)
+                .setSmallIcon(R.mipmap.ic_launcher_tray)
+                .setLargeIcon(icono)
                 .setContentTitle(titulo)
-                .setContentText(cuerpo)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(texto))
+                .setContentText(texto)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        notificationManager.notify(0, notificationBuilder.build());
+        NotificationManager nManager = (NotificationManager)
+                getSystemService(Context.NOTIFICATION_SERVICE);
+        nManager.notify(channel, 0, notificationBuilder.build());
         alert();
     }
 

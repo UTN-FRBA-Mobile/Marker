@@ -14,6 +14,7 @@ import com.marker.app.GestorSesion;
 import com.marker.facebook.User;
 import com.marker.firebase.EmisorMensajes;
 import com.marker.firebase.Mensaje;
+import com.marker.firebase.ServicioMensajeria;
 
 import java.util.ArrayList;
 
@@ -81,6 +82,7 @@ public class GeofenceTransitionsIntentService extends IntentService
     private void sendNotification(String from, String to, String fromName) {
         Mensaje fcm = Mensaje.newNotification();
         fcm.setTitle("Marker");
+        fcm.getPayload().put("channel", ServicioMensajeria.CH_LLEGADAS);
         if(fromName == ""){
             fcm.setBody("Has llegado a destino");
         } else {
