@@ -1,7 +1,6 @@
 package com.marker.firebase;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,8 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.location.Location;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -18,14 +17,10 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
-import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
@@ -34,6 +29,7 @@ import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.app.MarcadorManager;
+import com.marker.app.MyApplication;
 import com.marker.locator.Locator;
 
 import java.text.MessageFormat;
@@ -124,6 +120,10 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     }
 
     private void notificarMarker(Marcador marker) {
+        if (MyApplication.isActivityVisible()) {
+            alert();
+            return;
+        }
         NotificationManager nManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -139,7 +139,9 @@ public class ServicioMensajeria extends FirebaseMessagingService {
             }
         }
 
-        notificar(CH_MARKERS, texto, "Nuevos markers!");
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(MainActivity.ACCION_MOSTRAR_MARKERS_AL_INICIAR, true);
+        notificar(CH_MARKERS, texto, "Nuevos markers!", bundle);
     }
 
     private void notificarData(Map<String, String> data) {
@@ -154,9 +156,16 @@ public class ServicioMensajeria extends FirebaseMessagingService {
     }
 
     private void notificar(String channel, String texto, String titulo) {
+        notificar(channel, texto, titulo, null);
+    }
+
+    private void notificar(String channel, String texto, String titulo, Bundle bundle) {
         Bitmap icono = BitmapFactory
                 .decodeResource(getResources(), R.mipmap.ic_launcher_round);
         Intent intent = new Intent(this, MainActivity.class);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0 /* Request code */, intent,
@@ -169,6 +178,8 @@ public class ServicioMensajeria extends FirebaseMessagingService {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(texto))
                 .setContentText(texto)
                 .setAutoCancel(true)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setDefaults(Notification.DEFAULT_VIBRATE)
                 .setContentIntent(pendingIntent);
         NotificationManager nManager = (NotificationManager)
                 getSystemService(Context.NOTIFICATION_SERVICE);
@@ -183,6 +194,10 @@ public class ServicioMensajeria extends FirebaseMessagingService {
         if (ringtone == null){
             notif = RingtoneManager.getActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_NOTIFICATION);
             ringtone = RingtoneManager.getRingtone(getApplicationContext(), notif);
+            AudioAttributes attr = new AudioAttributes.Builder()
+                    .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
+                    .build();
+            ringtone.setAudioAttributes(attr);
         }
         ringtone.play();
         // Get instance of Vibrator from current Context

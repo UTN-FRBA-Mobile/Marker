@@ -22,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,6 +44,7 @@ import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
 import com.marker.app.MarcadorManager;
+import com.marker.app.MyApplication;
 import com.marker.facebook.User;
 import com.marker.friends.FriendsActivity;
 import com.marker.locator.LatLong;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     static final int GEO_FENCE_RESULT = 41;
 
     private static final String TAG = "MainActivity";
+    public static final String ACCION_MOSTRAR_MARKERS_AL_INICIAR = "abrir_drawer_markers";
 
     @BindView(R.id.nav_view)
     NavigationView mNavView;
@@ -165,6 +168,14 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 switch (action) {
                     case R.string.BROADCAST_ACTION_NEW_MARKER:
                         updateTrackMenu(markerManager.getMarcadores());
+                        Snackbar.make(drawer, "Nuevo marker!", Snackbar.LENGTH_LONG)
+                                .setAction("MOSTRAR", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        drawer.openDrawer(Gravity.END);
+                                    }
+                                })
+                                .show();
                         break;
                     case R.string.BROADCAST_ACTION_POSITION:
                         LatLng posicion = intent.getParcelableExtra("posicion");
@@ -206,6 +217,16 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 }
             });
         onMarkerManagerInicializado();
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            boolean mostrarMarkers = intent
+                    .getBooleanExtra(ACCION_MOSTRAR_MARKERS_AL_INICIAR, false);
+            if (mostrarMarkers) {
+                drawer.openDrawer(Gravity.END);
+            }
+        }
+
     }
 
     private void onMarkerManagerInicializado() {
@@ -229,11 +250,18 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     @Override
     protected void onResume() {
         super.onResume();
+        MyApplication.activityResumed();
         if(this.map != null){
             this.map.setRadio(getRadioSetting());
             mostrarPosicionPropia();
         }
         getStoredLocation();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MyApplication.activityPaused();
     }
 
     private LatLng getStoredLocation(){
