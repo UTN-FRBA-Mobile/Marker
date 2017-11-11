@@ -31,7 +31,7 @@ exports.onAddFCM = functions.database.ref("/fcm/{pushId}")
                 var promises = [];
                 var payload = {};
                 payload.data = fcmPayload;
-                payload.data.esData = fcm.esData;
+                payload.data.esData = fcm.esData ? "true" : "false";
 
                 var tokens = snapshots
                     .map(s => {
@@ -90,7 +90,7 @@ const onPedidoPosicion = function(idEmisor, idReceptor) {
             p.data.tipoData = "POSICION";
             p.data.posicion = d.pos;
             p.data.idEmisor = idReceptor;
-            p.data.esData = true;
+            p.data.esData = "true";
             return admin.messaging()
                 .sendToDevice([snapTokenEmisor.val()], p);
         });
@@ -128,7 +128,7 @@ exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
                data: {
                 "marker": JSON.stringify(marker),
                 "tipoData": "MARKER",
-                "esData": true
+                "esData": "true"
               }
             };
         const promises = [];
