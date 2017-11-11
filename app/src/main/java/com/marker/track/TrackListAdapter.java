@@ -23,6 +23,7 @@ import com.marker.lugar.destino.Destino;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,6 +37,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
     private EventoObservable onCardAction = new EventoObservable();
     private EventoObservable onEliminarMarker = new EventoObservable();
     private String[] colorColeccion = { "#ff6e40", "#388e3c", "#039be5", "#039be5", "#8e24aa", "#e53935", "#8e24aa"};
+    private HashMap<String, Integer> aEliminar = new HashMap<>();
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -165,10 +167,29 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
         @OnClick(R.id.btn_eliminar)
         void onEliminar() {
             onEliminarMarker.notificar(marker);
-            MarcadorManager.getInstancia(context)
-                    .eliminarMarcador(marker);
+            aEliminar.put(marker.getId(), markers.indexOf(marker));
             markers.remove(marker);
+            MarcadorManager.getInstancia(context)
+                    .setMarcadorActivo(null);
             notifyDataSetChanged();
         }
+    }
+
+    public void confirmarEliminacion(Marcador marker) {
+        Integer pos = aEliminar.remove(marker.getId());
+        if (pos == null) {
+            return;
+        }
+        MarcadorManager.getInstancia(context)
+                .eliminarMarcador(marker);
+    }
+
+    public void deshacerEliminacion(Marcador marker) {
+        Integer pos = aEliminar.remove(marker.getId());
+        if (pos == null) {
+            return;
+        }
+        markers.add(pos, marker);
+        notifyDataSetChanged();
     }
 }

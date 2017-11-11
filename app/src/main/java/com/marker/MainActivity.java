@@ -6,10 +6,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -169,6 +171,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                     case R.string.BROADCAST_ACTION_NEW_MARKER:
                         updateTrackMenu(markerManager.getMarcadores());
                         Snackbar.make(drawer, "Nuevo marker!", Snackbar.LENGTH_LONG)
+                                .setActionTextColor(Color.WHITE)
                                 .setAction("MOSTRAR", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
@@ -372,7 +375,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         drawer.closeDrawer(mTrackList);
     }
 
-    private void onTrackMenuMarkerDelete(Marcador marker) {
+    private void onTrackMenuMarkerDelete(final Marcador marker) {
         Marcador marcadorMapa = markerManager.getMarcadorActivo();
         if (marker.equals(marcadorMapa)) {
             map.deleteMarker();
@@ -381,6 +384,22 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         if (marker.getUser().equals(user)) {
             onStopTrack();
         }
+        Snackbar.make(drawer, "Marker eliminado", Snackbar.LENGTH_LONG)
+            .setActionTextColor(Color.WHITE)
+            .setAction("DESHACER", new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mTrackListAdapter.deshacerEliminacion(marker);
+                }
+            })
+            .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                @Override
+                public void onDismissed(Snackbar transientBottomBar, int event) {
+                    super.onDismissed(transientBottomBar, event);
+                    mTrackListAdapter.confirmarEliminacion(marker);
+                }
+            })
+            .show();
     }
 
     private void mostrarPosicion(String id) {
