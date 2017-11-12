@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             }
         });
 
-        mTrackListAdapter = new TrackListAdapter();
+        mTrackListAdapter = new TrackListAdapter(this);
         mTrackListAdapter.getOnCardAction().getObservers().add(new com.marker.track.EventoObservable.Observer() {
             @Override
             public void notificar(Marcador marker) {
@@ -154,6 +154,12 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             @Override
             public void notificar(Marcador marker) {
                 onTrackMenuMarkerDelete(marker);
+            }
+        });
+        mTrackListAdapter.getOnEliminarMarkerBD().getObservers().add(new com.marker.track.EventoObservable.Observer() {
+            @Override
+            public void notificar(Marcador marker) {
+                onTrackMenuMarkerDeleteBD(marker);
             }
         });
         mTrackList.setAdapter(mTrackListAdapter);
@@ -376,14 +382,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     }
 
     private void onTrackMenuMarkerDelete(final Marcador marker) {
-        Marcador marcadorMapa = markerManager.getMarcadorActivo();
-        if (marker.equals(marcadorMapa)) {
-            map.deleteMarker();
-        }
-        User user = gestorSesion.getUsuarioLoggeado();
-        if (marker.getUser().equals(user)) {
-            mStopTrack.setVisibility(View.GONE);
-        }
+        onTrackMenuMarkerDeleteBD(marker);
         Snackbar.make(drawer, "Marker eliminado", Snackbar.LENGTH_LONG)
             .setActionTextColor(Color.WHITE)
             .setAction("DESHACER", new View.OnClickListener() {
@@ -400,6 +399,17 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 }
             })
             .show();
+    }
+
+    private void onTrackMenuMarkerDeleteBD(Marcador marker) {
+        Marcador marcadorMapa = markerManager.getMarcadorActivo();
+        if (marker.equals(marcadorMapa)) {
+            map.deleteMarker();
+        }
+        User user = gestorSesion.getUsuarioLoggeado();
+        if (marker.getUser().equals(user)) {
+            mStopTrack.setVisibility(View.GONE);
+        }
     }
 
     private void deshacerEliminacion(Marcador marker) {

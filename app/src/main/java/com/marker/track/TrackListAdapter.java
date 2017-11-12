@@ -14,6 +14,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.login.widget.ProfilePictureView;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.marker.R;
 import com.marker.app.*;
 import com.marker.facebook.User;
@@ -29,15 +32,22 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> {
+public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.ViewHolder> implements ChildEventListener {
 
     private ArrayList<Marcador> markers = new ArrayList<>();
     private static HashMap<String, Integer> colores = new HashMap<>();
     private Context context;
     private EventoObservable onCardAction = new EventoObservable();
     private EventoObservable onEliminarMarker = new EventoObservable();
+    private EventoObservable onEliminarMarkerBD = new EventoObservable();
     private String[] colorColeccion = { "#ff6e40", "#388e3c", "#039be5", "#039be5", "#8e24aa", "#e53935", "#8e24aa"};
     private HashMap<String, Integer> aEliminar = new HashMap<>();
+
+    public TrackListAdapter(Context context) {
+        MarcadorManager.getInstancia(context)
+                .getRefMarkers()
+                .addChildEventListener(this);
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -71,6 +81,34 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
 
     public EventoObservable getOnEliminarMarker() {
         return onEliminarMarker;
+    }
+
+    public EventoObservable getOnEliminarMarkerBD() {
+        return onEliminarMarkerBD;
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+    }
+
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+    }
+
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+        Marcador eliminado = dataSnapshot.getValue(Marcador.class);
+        markers.remove(eliminado);
+        notifyDataSetChanged();
+        onEliminarMarkerBD.notificar(eliminado);
+    }
+
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -28,7 +28,6 @@ public class MarcadorManager implements ValueEventListener {
     private SharedPreferences preferences;
     private DatabaseReference refMarkers;
     private User usuarioLoggeado;
-    private Marcador marcadorPropio;
 
     private MarcadorManager(Context context) {
         preferences = PreferenceManager
@@ -166,5 +165,9 @@ public class MarcadorManager implements ValueEventListener {
         }
 
         return null;
+    }
+
+    public DatabaseReference getRefMarkers() {
+        return refMarkers;
     }
 }
