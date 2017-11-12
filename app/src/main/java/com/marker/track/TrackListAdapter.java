@@ -166,13 +166,20 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
 
         @OnClick(R.id.btn_eliminar)
         void onEliminar() {
-            onEliminarMarker.notificar(marker);
-            aEliminar.put(marker.getId(), markers.indexOf(marker));
-            markers.remove(marker);
-            MarcadorManager.getInstancia(context)
-                    .setMarcadorActivo(null);
-            notifyDataSetChanged();
+            eliminarMarker(marker);
         }
+    }
+
+    public void eliminarMarker(Marcador marker) {
+        if (marker == null) {
+            return;
+        }
+        onEliminarMarker.notificar(marker);
+        aEliminar.put(marker.getId(), markers.indexOf(marker));
+        markers.remove(marker);
+        MarcadorManager.getInstancia(context)
+                .setMarcadorActivo(null);
+        notifyDataSetChanged();
     }
 
     public void confirmarEliminacion(Marcador marker) {

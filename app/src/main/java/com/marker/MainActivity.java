@@ -382,14 +382,14 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         }
         User user = gestorSesion.getUsuarioLoggeado();
         if (marker.getUser().equals(user)) {
-            onStopTrack();
+            mStopTrack.setVisibility(View.GONE);
         }
         Snackbar.make(drawer, "Marker eliminado", Snackbar.LENGTH_LONG)
             .setActionTextColor(Color.WHITE)
             .setAction("DESHACER", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mTrackListAdapter.deshacerEliminacion(marker);
+                    deshacerEliminacion(marker);
                 }
             })
             .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
@@ -400,6 +400,16 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 }
             })
             .show();
+    }
+
+    private void deshacerEliminacion(Marcador marker) {
+        mTrackListAdapter.deshacerEliminacion(marker);
+        User user = gestorSesion.getUsuarioLoggeado();
+        if (marker.getUser().equals(user)) {
+            showTrackButton(false);
+            mStopTrack.setVisibility(View.VISIBLE);
+            markerManager.setMarcadorActivo(marker);
+        }
     }
 
     private void mostrarPosicion(String id) {
@@ -451,18 +461,8 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
 
     @OnClick(R.id.stop_track)
     public void onStopTrack() {
-        fab.setVisibility(View.VISIBLE);
-        showTrackButton(false);
-        mStopTrack.setVisibility(View.GONE);
-
-        Snackbar.make(mStopTrack, "Marcador desactivado", 3000)
-                .show();
-
-        map.deleteMarker();
         Marcador marcadorPropio = markerManager.getMarcadorPropio();
-        markerManager.eliminarMarcador(marcadorPropio);
-        updateTrackMenu(markerManager.getMarcadores());
-
+        mTrackListAdapter.eliminarMarker(marcadorPropio);
     }
 
     @Override
