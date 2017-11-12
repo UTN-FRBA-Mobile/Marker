@@ -21,6 +21,7 @@ import com.marker.MainActivity;
 import com.marker.facebook.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class GeoFenceHandler {
     private Geofence geoFence;
@@ -93,5 +94,17 @@ public class GeoFenceHandler {
                         // ...
                     }
                 });
+    }
+
+    public void desactivateFence(){
+        if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if(geoFence != null){
+            List<String> fencesId = new ArrayList<>();
+            fencesId.add(geoFence.getRequestId());
+            geoFenceClient.removeGeofences(fencesId);
+            geoFence = null;
+        }
     }
 }

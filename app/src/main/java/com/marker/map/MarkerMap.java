@@ -145,6 +145,10 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         this.geoFenceHandler.activateFence(contactsToShare);
     }
 
+    private void desactivateFence(){
+        this.geoFenceHandler.desactivateFence();
+    }
+
     public void addFence(SimpleGeoFence fence) {
         if(circle == null){
             circle = map.addCircle(new CircleOptions().center( new LatLng(fence.getLatitude(), fence.getLongitude()) )
@@ -210,11 +214,18 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     }
 
     public void deleteMarker(){
-        this.geoFence = null;
-        this.marker.remove();
-        this.marker = null;
-        this.circle.remove();
-        this.circle = null;
+        if(this.geoFence != null){
+            this.desactivateFence();
+            this.geoFence = null;
+        }
+        if(this.marker != null){
+            this.marker.remove();
+            this.marker = null;
+        }
+        if(this.circle != null){
+            this.circle.remove();
+            this.circle = null;
+        }
     }
 
     public void deleterMarkerUser() {
