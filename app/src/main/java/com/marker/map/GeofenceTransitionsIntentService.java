@@ -9,6 +9,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.marker.R;
 import com.marker.app.GestorSesion;
 import com.marker.facebook.User;
@@ -53,6 +55,7 @@ public class GeofenceTransitionsIntentService extends IntentService
 
                 String userId = intent.getStringExtra("userId");
                 String userName = intent.getStringExtra("userName");
+                String markerId = intent.getStringExtra("markerId");
                 Log.i(TAG, "Contact who shares: " + userId);
                 sendNotification(userId, userId, "");
 
@@ -62,7 +65,12 @@ public class GeofenceTransitionsIntentService extends IntentService
                     sendNotification(userId, contact, userName);
                 }
 
+                // Broadcastea a la app para que termine el marker
                 broadcastFinish();
+
+                // Borra de la DB para impactar aun si la app esta muerta
+                final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.child("usuarios").child(userId).child("markers").child(markerId).removeValue();
 
             } else if (Geofence.GEOFENCE_TRANSITION_EXIT == transitionType) {
                 Log.i(TAG, "Location Services info: Transition exit");
