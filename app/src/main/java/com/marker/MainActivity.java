@@ -263,7 +263,6 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         MyApplication.activityResumed();
         if(this.map != null){
             this.map.setRadio(getRadioSetting());
-            mostrarPosicionPropia();
         }
         getStoredLocation();
 
