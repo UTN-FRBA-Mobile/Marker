@@ -520,7 +520,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
 
                     // Por default el usuario va a ver su propio marker asi que obtenemos su posicion
                     mostrarPosicionPropia();
-                    map.activateFence(uidsToShare);
+                    map.activateFence(uidsToShare, marcador.getId());
                 }
                 break;
             case MenuEnum.PICK_DESTINO_REQUEST:

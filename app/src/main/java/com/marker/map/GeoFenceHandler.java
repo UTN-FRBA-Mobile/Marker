@@ -57,7 +57,7 @@ public class GeoFenceHandler {
         return builder.build();
     }
 
-    private PendingIntent getGeofencePendingIntent(ArrayList<String> contactsToShare) {
+    private PendingIntent getGeofencePendingIntent(ArrayList<String> contactsToShare, String markerId) {
         // Reuse the PendingIntent if we already have it.
         if (geofencePendingIntent != null) {
             return geofencePendingIntent;
@@ -65,6 +65,7 @@ public class GeoFenceHandler {
         Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
         intent.putExtra("userId", userId);
         intent.putExtra("userName", userName);
+        intent.putExtra("markerId", markerId);
         intent.putStringArrayListExtra("contacts", contactsToShare);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
         // calling addGeofences() and removeGeofences().
@@ -73,11 +74,11 @@ public class GeoFenceHandler {
         return geofencePendingIntent;
     }
 
-    public void activateFence(ArrayList<String> contactsToShare ){
+    public void activateFence(ArrayList<String> contactsToShare, String markerId){
         if (ActivityCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        geoFenceClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent(contactsToShare))
+        geoFenceClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent(contactsToShare, markerId))
                 .addOnSuccessListener((MainActivity) context, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
