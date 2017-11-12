@@ -244,9 +244,14 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         if (mapReady) {
             setMarcadorActivo(markerManager.getMarcadorActivo());
         }
-        if (markerManager.getMarcadorPropio() != null) {
+        updateStopTrackButton();
+    }
+
+    private void updateStopTrackButton() {
+        if (marcadorPropioEstaActivo())
             mStopTrack.setVisibility(View.VISIBLE);
-        }
+        else
+            mStopTrack.setVisibility(View.GONE);
     }
 
     @Override
@@ -264,7 +269,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         if(this.map != null){
             this.map.setRadio(getRadioSetting());
         }
-        getStoredLocation();
+//        getStoredLocation();
 
         final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 
@@ -279,11 +284,11 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         MyApplication.activityPaused();
     }
 
-    private LatLng getStoredLocation(){
-        SharedPreferences mPrefs = getSharedPreferences("marker", MODE_PRIVATE);
-        String json = mPrefs.getString("location", "");
-        return new Gson().fromJson(json, LatLng.class);
-    }
+//    private LatLng getStoredLocation(){
+//        SharedPreferences mPrefs = getSharedPreferences("marker", MODE_PRIVATE);
+//        String json = mPrefs.getString("location", "");
+//        return new Gson().fromJson(json, LatLng.class);
+//    }
 
     private void initialize_geo() {
         LocationRequest locationRequest = LocationRequest.create();
@@ -642,5 +647,9 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             }
         });
         builder.create().show();
+    }
+
+    private boolean marcadorPropioEstaActivo(){
+        return markerManager.marcadorPropioEstaActivo();
     }
 }
