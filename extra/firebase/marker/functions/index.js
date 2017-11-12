@@ -146,7 +146,7 @@ exports.onAddMarker = functions.database.ref("/usuarios/{uid}/markers/{pushId}")
         }
         var envios = Promise.all(tokenPromises)
             .then(function(tokenSnapshots) {
-                var tokens = snapshots
+                var tokens = tokenSnapshots
                     .map(s => s.val())
                     .filter(t => t);
                 return admin.messaging()
