@@ -3,20 +3,20 @@ package com.marker.app;
 import java.util.ArrayList;
 
 public class EventoObservable {
-    private final ArrayList<ObserverSesion> observers = new ArrayList<>();
+    private final ArrayList<Observer> observers = new ArrayList<>();
 
-    public void notificar() {
-        for (ObserverSesion observer : observers) {
-            observer.notificar();
+    public void notificar(Marcador marker) {
+        for (Observer observer : observers) {
+            observer.notificar(marker);
         }
 
     }
 
-    public ArrayList<ObserverSesion> getObservers() {
+    public ArrayList<Observer> getObservers() {
         return observers;
     }
 
-    public interface ObserverSesion {
-        void notificar();
+    public interface Observer {
+        void notificar(Marcador marker);
     }
 }

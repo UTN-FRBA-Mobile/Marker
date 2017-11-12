@@ -46,6 +46,7 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
     private Geofence geoFence;
     private GeoFenceHandler geoFenceHandler;
     private LatLng userPosition;
+    private Marcador marcadorActivo;
 
     public MarkerMap(Context context){
         this.context = context;
@@ -213,16 +214,16 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
         return lugar != null && getDestino().posicion.isEquivalentTo(lugar.posicion);
     }
 
-    public void deleteMarker(){
-        if(this.geoFence != null){
+    public void deleteMarker() {
+        if (this.geoFence != null) {
             this.desactivateFence();
             this.geoFence = null;
         }
-        if(this.marker != null){
+        if (this.marker != null) {
             this.marker.remove();
             this.marker = null;
         }
-        if(this.circle != null){
+        if (this.circle != null) {
             this.circle.remove();
             this.circle = null;
         }
@@ -233,5 +234,13 @@ public class MarkerMap implements OnMapLongClickListener, OnMapClickListener {
             userMarker.remove();
             userMarker = null;
         }
+    }
+
+    public Marcador getMarcadorActivo() {
+        return marcadorActivo;
+    }
+
+    public void setMarcadorActivo(Marcador marcadorActivo) {
+        this.marcadorActivo = marcadorActivo;
     }
 }

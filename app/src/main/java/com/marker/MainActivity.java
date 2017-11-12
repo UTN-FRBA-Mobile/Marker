@@ -6,11 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BaseTransientBottomBar;
@@ -30,7 +28,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -58,7 +55,6 @@ import com.marker.lugar.Lugar;
 import com.marker.lugar.destino.Destino;
 import com.marker.lugar.history.History;
 import com.marker.lugar.history.HistoryManager;
-import com.marker.map.GeofenceTransitionsIntentService;
 import com.marker.map.MarkerMap;
 import com.marker.menu.MenuEnum;
 import com.marker.menu.MenuFragment;
@@ -158,12 +154,6 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 onTrackMenuMarkerDelete(marker);
             }
         });
-        mTrackListAdapter.getOnEliminarMarkerBD().getObservers().add(new com.marker.track.EventoObservable.Observer() {
-            @Override
-            public void notificar(Marcador marker) {
-                onTrackMenuMarkerDeleteBD(marker);
-            }
-        });
         mTrackList.setAdapter(mTrackListAdapter);
         mTrackList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -220,13 +210,22 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         this.registerReceiver(geoBroad, filter);
 
         markerManager = MarcadorManager.getInstancia(this);
-        markerManager.getOnInicializado().getObservers()
-            .add(new EventoObservable.ObserverSesion() {
+        markerManager.getOnInicializado()
+                .getObservers()
+                .add(new EventoObservable.Observer() {
                 @Override
-                public void notificar() {
+                public void notificar(Marcador m) {
                     onMarkerManagerInicializado();
                 }
             });
+        markerManager.getOnMarkerEliminado()
+                .getObservers()
+                .add(new EventoObservable.Observer() {
+            @Override
+            public void notificar(Marcador marker) {
+                onMarkerDeleteBD(marker);
+            }
+        });
         onMarkerManagerInicializado();
 
         Intent intent = getIntent();
@@ -244,9 +243,9 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         updateTrackMenu(markerManager.getMarcadores());
         if (mapReady) {
             setMarcadorActivo(markerManager.getMarcadorActivo());
-            if (markerManager.getMarcadorPropio() != null) {
-                mStopTrack.setVisibility(View.VISIBLE);
-            }
+        }
+        if (markerManager.getMarcadorPropio() != null) {
+            mStopTrack.setVisibility(View.VISIBLE);
         }
     }
 
@@ -390,7 +389,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     }
 
     private void onTrackMenuMarkerDelete(final Marcador marker) {
-        onTrackMenuMarkerDeleteBD(marker);
+        onMarkerDeleteBD(marker);
         Snackbar.make(drawer, "Marker eliminado", Snackbar.LENGTH_LONG)
             .setActionTextColor(Color.WHITE)
             .setAction("DESHACER", new View.OnClickListener() {
@@ -409,12 +408,13 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             .show();
     }
 
-    private void onTrackMenuMarkerDeleteBD(Marcador marker) {
-        Marcador marcadorMapa = markerManager.getMarcadorActivo();
+    private void onMarkerDeleteBD(Marcador marker) {
+        Marcador marcadorMapa = map.getMarcadorActivo();
+        User user = gestorSesion.getUsuarioLoggeado();
         if (marker.equals(marcadorMapa)) {
             map.deleteMarker();
+            mostrarPosicionPropia();
         }
-        User user = gestorSesion.getUsuarioLoggeado();
         if (marker.getUser().equals(user)) {
             mStopTrack.setVisibility(View.GONE);
         }
@@ -426,7 +426,6 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         if (marker.getUser().equals(user)) {
             showTrackButton(false);
             mStopTrack.setVisibility(View.VISIBLE);
-            markerManager.setMarcadorActivo(marker);
         }
     }
 
@@ -603,6 +602,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         }
         mostrarMarcador(marcador);
         markerManager.setMarcadorActivo(marcador);
+        map.setMarcadorActivo(marcador);
     }
 
     public void showTrackButton(boolean enabled) {

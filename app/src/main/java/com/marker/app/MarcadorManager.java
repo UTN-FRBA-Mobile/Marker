@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,15 +20,17 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarcadorManager implements ValueEventListener {
+public class MarcadorManager implements ValueEventListener, ChildEventListener {
     private static final String TAG = MarcadorManager.class.getSimpleName();
     private static final String KEY_MARKER_SELECCIONADO = "markerSeleccionado";
     private static final String KEY_MARKERS = "markers";
     private static MarcadorManager singleton;
     private EventoObservable onInicializado = new EventoObservable();
+    private EventoObservable onMarkerEliminado = new EventoObservable();
     private SharedPreferences preferences;
     private DatabaseReference refMarkers;
     private User usuarioLoggeado;
+
 
     private MarcadorManager(Context context) {
         preferences = PreferenceManager
@@ -42,6 +45,7 @@ public class MarcadorManager implements ValueEventListener {
                 .child(usuarioLoggeado.getId())
                 .child("markers");
         refMarkers.addListenerForSingleValueEvent(this);
+        refMarkers.addChildEventListener(this);
     }
 
     public ArrayList<Marcador> getMarcadores() {
@@ -91,6 +95,7 @@ public class MarcadorManager implements ValueEventListener {
         markers.remove(marcador);
         edit.putString(KEY_MARKERS, new Gson().toJson(markers))
             .apply();
+        onMarkerEliminado.notificar(marcador);
     }
 
     public void setMarcadorActivo(Marcador marcador) {
@@ -138,7 +143,30 @@ public class MarcadorManager implements ValueEventListener {
         preferences.edit()
                 .putString(KEY_MARKERS, new Gson().toJson(marcadores))
                 .apply();
-        onInicializado.notificar();
+        onInicializado.notificar(null);
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+    }
+
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+    }
+
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+        Marcador eliminado = dataSnapshot.getValue(Marcador.class);
+        if (getMarcadores().contains(eliminado)) {
+            eliminarMarcador(eliminado);
+        }
+    }
+
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
     }
 
     @Override
@@ -148,6 +176,10 @@ public class MarcadorManager implements ValueEventListener {
 
     public EventoObservable getOnInicializado() {
         return onInicializado;
+    }
+
+    public EventoObservable getOnMarkerEliminado() {
+        return onMarkerEliminado;
     }
 
     public static MarcadorManager getInstancia(Context context) {
