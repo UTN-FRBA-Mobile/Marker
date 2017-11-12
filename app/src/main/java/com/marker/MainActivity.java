@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -260,6 +261,12 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             mostrarPosicionPropia();
         }
         getStoredLocation();
+
+        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+
+        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            showGPSDiabledDialog();
+        }
     }
 
     @Override
