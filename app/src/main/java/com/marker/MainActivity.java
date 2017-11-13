@@ -492,8 +492,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case MenuEnum.PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
                     if (markerManager.getMarcadorPropio() != null) {
-                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
-                            .show();
+                        showActiveMarkerSnackbar();
                         return;
                     }
                     History history = data.getParcelableExtra("history");
@@ -546,8 +545,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case MenuEnum.PICK_DESTINO_REQUEST:
                 if(resultCode == RESULT_OK) {
                     if (markerManager.getMarcadorPropio() != null) {
-                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
-                                .show();
+                        showActiveMarkerSnackbar();
                         return;
                     }
                     Destino destino = data.getParcelableExtra("destino");
@@ -560,17 +558,9 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
                     if (markerManager.getMarcadorPropio() != null) {
-                        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
-                                .addCallback(new Snackbar.Callback(){
-                                    @Override
-                                    public void onDismissed(Snackbar snackbar, int event) {
-                                        if(!marcadorPropioEstaActivo())
-                                            markerSnackbar.show();
-                                    }
-                                })
-                                .show();
+                        showActiveMarkerSnackbar();
                         return;
-                    }else {
+                    }else{
                         if(markerSnackbar != null)
                             markerSnackbar.dismiss();
                     }
@@ -596,6 +586,18 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                     // The user canceled the operation.
                 }
         }
+    }
+
+    private void showActiveMarkerSnackbar() {
+        Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
+                .addCallback(new Snackbar.Callback(){
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        if(!marcadorPropioEstaActivo())
+                            markerSnackbar.show();
+                    }
+                })
+                .show();
     }
 
     private void centrarCamara() {
