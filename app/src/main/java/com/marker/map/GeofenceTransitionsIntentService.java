@@ -2,7 +2,9 @@ package com.marker.map;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -71,6 +73,11 @@ public class GeofenceTransitionsIntentService extends IntentService
                 // Borra de la DB para impactar aun si la app esta muerta
                 final DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.child("usuarios").child(userId).child("markers").child(markerId).removeValue();
+
+                // Borra de las preferences
+                SharedPreferences.Editor edit = PreferenceManager
+                        .getDefaultSharedPreferences(this).edit();
+                edit.remove("markerSeleccionado");
 
             } else if (Geofence.GEOFENCE_TRANSITION_EXIT == transitionType) {
                 Log.i(TAG, "Location Services info: Transition exit");
