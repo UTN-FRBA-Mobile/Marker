@@ -417,6 +417,10 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         User user = gestorSesion.getUsuarioLoggeado();
         if (marker.equals(marcadorMapa)) {
             map.deleteMarker();
+            if (markerManager.getMarcadorPropio() != null) {
+                setMarcadorActivo(markerManager.getMarcadorPropio());
+                mStopTrack.setVisibility(View.VISIBLE);
+            }
             mostrarPosicionPropia();
         }
         if (marker.getUser().equals(user)) {
