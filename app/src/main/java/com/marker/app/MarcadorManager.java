@@ -113,12 +113,7 @@ public class MarcadorManager implements ValueEventListener, ChildEventListener {
         if (idActivo.isEmpty()) {
             return null;
         }
-        for (Marcador marcador : getMarcadores()) {
-            if (marcador.getId().equals(idActivo)) {
-                return marcador;
-            }
-        }
-        return null;
+        return getMarcador(idActivo);
     }
 
     @Override
@@ -207,5 +202,14 @@ public class MarcadorManager implements ValueEventListener, ChildEventListener {
 
     public DatabaseReference getRefMarkers() {
         return refMarkers;
+    }
+
+    public Marcador getMarcador(String id) {
+        for (Marcador marcador : getMarcadores()) {
+            if (marcador.getId().equals(id)) {
+                return marcador;
+            }
+        }
+        return null;
     }
 }

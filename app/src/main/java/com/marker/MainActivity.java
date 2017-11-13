@@ -40,7 +40,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.gson.Gson;
 import com.marker.app.EventoObservable;
 import com.marker.app.GestorSesion;
 import com.marker.app.Marcador;
@@ -168,15 +167,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 switch (action) {
                     case R.string.BROADCAST_ACTION_NEW_MARKER:
                         updateTrackMenu(markerManager.getMarcadores());
-                        Snackbar.make(drawer, "Nuevo marker!", Snackbar.LENGTH_LONG)
-                                .setActionTextColor(Color.WHITE)
-                                .setAction("MOSTRAR", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        drawer.openDrawer(Gravity.END);
-                                    }
-                                })
-                                .show();
+                        showSnackBarMarkerNuevo();
                         break;
                     case R.string.BROADCAST_ACTION_POSITION:
                         LatLng posicion = intent.getParcelableExtra("posicion");
@@ -259,6 +250,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         for (BroadcastReceiver receiver : receivers) {
             unregisterReceiver(receiver);
         }
+        mTrackListAdapter.confirmarEliminaciones();
         super.onDestroy();
     }
 
@@ -390,16 +382,19 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             mStopTrack.setVisibility(View.GONE);
         }
         drawer.closeDrawer(mTrackList);
+        showTrackButton(false);
     }
 
     private void onTrackMenuMarkerDelete(final Marcador marker) {
         onMarkerDeleteBD(marker);
+        if (markerSnackbar != null) markerSnackbar.dismiss();
         Snackbar.make(drawer, "Marker eliminado", Snackbar.LENGTH_LONG)
             .setActionTextColor(Color.WHITE)
             .setAction("DESHACER", new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     deshacerEliminacion(marker);
+                    showSnackBarMarcadorActivo();
                 }
             })
             .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
@@ -407,6 +402,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 public void onDismissed(Snackbar transientBottomBar, int event) {
                     super.onDismissed(transientBottomBar, event);
                     mTrackListAdapter.confirmarEliminacion(marker);
+                    showSnackBarMarcadorActivo();
                 }
             })
             .show();
@@ -501,7 +497,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case MenuEnum.PICK_HISTORY_REQUEST:
                 if(resultCode == RESULT_OK){
                     if (markerManager.getMarcadorPropio() != null) {
-                        showActiveMarkerSnackbar();
+                        showSnackbarDebesBorrarMarker();
                         return;
                     }
                     History history = data.getParcelableExtra("history");
@@ -554,7 +550,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case MenuEnum.PICK_DESTINO_REQUEST:
                 if(resultCode == RESULT_OK) {
                     if (markerManager.getMarcadorPropio() != null) {
-                        showActiveMarkerSnackbar();
+                        showSnackbarDebesBorrarMarker();
                         return;
                     }
                     Destino destino = data.getParcelableExtra("destino");
@@ -567,7 +563,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             case PLACE_AUTOCOMPLETE_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
                     if (markerManager.getMarcadorPropio() != null) {
-                        showActiveMarkerSnackbar();
+                        showSnackbarDebesBorrarMarker();
                         return;
                     }else{
                         if(markerSnackbar != null)
@@ -597,13 +593,40 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
         }
     }
 
-    private void showActiveMarkerSnackbar() {
+    private void showSnackbarDebesBorrarMarker() {
         Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
                 .addCallback(new Snackbar.Callback(){
                     @Override
                     public void onDismissed(Snackbar snackbar, int event) {
-                        if(!marcadorPropioEstaActivo())
-                            markerSnackbar.show();
+                        showSnackBarMarcadorActivo();
+                    }
+                })
+                .show();
+    }
+
+    private void showSnackBarMarcadorActivo() {
+        if (markerSnackbar == null ||
+            markerManager.getMarcadorActivo() == null ||
+            marcadorPropioEstaActivo()) {
+            return;
+        }
+        markerSnackbar.show();
+    }
+
+    private void showSnackBarMarkerNuevo() {
+        Snackbar.make(drawer, "Nuevo marker!", Snackbar.LENGTH_LONG)
+                .setActionTextColor(Color.WHITE)
+                .setAction("MOSTRAR", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        drawer.openDrawer(Gravity.END);
+                        showSnackBarMarcadorActivo();
+                    }
+                })
+                .addCallback(new Snackbar.Callback(){
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        showSnackBarMarcadorActivo();
                     }
                 })
                 .show();
@@ -624,7 +647,7 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
             String name = marcador.getUser().getName();
             int duration = name.equals(gestorSesion.getUsuarioLoggeado().getName()) ? 1000 : Snackbar.LENGTH_INDEFINITE;
             markerSnackbar = Snackbar.make(mStopTrack, name, duration);
-            markerSnackbar.show();
+            showSnackBarMarcadorActivo();
         }
         mostrarMarcador(marcador);
         markerManager.setMarcadorActivo(marcador);

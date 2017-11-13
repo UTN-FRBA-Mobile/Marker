@@ -25,6 +25,7 @@ import com.marker.lugar.destino.Destino;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -193,8 +194,6 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
         onEliminarMarker.notificar(marker);
         aEliminar.put(marker.getId(), markers.indexOf(marker));
         markers.remove(marker);
-        MarcadorManager.getInstancia(context)
-                .setMarcadorActivo(null);
         notifyDataSetChanged();
     }
 
@@ -214,5 +213,21 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.View
         }
         markers.add(pos, marker);
         notifyDataSetChanged();
+    }
+
+    public void confirmarEliminaciones() {
+        Iterator<String> iterator = aEliminar.keySet().iterator();
+        if (!iterator.hasNext()) {
+            return;
+        }
+        Marcador marcador = MarcadorManager
+                .getInstancia(context)
+                .getMarcador(iterator.next());
+
+        if (marcador == null) {
+            return;
+        }
+
+        confirmarEliminacion(marcador);
     }
 }
