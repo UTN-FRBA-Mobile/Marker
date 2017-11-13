@@ -460,10 +460,15 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
     public void onMapReady(GoogleMap gmap) {
         map.setMap(gmap);
         mapReady = true;
-        mostrarPosicionPropia();
+
         Marcador activo = markerManager.getMarcadorActivo();
         if (activo != null) {
             setMarcadorActivo(activo);
+            User user = activo.getUser();
+            gestorSesion.solicitarPosicion(user);
+            mostrarPosicion(user.getId());
+        }else {
+            mostrarPosicionPropia();
         }
     }
 

@@ -201,6 +201,7 @@ public class MarcadorManager implements ValueEventListener, ChildEventListener {
 
     public Boolean marcadorPropioEstaActivo(){
         return getMarcadorPropio() != null &&
+                getMarcadorActivo() != null &&
                 getMarcadorPropio().getUser().getName().equals(getMarcadorActivo().getUser().getName());
     }
 
