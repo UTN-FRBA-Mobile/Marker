@@ -561,9 +561,20 @@ public class MainActivity extends AppCompatActivity  implements OnMapReadyCallba
                 if(resultCode == RESULT_OK){
                     if (markerManager.getMarcadorPropio() != null) {
                         Snackbar.make(mStopTrack, R.string.DEBES_BORRAR_MARKER, 5000)
+                                .addCallback(new Snackbar.Callback(){
+                                    @Override
+                                    public void onDismissed(Snackbar snackbar, int event) {
+                                        if(!marcadorPropioEstaActivo())
+                                            markerSnackbar.show();
+                                    }
+                                })
                                 .show();
                         return;
+                    }else {
+                        if(markerSnackbar != null)
+                            markerSnackbar.dismiss();
                     }
+
                     Place place = PlaceAutocomplete.getPlace(this, data);
 
                     map.setPosition(place.getLatLng());
