@@ -19,14 +19,4 @@
             android:icon="@drawable/ic_info"
             android:title="Acerca" />
     </group>
-
-    <item android:title="Debug">
-        <menu>
-            <item
-                android:id="@+id/nav_test_notification"
-                android:icon="@drawable/ic_notifications_black_24dp"
-                android:title="Notification" />
-        </menu>
-    </item>
-
 </menu>

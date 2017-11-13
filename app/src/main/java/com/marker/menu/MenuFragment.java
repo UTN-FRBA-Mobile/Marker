@@ -97,8 +97,6 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
             OnSettingsPressed();
         } else if (id == R.id.nav_info) {
             OnAboutPressed();
-        } else if (id == R.id.nav_test_notification) {
-            OnTestNotificationPressed();
         }
         return false;
     }
@@ -124,26 +122,4 @@ public class MenuFragment extends Fragment implements NavigationView.OnNavigatio
         Intent childIntent = new Intent(getActivity(), HistoryActivity.class);
         getActivity().startActivityForResult(childIntent, MenuEnum.PICK_HISTORY_REQUEST);
     }
-
-    public void OnTestNotificationPressed() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Uri notification = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", "DEFAULT_SOUND"));
-        Ringtone ringtone = RingtoneManager.getRingtone(getContext(), notification);
-        if (ringtone == null){
-            notification = RingtoneManager.getActualDefaultRingtoneUri(getContext(), RingtoneManager.TYPE_NOTIFICATION);
-            ringtone = RingtoneManager.getRingtone(getContext(), notification);
-        }
-        ringtone.play();
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-
-        // Start without a delay
-        // Each element then alternates between vibrate, sleep, vibrate, sleep...
-        long[] pattern = {0, 100, 1000, 300, 200, 100, 500, 200, 100};
-
-        // The '-1' here means to vibrate once, as '-1' is out of bounds in the pattern array
-        v.vibrate(pattern, -1);
-
-    }
-
 }
